@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/ant.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/ant-launcher.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/derby.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/javassist.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/jboss-aop.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/jboss-common-core.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/jboss-logging-log4j.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/jboss-logging-spi.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/jboss-mdr.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/jboss-reflect.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/jcip-annotations.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/jta.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/junit.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/log4j.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/qdox.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/testng.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JbossCachePojo/lib/trove.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JbossCacheCore"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JGroups"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
