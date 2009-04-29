@@ -77,6 +77,7 @@ import br.unifor.g2cl.MessageDispatcherListener;
 import br.unifor.g2cl.Rsp;
 import br.unifor.g2cl.RspFilter;
 import br.unifor.g2cl.RspList;
+import br.unifor.g2cl.Util;
 
 import javax.transaction.TransactionManager;
 
@@ -364,10 +365,12 @@ public class RPCManagerImpl_G2CL implements /*RPCManager,*/ MessageDispatcherLis
        
        rpcDispatcher.setLocal(false);
        
+       controlSession.join();
+       
        /*
-       //ConnectionManager connectionManager = new ConnectionManager(timeout, messageDispatcher, IMessageDispatcher.class);
-       //connectionManager.setControlSession(controlSession);
-       //rpcDispatcher.setMembershipListener(connectionManager);
+       ConnectionManager connectionManager = new ConnectionManager(timeout, messageDispatcher, IMessageDispatcher.class);
+       connectionManager.setControlSession(controlSession);
+       rpcDispatcher.setMembershipListener(connectionManager);
        
        
        controlSession.join();
@@ -864,9 +867,25 @@ public class RPCManagerImpl_G2CL implements /*RPCManager,*/ MessageDispatcherLis
       return null;
    }
 
-@Override
-public Object handle(G2CLMessage message) {
-	// TODO Auto-generated method stub
-	return null;
-}
+   @Override
+   public Object handle(final G2CLMessage message) {
+       if (log.isDebugEnabled()) {
+           log.debug("-----------------------------------------------");
+           log.debug("Processing message: " + message + " in: " + rpcDispatcher.getControlSession().getLocalAddress());
+
+       }
+/*
+       Object o = Util.getObjectFromByte(message.getPayload());
+       
+           synchronized (messages) {
+               messages.add((HaMessageData) o);
+               // COMPLETE: Check if this should be > 0
+               if (messages.size() == 1) {
+                   processThread.resumeExecution();
+               }
+           }
+  */     
+       log.debug("-----------------------------------------------");
+       return null;
+   }
 }
