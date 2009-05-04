@@ -21,12 +21,14 @@
  */
 package org.jboss.cache;
 
+import net.sf.jgcs.ClosedSessionException;
 import net.sf.jgcs.DataSession;
 import net.sf.jgcs.GroupConfiguration;
 import net.sf.jgcs.JGCSException;
 import net.sf.jgcs.Protocol;
 import net.sf.jgcs.ProtocolFactory;
 import net.sf.jgcs.Service;
+import net.sf.jgcs.membership.MembershipListener;
 import net.sf.jgcs.membership.MembershipSession;
 import net.sf.jgcs.utils.FactoryUtil;
 
@@ -87,6 +89,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -112,6 +115,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
    private long replicationFailures;
    private boolean statisticsEnabled = false;
    private MarshalDataSession dataSession;
+   private MembershipSession controlSession;
 
    private final Object coordinatorLock = new Object();
    /**
@@ -268,7 +272,8 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 
             long start = System.currentTimeMillis();
             try {
-               channel.connect(configuration.getClusterName(), null, null, configuration.getStateRetrievalTimeout());
+            	controlSession.join();
+               //channel.connect(configuration.getClusterName(), null, null, configuration.getStateRetrievalTimeout());
                if (log.isInfoEnabled()) {
                   log.info("Cache local address is " + getLocalAddress());
                }
@@ -336,7 +341,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
    @SuppressWarnings("deprecation")
    private void initialiseChannelAndRpcDispatcher(boolean fetchState) throws JGCSException, FileNotFoundException, IOException {
 	   	   
-	   FactoryUtil jgcsConf = new FactoryUtil("C:/jgroups.properties");
+	   FactoryUtil jgcsConf = new FactoryUtil("/home/objectweb/matheus/jgroups.properties");
        
        ProtocolFactory o = (ProtocolFactory) jgcsConf.getInstance("jgcsProtocol");
        Protocol p = o.createProtocol();
@@ -346,7 +351,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
        String jgcsHAGroupName = group.toString();
 
        DataSession dataSession = p.openDataSession(group);
-       MembershipSession controlSession = (MembershipSession)p.openControlSession(group);
+       controlSession = (MembershipSession)p.openControlSession(group);
        
        log.info("jgcs HA group name is: " + jgcsHAGroupName);
 
@@ -363,10 +368,12 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
         }
        
        rpcDispatcher.setMessageDispatcherListener(this);
+       rpcDispatcher.setMembershipListener(new MembershipListenerAdaptor());
        
+       //TODO - Verificar isto
        rpcDispatcher.setLocal(false);
        
-       controlSession.join();
+       
        
        /*
        ConnectionManager connectionManager = new ConnectionManager(timeout, messageDispatcher, IMessageDispatcher.class);
@@ -386,7 +393,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 */
        
       
-      checkAppropriateConfig();
+      //checkAppropriateConfig();
       
    }
 
@@ -483,6 +490,22 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 	   for (Address address : recipients) {
 		   socketAddress = new InetSocketAddress(((IpAddress)address).getIpAddress(),((IpAddress)address).getPort());
 		   retorno.add(socketAddress);
+	   }
+	   
+	   return retorno;
+   }
+   
+   public Vector<Address> socketAddressToAddress(List<SocketAddress> recipients){
+	   Vector<Address> retorno = new Vector<Address>(recipients.size());
+	   
+	   Address address = null;
+	   for (SocketAddress socketAddress : recipients) {
+		   try {
+			address = new  IpAddress(((InetSocketAddress)socketAddress).getHostName(),((InetSocketAddress)socketAddress).getPort());
+		} catch (UnknownHostException e) {
+			log.error("Erro", e);			
+		}
+		   retorno.add(address);
 	   }
 	   
 	   return retorno;
@@ -700,7 +723,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 
    /*----------------------- MembershipListener ------------------------*/
 
-   protected class MembershipListenerAdaptor implements ExtendedMembershipListener {
+   protected class MembershipListenerAdaptor implements ExtendedMembershipListener, MembershipListener {
 
       public void viewAccepted(View newView) {
          try {
@@ -795,6 +818,71 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
             log.error("Error found while processing unblock", e);
          }
       }
+
+	@Override
+	public void onExcluded() {
+		try {
+			controlSession.leave();
+		} catch (ClosedSessionException e) {
+			log.info("Ao fechar a sessao", e);			
+		} catch (JGCSException e) {
+			log.info("Ao fechar a sessao", e);
+		}
+		
+	}
+
+	@Override
+	public void onMembershipChange() {
+		try {
+            List<Address> newMembers = socketAddressToAddress(controlSession.getMembership().getJoinedMembers());
+            if (log.isInfoEnabled()) log.info("Received new cluster view: " );
+            synchronized (coordinatorLock) {
+               boolean needNotification = false;
+               if (newMembers != null) {
+                  if (members != null) {
+                     // we had a membership list before this event.  Check to make sure we haven't lost any members,
+                     // and if so, determine what members have been removed
+                     // and roll back any tx and break any locks
+                     List<Address> removed = new ArrayList<Address>(members);
+                     removed.removeAll(newMembers);
+                     spi.getInvocationContext().getOptionOverrides().setSkipCacheStatusCheck(true);
+                     NodeSPI root = spi.getRoot();
+                     if (root != null) {
+                        // UGH!!!  What a shameless hack!
+                        if (configuration.getNodeLockingScheme() == NodeLockingScheme.MVCC) {
+
+                           removeLocksForDeadMembers(root.getDelegationTarget(), removed);
+                        } else {
+                           removeLocksForDeadMembers(root, removed);
+                        }
+                     }
+                  }
+
+                  members = new ArrayList<Address>(newMembers); // defensive copy.
+
+                  needNotification = true;
+               }
+
+               // Now that we have a view, figure out if we are the coordinator
+               coordinator = (members != null && members.size() != 0 && members.get(0).equals(getLocalAddress()));
+
+               // now notify listeners - *after* updating the coordinator. - JBCACHE-662
+               if (needNotification && notifier != null) {
+                  InvocationContext ctx = spi.getInvocationContext();
+                  //notifier.notifyViewChange(newView, ctx);
+                  //TODO - Será?!
+               }
+
+               // Wake up any threads that are waiting to know about who the coordinator is
+               coordinatorLock.notifyAll();
+            }
+         }
+         catch (Throwable e) {
+            //do not rethrow! jgroups might behave funny, resulting even in deadlock
+            log.error("Error found while processing view accepted!!!", e);
+         }
+		
+	}
 
    }
 
