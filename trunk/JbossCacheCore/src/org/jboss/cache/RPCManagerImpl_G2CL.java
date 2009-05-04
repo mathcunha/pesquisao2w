@@ -106,7 +106,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @MBean(objectName = "RPCManager", description = "Manages RPC connections to remote caches")
 public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListener {
    private Channel channel;
-   private final Log log = LogFactory.getLog(RPCManagerImpl.class);
+   private final Log log = LogFactory.getLog(RPCManagerImpl_G2CL.class);
    private volatile List<Address> members;
    private long replicationCount;
    private long replicationFailures;
@@ -147,7 +147,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
    private volatile boolean isInLocalMode;
    private ComponentRegistry componentRegistry;
    private LockManager lockManager;
-   private FlushTracker flushTracker = new FlushTracker();
+   private org.jboss.cache.RPCManagerImpl_OR.FlushTracker flushTracker = (new org.jboss.cache.RPCManagerImpl_OR()).getFlushTracker();
 
 
    @Inject
@@ -335,9 +335,8 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 
    @SuppressWarnings("deprecation")
    private void initialiseChannelAndRpcDispatcher(boolean fetchState) throws JGCSException, FileNotFoundException, IOException {
-	   
-	   String jgcs_properties = "";
-	   FactoryUtil jgcsConf = new FactoryUtil(jgcs_properties);
+	   	   
+	   FactoryUtil jgcsConf = new FactoryUtil("C:/jgroups.properties");
        
        ProtocolFactory o = (ProtocolFactory) jgcsConf.getInstance("jgcsProtocol");
        Protocol p = o.createProtocol();
@@ -351,7 +350,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
        
        log.info("jgcs HA group name is: " + jgcsHAGroupName);
 
-       log.info("jgcs HA jndi properties is: " + jgcs_properties);
+       //log.info("jgcs HA jndi properties is: " + jgcs_properties);
    	
        this.dataSession = new MarshalDataSession(dataSession);
        
@@ -880,9 +879,8 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
       }
    }
 
-   public org.jboss.cache.RPCManagerImpl.FlushTracker getFlushTracker() {
-	   //TODO - NULL
-      return null;
+   public org.jboss.cache.RPCManagerImpl_OR.FlushTracker getFlushTracker() {	   
+      return flushTracker;
    }
 
    @Override
