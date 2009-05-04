@@ -69,6 +69,7 @@ import org.jgroups.View;
 import org.jgroups.blocks.GroupRequest;
 
 import org.jgroups.protocols.TP;
+import org.jgroups.stack.IpAddress;
 import org.jgroups.stack.ProtocolStack;
 
 import br.unifor.g2cl.G2CLMessage;
@@ -83,6 +84,7 @@ import javax.transaction.TransactionManager;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.text.NumberFormat;
@@ -102,7 +104,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author <a href="mailto:manik AT jboss DOT org">Manik Surtani (manik AT jboss DOT org)</a>
  */
 @MBean(objectName = "RPCManager", description = "Manages RPC connections to remote caches")
-public class RPCManagerImpl_G2CL implements /*RPCManager,*/ MessageDispatcherListener {
+public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListener {
    private Channel channel;
    private final Log log = LogFactory.getLog(RPCManagerImpl.class);
    private volatile List<Address> members;
@@ -474,16 +476,32 @@ public class RPCManagerImpl_G2CL implements /*RPCManager,*/ MessageDispatcherLis
    // ------------ END: Lifecycle methods ------------
 
    // ------------ START: RPC call methods ------------
+   
+   public Vector<SocketAddress> addressToSocketAddress(Vector<Address> recipients){
+	   Vector<SocketAddress> retorno = new Vector<SocketAddress>(recipients.size());
+	   
+	   SocketAddress socketAddress = null;
+	   for (Address address : recipients) {
+		   socketAddress = new InetSocketAddress(((IpAddress)address).getIpAddress(),((IpAddress)address).getPort());
+		   retorno.add(socketAddress);
+	   }
+	   
+	   return retorno;
+   }
+   
+   public RspFilter convertRspFilter(org.jgroups.blocks.RspFilter responseFilter){
+	   return new RspFilterWrapper(responseFilter);
+   }
 
-   public List<Object> callRemoteMethods(Vector<SocketAddress> recipients, ReplicableCommand command, int mode, long timeout, boolean useOutOfBandMessage) throws Exception {
+   public List<Object> callRemoteMethods(Vector<Address> recipients, ReplicableCommand command, int mode, long timeout, boolean useOutOfBandMessage) throws Exception {
       return callRemoteMethods(recipients, command, mode, timeout, null, useOutOfBandMessage);
    }
 
-   public List<Object> callRemoteMethods(Vector<SocketAddress> recipients, ReplicableCommand command, boolean synchronous, long timeout, boolean useOutOfBandMessage) throws Exception {
+   public List<Object> callRemoteMethods(Vector<Address> recipients, ReplicableCommand command, boolean synchronous, long timeout, boolean useOutOfBandMessage) throws Exception {
       return callRemoteMethods(recipients, command, synchronous ? GroupRequest.GET_ALL : GroupRequest.GET_NONE, timeout, useOutOfBandMessage);
    }
 
-   public List<Object> callRemoteMethods(Vector<SocketAddress> recipients, ReplicableCommand command, int mode, long timeout, RspFilter responseFilter, boolean useOutOfBandMessage) throws Exception {
+   public List<Object> callRemoteMethods(Vector<Address> recipients, ReplicableCommand command, int mode, long timeout, org.jgroups.blocks.RspFilter responseFilter, boolean useOutOfBandMessage) throws Exception {
       boolean success = true;
       try {
          // short circuit if we don't have an RpcDispatcher!
@@ -500,7 +518,7 @@ public class RPCManagerImpl_G2CL implements /*RPCManager,*/ MessageDispatcherLis
          flushTracker.waitForFlushCompletion(configuration.getStateRetrievalTimeout());
 
          useOutOfBandMessage = false;
-         RspList rsps = rpcDispatcher.invokeRemoteCommands(recipients, command, modeToUse, timeout, isUsingBuddyReplication, useOutOfBandMessage, responseFilter);
+         RspList rsps = rpcDispatcher.invokeRemoteCommands(addressToSocketAddress(recipients), command, modeToUse, timeout, isUsingBuddyReplication, useOutOfBandMessage, convertRspFilter(responseFilter));
          if (mode == GroupRequest.GET_NONE) return Collections.emptyList();// async case
          if (trace) {
             log.trace("(" + getLocalAddress() + "): responses for method " + command.getClass().getSimpleName() + ":\n" + rsps);
@@ -888,4 +906,22 @@ public class RPCManagerImpl_G2CL implements /*RPCManager,*/ MessageDispatcherLis
        log.debug("-----------------------------------------------");
        return null;
    }
+   
+   static class RspFilterWrapper implements RspFilter {
+	   private org.jgroups.blocks.RspFilter responseFilter;
+	   public RspFilterWrapper(org.jgroups.blocks.RspFilter responseFilter){
+		   this.responseFilter = responseFilter;
+	   }
+	   @Override
+	   public boolean isAcceptable(Object response, SocketAddress sender) {
+		   IpAddress ipAddress = new IpAddress((InetSocketAddress)sender);
+		   return responseFilter.isAcceptable(response, ipAddress);		   
+	   }
+	   @Override
+	   public boolean needMoreResponses() {
+		   
+		   return responseFilter.needMoreResponses();
+	   }
+   }
+
 }
