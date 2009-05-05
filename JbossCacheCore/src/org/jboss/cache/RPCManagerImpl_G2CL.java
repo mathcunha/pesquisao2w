@@ -25,6 +25,7 @@ import net.sf.jgcs.ClosedSessionException;
 import net.sf.jgcs.DataSession;
 import net.sf.jgcs.GroupConfiguration;
 import net.sf.jgcs.JGCSException;
+import net.sf.jgcs.NotJoinedException;
 import net.sf.jgcs.Protocol;
 import net.sf.jgcs.ProtocolFactory;
 import net.sf.jgcs.Service;
@@ -68,6 +69,7 @@ import org.jgroups.ChannelNotConnectedException;
 import org.jgroups.ExtendedMembershipListener;
 import org.jgroups.JChannel;
 import org.jgroups.View;
+import org.jgroups.ViewId;
 import org.jgroups.blocks.GroupRequest;
 
 import org.jgroups.protocols.TP;
@@ -341,7 +343,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
    @SuppressWarnings("deprecation")
    private void initialiseChannelAndRpcDispatcher(boolean fetchState) throws JGCSException, FileNotFoundException, IOException {
 	   	   
-	   FactoryUtil jgcsConf = new FactoryUtil("/home/objectweb/matheus/jgroups.properties");
+	   FactoryUtil jgcsConf = new FactoryUtil("d:/jgroups.properties");
        
        ProtocolFactory o = (ProtocolFactory) jgcsConf.getInstance("jgcsProtocol");
        Protocol p = o.createProtocol();
@@ -833,56 +835,29 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 
 	@Override
 	public void onMembershipChange() {
-		try {
-            List<Address> newMembers = socketAddressToAddress(controlSession.getMembership().getJoinedMembers());
-            if (log.isInfoEnabled()) log.info("Received new cluster view: " );
-            synchronized (coordinatorLock) {
-               boolean needNotification = false;
-               if (newMembers != null) {
-                  if (members != null) {
-                     // we had a membership list before this event.  Check to make sure we haven't lost any members,
-                     // and if so, determine what members have been removed
-                     // and roll back any tx and break any locks
-                     List<Address> removed = new ArrayList<Address>(members);
-                     removed.removeAll(newMembers);
-                     spi.getInvocationContext().getOptionOverrides().setSkipCacheStatusCheck(true);
-                     NodeSPI root = spi.getRoot();
-                     if (root != null) {
-                        // UGH!!!  What a shameless hack!
-                        if (configuration.getNodeLockingScheme() == NodeLockingScheme.MVCC) {
-
-                           removeLocksForDeadMembers(root.getDelegationTarget(), removed);
-                        } else {
-                           removeLocksForDeadMembers(root, removed);
-                        }
-                     }
-                  }
-
-                  members = new ArrayList<Address>(newMembers); // defensive copy.
-
-                  needNotification = true;
-               }
-
-               // Now that we have a view, figure out if we are the coordinator
-               coordinator = (members != null && members.size() != 0 && members.get(0).equals(getLocalAddress()));
-
-               // now notify listeners - *after* updating the coordinator. - JBCACHE-662
-               if (needNotification && notifier != null) {
-                  InvocationContext ctx = spi.getInvocationContext();
-                  //notifier.notifyViewChange(newView, ctx);
-                  //TODO - Será?!
-               }
-
-               // Wake up any threads that are waiting to know about who the coordinator is
-               coordinatorLock.notifyAll();
-            }
-         }
-         catch (Throwable e) {
-            //do not rethrow! jgroups might behave funny, resulting even in deadlock
-            log.error("Error found while processing view accepted!!!", e);
-         }
 		
-	}
+		//System.out.println("Chegou! ");
+		SocketAddress coordenador;
+		try {
+			
+			coordenador = controlSession.getMembership().getMemberAddress(controlSession.getMembership().getCoordinatorRank());
+			
+			ViewId id = new ViewId(new IpAddress((InetSocketAddress)coordenador),System.currentTimeMillis());
+			View newView=new View(id,socketAddressToAddress(controlSession.getMembership().getMembershipList()));
+			//viewAccepted(newView);
+			
+			
+		} catch (NotJoinedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedOperationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//System.out.println("Passou! ");
+		
+	}		
 
    }
 
