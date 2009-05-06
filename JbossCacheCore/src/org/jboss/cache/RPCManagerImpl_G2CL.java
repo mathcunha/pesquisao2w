@@ -118,6 +118,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
    private boolean statisticsEnabled = false;
    private MarshalDataSession dataSession;
    private MembershipSession controlSession;
+   private Address localAddress;
 
    private final Object coordinatorLock = new Object();
    /**
@@ -275,6 +276,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
             long start = System.currentTimeMillis();
             try {
             	controlSession.join();
+            	localAddress = new IpAddress(((InetSocketAddress)controlSession.getLocalAddress()).getAddress(),((InetSocketAddress)controlSession.getLocalAddress()).getPort());
                //channel.connect(configuration.getClusterName(), null, null, configuration.getStateRetrievalTimeout());
                if (log.isInfoEnabled()) {
                   log.info("Cache local address is " + getLocalAddress());
@@ -374,8 +376,6 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
        
        //TODO - Verificar isto
        rpcDispatcher.setLocal(false);
-       
-       
        
        /*
        ConnectionManager connectionManager = new ConnectionManager(timeout, messageDispatcher, IMessageDispatcher.class);
@@ -679,7 +679,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
    }
 
    public Address getLocalAddress() {
-      return channel != null ? channel.getLocalAddress() : null;
+      return localAddress != null ? localAddress : null;
    }
 
    @ManagedAttribute(description = "Cluster view")
