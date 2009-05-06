@@ -32,12 +32,10 @@ public class Pessoa implements Serializable{
 	 matheus = new br.unifor.testcache.Pessoa();
 	 matheus.setNome("Matheus Cunha");
 	 endereco = new br.unifor.testcache.Endereco();
-	 endereco.setRua("Marcos MacÃªdo"); 
+	 endereco.setRua("Marcos Macêdo"); 
 	 matheus.setEndereco(endereco);
-	 
-	  cache.attach("pojo/matheus", matheus);
-	  
-	   cache.attach("pojo/joe", joe);
+	 cache.attach("pojo/matheus", matheus);
+	 cache.attach("pojo/endereco", endereco);
 	 
 	 */
 	 
