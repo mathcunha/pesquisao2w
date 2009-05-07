@@ -84,7 +84,9 @@ public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher {
    private boolean asyncSerial;
    private ReplicationObserver replicationObserver;
 
-   
+   public CommandAwareRpcDispatcher_G2CL() throws JGCSException {
+	   super(null, null, null, null);
+   }
    
    public CommandAwareRpcDispatcher_G2CL(IMarshalDataSession marshalDataSession, MembershipSession l, Service l2,
                                     Object serverObj, InvocationContextContainer container, InterceptorChain interceptorChain,
