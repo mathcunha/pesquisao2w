@@ -156,7 +156,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
    private volatile boolean isInLocalMode;
    private ComponentRegistry componentRegistry;
    private LockManager lockManager;
-   private org.jboss.cache.RPCManagerImpl_OR.FlushTracker flushTracker = (new org.jboss.cache.RPCManagerImpl_OR()).getFlushTracker();
+   private FlushTracker flushTracker = new FlushTracker_G2CL();
 
 
    @Inject
@@ -177,7 +177,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
       this.lockManager = lockManager;
    }
 
-   public class FlushTracker {
+   public class FlushTracker_G2CL implements FlushTracker {
       private final ReclosableLatch flushBlockGate = new ReclosableLatch();
       private final AtomicInteger flushCompletionCount = new AtomicInteger();
       private final ReclosableLatch flushWaitGate = new ReclosableLatch(false);
@@ -200,7 +200,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
       public void waitForFlushCompletion(long timeout) {
          for (; ;) {
             try {
-               if (channel.flushSupported() && !flushBlockGate.await(timeout, TimeUnit.MILLISECONDS)) {
+               if (false/*default false channel.flushSupported()*/ && !flushBlockGate.await(timeout, TimeUnit.MILLISECONDS)) {
                   throw new TimeoutException("State retrieval timed out waiting for flush to block. (timeout = " + timeout + " millis) ");
                }
                return;
@@ -214,7 +214,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
       public void waitForFlushStart(long timeout) {
          for (; ;) {
             try {
-               if (channel.flushSupported() && !flushWaitGate.await(timeout, TimeUnit.MILLISECONDS)) {
+               if (false/*default false channel.flushSupported()*/ && !flushWaitGate.await(timeout, TimeUnit.MILLISECONDS)) {
                   throw new TimeoutException("State retrieval timed out waiting for flush to block. (timeout = " + timeout + " millis) ");
                }
                return;
@@ -347,7 +347,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
    @SuppressWarnings("deprecation")
    private void initialiseChannelAndRpcDispatcher(boolean fetchState) throws JGCSException, FileNotFoundException, IOException {
 	   	   
-	   FactoryUtil jgcsConf = new FactoryUtil("d:/jgroups.properties");
+	   FactoryUtil jgcsConf = new FactoryUtil("/home/objectweb/matheus/worspace/testCache/src/jgroups.properties");
        
        ProtocolFactory o = (ProtocolFactory) jgcsConf.getInstance("jgcsProtocol");
        Protocol p = o.createProtocol();
@@ -490,15 +490,26 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
    // ------------ START: RPC call methods ------------
    
    public Vector<SocketAddress> addressToSocketAddress(Vector<Address> recipients){
-	   Vector<SocketAddress> retorno = new Vector<SocketAddress>(recipients.size());
 	   
-	   SocketAddress socketAddress = null;
-	   for (Address address : recipients) {
-		   socketAddress = new InetSocketAddress(((IpAddress)address).getIpAddress(),((IpAddress)address).getPort());
-		   retorno.add(socketAddress);
+	   if(recipients == null){
+		   
+		   return null;
+		   
+	   }else{
+		   Vector<SocketAddress> retorno = new Vector<SocketAddress>(recipients.size());
+		   
+		   SocketAddress socketAddress = null;
+		   for (Address address : recipients) {
+			   socketAddress = new InetSocketAddress(((IpAddress)address).getIpAddress(),((IpAddress)address).getPort());
+			   retorno.add(socketAddress);
+		   }
+		   
+		   return retorno;
+		   
 	   }
 	   
-	   return retorno;
+	   
+	   
    }
    
    public Vector<Address> socketAddressToAddress(List<SocketAddress> recipients){
@@ -841,7 +852,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 
 	@Override
 	public void onMembershipChange() {
-		this.onBlock();//TODO - Forçando
+		this.onBlock();//TODO - Forï¿½ando
 		//System.out.println("Chegou! ");
 		SocketAddress coordenador;
 		try {
@@ -955,7 +966,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
       }
    }
 
-   public org.jboss.cache.RPCManagerImpl_OR.FlushTracker getFlushTracker() {	   
+   public FlushTracker getFlushTracker() {	   
       return flushTracker;
    }
 
