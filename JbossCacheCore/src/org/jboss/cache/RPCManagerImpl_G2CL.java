@@ -111,7 +111,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author <a href="mailto:manik AT jboss DOT org">Manik Surtani (manik AT jboss DOT org)</a>
  */
 @MBean(objectName = "RPCManager", description = "Manages RPC connections to remote caches")
-public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListener {
+public class RPCManagerImpl_G2CL implements RPCManager {
    private Channel channel;
    private final Log log = LogFactory.getLog(RPCManagerImpl_G2CL.class);
    private volatile List<Address> members;
@@ -165,6 +165,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
                                  TransactionManager txManager, InvocationContextContainer container, InterceptorChain interceptorChain,
                                  ComponentRegistry componentRegistry, LockManager lockManager) {
       this.messageListener = messageListener;
+      System.out.println("messageListener "+messageListener.getClass().getName());
       this.configuration = configuration;
       this.notifier = notifier;
       this.spi = spi;
@@ -373,13 +374,16 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
                                                          invocationContextContainer, invocationContextContainer, interceptorChain, componentRegistry);
         }
        
-       rpcDispatcher.setMessageDispatcherListener(this);
+       rpcDispatcher.setMessageDispatcherListener(messageListener);
        MembershipListenerAdaptor member = new MembershipListenerAdaptor();
        rpcDispatcher.setMembershipListener(member);
        ((BlockSession)controlSession).setBlockListener(member);
        
        //TODO - Verificar isto
        rpcDispatcher.setLocal(false);
+       
+       rpcDispatcher.setRequestMarshaller(marshaller);
+       rpcDispatcher.setResponseMarshaller(marshaller);
        
        /*
        ConnectionManager connectionManager = new ConnectionManager(timeout, messageDispatcher, IMessageDispatcher.class);
@@ -968,29 +972,6 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 
    public FlushTracker getFlushTracker() {	   
       return flushTracker;
-   }
-
-   @Override
-   public Object handle(final G2CLMessage message) {
-	   System.out.println("handle "+getClass().getName());
-       if (log.isDebugEnabled()) {
-           log.debug("-----------------------------------------------");
-           log.debug("Processing message: " + message + " in: " + rpcDispatcher.getControlSession().getLocalAddress());
-
-       }
-/*
-       Object o = Util.getObjectFromByte(message.getPayload());
-       
-           synchronized (messages) {
-               messages.add((HaMessageData) o);
-               // COMPLETE: Check if this should be > 0
-               if (messages.size() == 1) {
-                   processThread.resumeExecution();
-               }
-           }
-  */     
-       log.debug("-----------------------------------------------");
-       return null;
    }
    
    static class RspFilterWrapper implements RspFilter {
