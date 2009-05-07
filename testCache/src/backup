@@ -1,0 +1,369 @@
+package br.unifor.g2cl;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.SocketAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.jgroups.blocks.RpcDispatcher.Marshaller;
+import org.jgroups.blocks.RpcDispatcher.Marshaller2;
+import org.jgroups.blocks.RpcDispatcher.MarshallerAdapter;
+
+import net.sf.jgcs.JGCSException;
+import net.sf.jgcs.Message;
+import net.sf.jgcs.Service;
+import net.sf.jgcs.membership.MembershipSession;
+
+/**
+ * Implements remote method invocation in the group of processes.
+ * 
+ * @author
+ */
+public class RpcDispatcher extends MessageDispatcher implements
+		MessageDispatcherListener {
+
+	private static Logger logger = Logger.getLogger(RpcDispatcher.class
+			.getName());
+
+	private Object serverObject;
+	
+    /** Marshaller to marshall requests at the caller and unmarshal requests at the receiver(s) */
+    protected Marshaller2   req_marshaller=null;
+
+    /** Marshaller to marshal responses at the receiver(s) and unmarshal responses at the caller */
+    protected Marshaller2   rsp_marshaller=null;
+
+	public Marshaller2 getRequestMarshaller() {
+		return req_marshaller;
+	}
+
+	public void setRequestMarshaller(Marshaller m) {
+        if(m == null)
+            this.req_marshaller=null;
+        else if(m instanceof Marshaller2)
+            this.req_marshaller=(Marshaller2)m;
+        else
+            this.req_marshaller=new MarshallerAdapter(m);
+    }
+
+	public Marshaller2 getResponseMarshaller() {
+		return rsp_marshaller;
+	}
+
+	public void setResponseMarshaller(Marshaller m) {
+        if(m == null)
+            this.rsp_marshaller=null;
+        else if(m instanceof Marshaller2)
+            this.rsp_marshaller=(Marshaller2)m;
+        else
+            this.rsp_marshaller=new MarshallerAdapter(m);
+    }
+
+	public RpcDispatcher(IMarshalDataSession marshalDataSession,
+			MembershipSession membershipSession, Service service,
+			Object serverObject) throws JGCSException {
+
+		super(marshalDataSession, membershipSession, service);
+		setMessageDispatcherListener(this);
+		this.serverObject = serverObject;
+	}
+
+	public RspList callRemoteMethod(String method, Class[] paramTypes,
+			Object[] args, int mode, int timeout) {
+
+		MethodCall methodCall = new MethodCall(method, paramTypes, args);
+		return callRemoteMethod(methodCall, mode, timeout);
+		
+	}
+	
+	public RspList callRemoteMethod(MethodCall methodCall, int mode, int timeout){
+		Message msg;
+
+		try {
+			msg = marshalDataSession.createMessage();
+			msg.setSenderAddress(membershipSession.getLocalAddress());
+			
+			byte[] object = null;
+			if(req_marshaller != null){
+				object = req_marshaller.objectToByteBuffer(methodCall);
+			}
+			else{
+				object = Util.getArrayFromObject(methodCall);
+			}
+			
+			
+			msg.setPayload(object);
+			return castMessage(null, msg, mode, timeout);
+
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "error calling remote method", e);
+		}
+
+		return null;
+		
+	}
+
+	public Object callRemoteMethod(SocketAddress target, String method,
+			Class[] paramTypes, Object[] args, int mode, int timeout)
+			throws TimeoutException, SuspectedException {
+
+		MethodCall methodCall = new MethodCall(method, paramTypes, args);
+		G2CLMessage msg;
+		try {
+			msg = (G2CLMessage) marshalDataSession.createMessage();
+			msg.setSenderAddress(membershipSession.getLocalAddress());
+			byte[] object = Util.getArrayFromObject(methodCall);
+			msg.setPayload(object);
+			return sendMessage(msg, target, mode, timeout);
+
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "error calling remote method", e);
+		}
+		return null;
+	}
+
+	private Object invoke(MethodCall methodCall) throws SecurityException,
+			NoSuchMethodException, IllegalArgumentException,
+			IllegalAccessException, InvocationTargetException {
+		Method m = serverObject.getClass().getMethod(methodCall.getName(),
+				methodCall.getParamTypes());
+		return m.invoke(serverObject, methodCall.getArgs());
+	}
+
+	public Object handle(G2CLMessage message) {
+		try {
+			byte[] messagePayload = message.getPayload();
+			MethodCall methodCall;
+			
+			if(req_marshaller != null){
+					methodCall = (MethodCall)req_marshaller.objectFromByteBuffer(messagePayload);
+			}
+			else{
+				methodCall = (MethodCall) Util.getObjectFromByte(messagePayload);
+			}
+			
+			Object obj = invoke(methodCall);
+			
+			if(rsp_marshaller != null){
+				return rsp_marshaller.objectToBuffer(obj);
+			}
+			
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "error handling message", e);
+		}
+		return null;
+	}
+	
+    
+
+}
+
+
+
+package br.unifor.g2cl;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.SocketAddress;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.jgroups.blocks.RpcDispatcher.Marshaller2;
+
+import net.sf.jgcs.JGCSException;
+import net.sf.jgcs.Message;
+import net.sf.jgcs.Service;
+import net.sf.jgcs.membership.MembershipSession;
+
+/**
+ * Implements remote method invocation in the group of processes.
+ * 
+ * @author
+ */
+public class RpcDispatcher extends MessageDispatcher implements
+		MessageDispatcherListener {
+
+	private static Logger logger = Logger.getLogger(RpcDispatcher.class
+			.getName());
+
+	private Object serverObject;
+	
+    /** Marshaller to marshall requests at the caller and unmarshal requests at the receiver(s) */
+    protected Marshaller2   req_marshaller=null;
+
+    /** Marshaller to marshal responses at the receiver(s) and unmarshal responses at the caller */
+    protected Marshaller2   rsp_marshaller=null;
+
+	public Marshaller2 getReq_marshaller() {
+		return req_marshaller;
+	}
+
+	public void setReq_marshaller(Marshaller2 req_marshaller) {
+		this.req_marshaller = req_marshaller;
+	}
+
+	public Marshaller2 getRsp_marshaller() {
+		return rsp_marshaller;
+	}
+
+	public void setRsp_marshaller(Marshaller2 rsp_marshaller) {
+		this.rsp_marshaller = rsp_marshaller;
+	}
+
+	public RpcDispatcher(IMarshalDataSession marshalDataSession,
+			MembershipSession membershipSession, Service service,
+			Object serverObject) throws JGCSException {
+
+		super(marshalDataSession, membershipSession, service);
+		setMessageDispatcherListener(this);
+		this.serverObject = serverObject;
+	}
+
+	public RspList callRemoteMethod(String method, Class[] paramTypes,
+			Object[] args, int mode, int timeout) {
+
+		MethodCall methodCall = new MethodCall(method, paramTypes, args);
+		return callRemoteMethod(methodCall, mode, timeout);
+		
+	}
+	
+	public RspList callRemoteMethod(MethodCall methodCall, int mode, int timeout){
+		Message msg;
+
+		try {
+			msg = marshalDataSession.createMessage();
+			msg.setSenderAddress(membershipSession.getLocalAddress());
+			
+			byte[] object = null;
+			if(req_marshaller != null){
+				object = req_marshaller.objectToByteBuffer(methodCall);
+			}
+			else{
+				object = Util.getArrayFromObject(methodCall);
+			}
+			
+			
+			msg.setPayload(object);
+			return castMessage(null, msg, mode, timeout);
+
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "error calling remote method", e);
+		}
+
+		return null;
+		
+	}
+
+	public Object callRemoteMethod(SocketAddress target, String method,
+			Class[] paramTypes, Object[] args, int mode, int timeout)
+			throws TimeoutException, SuspectedException {
+
+		MethodCall methodCall = new MethodCall(method, paramTypes, args);
+		G2CLMessage msg;
+		try {
+			msg = (G2CLMessage) marshalDataSession.createMessage();
+			msg.setSenderAddress(membershipSession.getLocalAddress());
+			byte[] object = Util.getArrayFromObject(methodCall);
+			msg.setPayload(object);
+			return sendMessage(msg, target, mode, timeout);
+
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "error calling remote method", e);
+		}
+		return null;
+	}
+
+	private Object invoke(MethodCall methodCall) throws SecurityException,
+			NoSuchMethodException, IllegalArgumentException,
+			IllegalAccessException, InvocationTargetException {
+		Method m = serverObject.getClass().getMethod(methodCall.getName(),
+				methodCall.getParamTypes());
+		return m.invoke(serverObject, methodCall.getArgs());
+	}
+
+	public Object handle(G2CLMessage message) {
+		try {
+			byte[] messagePayload = message.getPayload();
+			MethodCall methodCall;
+			
+			if(req_marshaller != null){
+					methodCall = (MethodCall)req_marshaller.objectFromByteBuffer(messagePayload);
+			}
+			else{
+				methodCall = (MethodCall) Util.getObjectFromByte(messagePayload);
+			}
+			
+			Object obj = invoke(methodCall);
+			
+			if(rsp_marshaller != null){
+				return rsp_marshaller.objectToBuffer(obj);
+			}
+			
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "error handling message", e);
+		}
+		return null;
+	}
+	
+    public interface Marshaller {
+        byte[] objectToByteBuffer(Object obj) throws Exception;
+        Object objectFromByteBuffer(byte[] buf) throws Exception;
+    }
+
+
+    public interface Marshaller2 extends Marshaller {
+        /**
+         * Marshals the object into a byte[] buffer and returns a Buffer with a ref to the underlying byte[] buffer,
+         * offset and length.<br/>
+         * <em>
+         * Note that the underlying byte[] buffer must not be changed as this would change the buffer of a message which
+         * potentially can get retransmitted, and such a retransmission would then carry a ref to a changed byte[] buffer !
+         * </em>
+         * @param obj
+         * @return
+         * @throws Exception
+         */
+        Buffer objectToBuffer(Object obj) throws Exception;
+
+        Object objectFromByteBuffer(byte[] buf, int offset, int length) throws Exception;
+    }
+
+
+    /** Used to provide a Marshaller2 interface to a Marshaller. This class is for internal use only, and will be
+     * removed in 3.0 when Marshaller and Marshaller2 get merged. Do not use, but provide an implementation of
+     * Marshaller directly, e.g. in setRequestMarshaller().
+     */
+    public static class MarshallerAdapter implements Marshaller2 {
+        private final Marshaller marshaller;
+
+        public MarshallerAdapter(Marshaller marshaller) {
+            this.marshaller=marshaller;
+        }
+
+        public byte[] objectToByteBuffer(Object obj) throws Exception {
+            return marshaller.objectToByteBuffer(obj);
+        }
+
+        public Object objectFromByteBuffer(byte[] buf) throws Exception {
+            return buf == null? null : marshaller.objectFromByteBuffer(buf);
+        }
+
+        public Buffer objectToBuffer(Object obj) throws Exception {
+            byte[] buf=marshaller.objectToByteBuffer(obj);
+            return ByteBuffer.wrap(buf, 0, buf.length);
+        }
+
+        public Object objectFromByteBuffer(byte[] buf, int offset, int length) throws Exception {
+            if(buf == null || (offset == 0 && length == buf.length))
+                return marshaller.objectFromByteBuffer(buf);
+            byte[] tmp=new byte[length];
+            System.arraycopy(buf, offset, tmp, 0, length);
+            return marshaller.objectFromByteBuffer(tmp);
+        }
+
+    }
+
+}
