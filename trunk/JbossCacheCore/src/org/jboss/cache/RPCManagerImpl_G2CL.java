@@ -29,6 +29,8 @@ import net.sf.jgcs.NotJoinedException;
 import net.sf.jgcs.Protocol;
 import net.sf.jgcs.ProtocolFactory;
 import net.sf.jgcs.Service;
+import net.sf.jgcs.membership.BlockListener;
+import net.sf.jgcs.membership.BlockSession;
 import net.sf.jgcs.membership.MembershipListener;
 import net.sf.jgcs.membership.MembershipSession;
 import net.sf.jgcs.utils.FactoryUtil;
@@ -372,7 +374,9 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
         }
        
        rpcDispatcher.setMessageDispatcherListener(this);
-       rpcDispatcher.setMembershipListener(new MembershipListenerAdaptor());
+       MembershipListenerAdaptor member = new MembershipListenerAdaptor();
+       rpcDispatcher.setMembershipListener(member);
+       ((BlockSession)controlSession).setBlockListener(member);
        
        //TODO - Verificar isto
        rpcDispatcher.setLocal(false);
@@ -725,7 +729,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 
    /*----------------------- MembershipListener ------------------------*/
 
-   protected class MembershipListenerAdaptor implements ExtendedMembershipListener, MembershipListener {
+   protected class MembershipListenerAdaptor implements ExtendedMembershipListener, MembershipListener,BlockListener {
 
       public void viewAccepted(View newView) {
          try {
@@ -787,6 +791,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
        * Indicates that a channel has received a BLOCK event from FLUSH protocol.
        */
       public void block() {
+    	  System.out.println("block ");
          try {
             if (log.isDebugEnabled()) log.debug("Block received at " + getLocalAddress());
 
@@ -806,6 +811,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
        * Indicates that a channel has received a UNBLOCK event from FLUSH protocol.
        */
       public void unblock() {
+    	  System.out.println("unblock ");
          try {
             if (log.isDebugEnabled()) log.debug("UnBlock received at " + getLocalAddress());
 
@@ -835,7 +841,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 
 	@Override
 	public void onMembershipChange() {
-		
+		this.onBlock();//TODO - Forçando
 		//System.out.println("Chegou! ");
 		SocketAddress coordenador;
 		try {
@@ -844,7 +850,8 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 			
 			ViewId id = new ViewId(new IpAddress((InetSocketAddress)coordenador),System.currentTimeMillis());
 			View newView=new View(id,socketAddressToAddress(controlSession.getMembership().getMembershipList()));
-			//viewAccepted(newView);
+			viewAccepted(newView);
+			unblock();
 			
 			
 		} catch (NotJoinedException e) {
@@ -856,6 +863,12 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 		}
 		
 		//System.out.println("Passou! ");
+		
+	}
+
+	@Override
+	public void onBlock() {
+		this.block();
 		
 	}		
 
@@ -948,6 +961,7 @@ public class RPCManagerImpl_G2CL implements RPCManager, MessageDispatcherListene
 
    @Override
    public Object handle(final G2CLMessage message) {
+	   System.out.println("handle "+getClass().getName());
        if (log.isDebugEnabled()) {
            log.debug("-----------------------------------------------");
            log.debug("Processing message: " + message + " in: " + rpcDispatcher.getControlSession().getLocalAddress());
