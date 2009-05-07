@@ -126,7 +126,7 @@ public class RPCManagerImpl_OR implements RPCManager {
    private volatile boolean isInLocalMode;
    private ComponentRegistry componentRegistry;
    private LockManager lockManager;
-   private FlushTracker flushTracker = new FlushTracker();
+   private FlushTracker flushTracker = new FlushTracker_OR();
 
 
    @Inject
@@ -147,7 +147,7 @@ public class RPCManagerImpl_OR implements RPCManager {
       this.lockManager = lockManager;
    }
 
-   public class FlushTracker {
+   public class FlushTracker_OR implements FlushTracker {
       private final ReclosableLatch flushBlockGate = new ReclosableLatch();
       private final AtomicInteger flushCompletionCount = new AtomicInteger();
       private final ReclosableLatch flushWaitGate = new ReclosableLatch(false);
