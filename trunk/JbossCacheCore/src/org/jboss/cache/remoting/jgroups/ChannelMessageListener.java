@@ -37,6 +37,9 @@ import org.jgroups.ExtendedMessageListener;
 import org.jgroups.Message;
 import org.jgroups.util.Util;
 
+import br.unifor.g2cl.G2CLMessage;
+import br.unifor.g2cl.MessageDispatcherListener;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -48,7 +51,7 @@ import java.io.OutputStream;
  * @since 2.1.0
  */
 @NonVolatile
-public class ChannelMessageListener implements ExtendedMessageListener
+public class ChannelMessageListener implements ExtendedMessageListener, MessageDispatcherListener
 {
    /**
     * Reference to an exception that was raised during
@@ -404,4 +407,10 @@ public class ChannelMessageListener implements ExtendedMessageListener
          }
       }
    }
+
+@Override
+public Object handle(G2CLMessage message) {
+	// TODO Auto-generated method stub
+	return null;
+}
 }
