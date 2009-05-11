@@ -854,9 +854,7 @@ public class RPCManagerImpl_G2CL implements RPCManager {
 	}
 
 	@Override
-	public void onMembershipChange() {
-		this.onBlock();//TODO - For�ando
-		//System.out.println("Chegou! ");
+	public void onMembershipChange() {		
 		SocketAddress coordenador;
 		try {
 			
@@ -864,8 +862,7 @@ public class RPCManagerImpl_G2CL implements RPCManager {
 			
 			ViewId id = new ViewId(new IpAddress((InetSocketAddress)coordenador),System.currentTimeMillis());
 			View newView=new View(id,socketAddressToAddress(controlSession.getMembership().getMembershipList()));
-			viewAccepted(newView);
-			unblock();
+			viewAccepted(newView);			
 			
 			
 		} catch (NotJoinedException e) {
