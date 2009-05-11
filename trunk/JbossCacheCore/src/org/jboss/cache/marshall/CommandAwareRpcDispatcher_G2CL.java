@@ -221,8 +221,8 @@ public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher {
    public Object handle(G2CLMessage req) {
       if (isValid(req)) {
          try {
-            ReplicableCommand command = (ReplicableCommand)Util.getObjectFromByte(req.getPayload()); 
-            	//(ReplicableCommand) req_marshaller.objectFromByteBuffer(req.getBuffer(), req.getOffset(), req.getLength());
+            ReplicableCommand command = //(ReplicableCommand)Util.getObjectFromByte(req.getPayload()); 
+            	(ReplicableCommand) req_marshaller.objectFromByteBuffer(req.getPayload());
             Object execResult = executeCommand(command, req);
             if (log.isTraceEnabled()) log.trace("Command : " + command + " executed, result is: " + execResult);
             return execResult;
@@ -296,16 +296,16 @@ public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher {
       public RspList call() throws Exception {
          Buffer buf;
          try {
-        	 byte[] vetor = Util.getArrayFromObject(command);
-            buf = new Buffer(vetor, 0,vetor.length);
-         }
-         catch (Exception e) {
-            if (log.isErrorEnabled()) log.error(e);
-            throw new RuntimeException("Failure to marshal argument(s)", e);
-         }
+             buf = req_marshaller.objectToBuffer(command);
+          }
+          catch (Exception e) {
+             if (log.isErrorEnabled()) log.error(e);
+             throw new RuntimeException("Failure to marshal argument(s)", e);
+          }
 
          Message msg = new G2CLMessage();
          msg.setPayload(buf.getBuf());
+         msg.setSenderAddress(membershipSession.getLocalAddress());
          //TODO - ta errado
          //if (oob) msg.setFlag( org.jgroups.Message.OOB);
 
