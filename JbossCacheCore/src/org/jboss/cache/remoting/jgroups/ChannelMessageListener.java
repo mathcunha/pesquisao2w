@@ -39,6 +39,7 @@ import org.jgroups.util.Util;
 
 import br.unifor.g2cl.G2CLMessage;
 import br.unifor.g2cl.MessageDispatcherListener;
+import br.unifor.g2cl.StateListener;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -51,7 +52,7 @@ import java.io.OutputStream;
  * @since 2.1.0
  */
 @NonVolatile
-public class ChannelMessageListener implements ExtendedMessageListener, MessageDispatcherListener
+public class ChannelMessageListener implements ExtendedMessageListener, MessageDispatcherListener, StateListener
 {
    /**
     * Reference to an exception that was raised during
@@ -156,6 +157,7 @@ public class ChannelMessageListener implements ExtendedMessageListener, MessageD
 
    public byte[] getState()
    {
+	   System.out.println("enviando novo estado !!!!");
       MarshalledValueOutputStream out = null;
       byte[] result;
       ExposedByteArrayOutputStream baos = new ExposedByteArrayOutputStream(16 * 1024);
@@ -179,6 +181,7 @@ public class ChannelMessageListener implements ExtendedMessageListener, MessageD
 
    public void setState(byte[] new_state)
    {
+	   System.out.println("recebendo  %%%¨¨$$$$$$$ novo estado !!!!");
       if (new_state == null)
       {
          log.debug("transferred state is null (may be first member in cluster)");
@@ -412,5 +415,21 @@ public class ChannelMessageListener implements ExtendedMessageListener, MessageD
 public Object handle(G2CLMessage message) {
 	// TODO Auto-generated method stub
 	return null;
+}
+
+@Override
+public boolean hasState() {	
+	return isStateSet;
+}
+
+@Override
+public void stateIncoming(byte[] state) {
+	setState(state);
+	
+}
+
+@Override
+public byte[] stateOutgoing() {
+	return getState();
 }
 }
