@@ -84,6 +84,7 @@ import br.unifor.g2cl.MessageDispatcherListener;
 import br.unifor.g2cl.Rsp;
 import br.unifor.g2cl.RspFilter;
 import br.unifor.g2cl.RspList;
+import br.unifor.g2cl.StateTransferDataSession;
 import br.unifor.g2cl.Util;
 
 import javax.transaction.TransactionManager;
@@ -118,7 +119,7 @@ public class RPCManagerImpl_G2CL implements RPCManager {
    private long replicationCount;
    private long replicationFailures;
    private boolean statisticsEnabled = false;
-   private MarshalDataSession dataSession;
+   private StateTransferDataSession dataSession;
    private MembershipSession controlSession;
    private Address localAddress;
 
@@ -285,7 +286,10 @@ public class RPCManagerImpl_G2CL implements RPCManager {
                }
 
                if (getMembers().size() > 1) {
+            	   dataSession.requestState();
                   messageListener.waitForState();
+               }else{
+            	   messageListener.setStateSet(true);
                }
             }
             catch (ChannelException e) {
@@ -347,7 +351,7 @@ public class RPCManagerImpl_G2CL implements RPCManager {
    @SuppressWarnings("deprecation")
    private void initialiseChannelAndRpcDispatcher(boolean fetchState) throws JGCSException, FileNotFoundException, IOException {
 	   	   
-	   FactoryUtil jgcsConf = new FactoryUtil("m:/jgroups.properties");
+	   FactoryUtil jgcsConf = new FactoryUtil("/home/objectweb/matheus/worspace/testCache/src/jgroups.properties");
        
        ProtocolFactory o = (ProtocolFactory) jgcsConf.getInstance("jgcsProtocol");
        Protocol p = o.createProtocol();
@@ -363,7 +367,8 @@ public class RPCManagerImpl_G2CL implements RPCManager {
 
        //log.info("jgcs HA jndi properties is: " + jgcs_properties);
    	
-       this.dataSession = new MarshalDataSession(dataSession);
+       this.dataSession = new StateTransferDataSession(new MarshalDataSession(dataSession), service, controlSession);
+       this.dataSession.setStateListener(messageListener);
        
        if (configuration.isUseRegionBasedMarshalling()) {
            rpcDispatcher = new InactiveRegionAwareRpcDispatcher_G2CL(this.dataSession,controlSession, service,
