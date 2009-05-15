@@ -75,8 +75,15 @@ public class InactiveRegionAwareRpcDispatcher_G2CL extends CommandAwareRpcDispat
 
          try {
             // we will ALWAYS be using the marshaller to unmarshall requests.
-            rmc = (RegionalizedMethodCall)Util.getObjectFromByte(req.getPayload());
-            command = rmc.command;
+        	 Object cmd = req_marshaller.objectFromByteBuffer(req.getPayload());
+        	 if(cmd instanceof RegionalizedMethodCall){
+        		 rmc = (RegionalizedMethodCall) cmd;
+        		 command = rmc.command;
+        	 }else{
+        		 return super.handle((ReplicableCommand) cmd , req);
+        	 }
+            
+            
          }
          catch (Throwable e) {
             if (e instanceof InactiveRegionException) {

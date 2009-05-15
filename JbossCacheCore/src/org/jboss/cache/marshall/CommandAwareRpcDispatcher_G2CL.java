@@ -46,6 +46,7 @@ import net.sf.jgcs.Message;
 
 import br.unifor.g2cl.G2CLMessage;
 import br.unifor.g2cl.IMarshalDataSession;
+import br.unifor.g2cl.MessageDispatcherListener;
 import br.unifor.g2cl.RpcDispatcher;
 import br.unifor.g2cl.Rsp;
 import br.unifor.g2cl.RspList;
@@ -72,7 +73,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Manik Surtani (<a href="mailto:manik AT jboss DOT org">manik AT jboss DOT org</a>)
  * @since 2.2.0
  */
-public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher {
+public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher implements MessageDispatcherListener {
 	protected final Log log=LogFactory.getLog(getClass());
 	protected Object server_obj ; 
    protected InvocationContextContainer invocationContextContainer;
@@ -213,6 +214,10 @@ public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher {
       }
       return true;
    }
+   
+   public Object handle(ReplicableCommand command, G2CLMessage req) throws Throwable{
+	   return executeCommand(command, req);
+   }
 
    /**
     * Message contains a Command. Execute it against *this* object and return result.
@@ -223,7 +228,7 @@ public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher {
          try {
             ReplicableCommand command = //(ReplicableCommand)Util.getObjectFromByte(req.getPayload()); 
             	(ReplicableCommand) req_marshaller.objectFromByteBuffer(req.getPayload());
-            Object execResult = executeCommand(command, req);
+            Object execResult = handle(command, req);
             if (log.isTraceEnabled()) log.trace("Command : " + command + " executed, result is: " + execResult);
             return execResult;
          }

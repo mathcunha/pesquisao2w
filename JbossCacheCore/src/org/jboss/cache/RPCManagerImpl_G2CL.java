@@ -351,7 +351,7 @@ public class RPCManagerImpl_G2CL implements RPCManager {
    @SuppressWarnings("deprecation")
    private void initialiseChannelAndRpcDispatcher(boolean fetchState) throws JGCSException, FileNotFoundException, IOException {
 	   	   
-	   FactoryUtil jgcsConf = new FactoryUtil("/home/objectweb/matheus/worspace/testCache/src/jgroups.properties");
+	   FactoryUtil jgcsConf = new FactoryUtil("m:/jgroups.properties");
        
        ProtocolFactory o = (ProtocolFactory) jgcsConf.getInstance("jgcsProtocol");
        Protocol p = o.createProtocol();
@@ -378,7 +378,7 @@ public class RPCManagerImpl_G2CL implements RPCManager {
                                                          invocationContextContainer, invocationContextContainer, interceptorChain, componentRegistry);
         }
        
-       rpcDispatcher.setMessageDispatcherListener(messageListener);
+       rpcDispatcher.setMessageDispatcherListener(rpcDispatcher);
        MembershipListenerAdaptor member = new MembershipListenerAdaptor();
        rpcDispatcher.setMembershipListener(member);
        ((BlockSession)controlSession).setBlockListener(member);
