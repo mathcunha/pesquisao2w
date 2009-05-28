@@ -2,7 +2,7 @@ package br.unifor.catalogo.persistence;
 
 import java.io.Serializable;
 
-public class CatalogoTO implements Serializable {
+public class CatalogoTO implements Serializable, Comparable<CatalogoTO>{
 
 	protected Long identificador;
 	
@@ -44,6 +44,12 @@ public class CatalogoTO implements Serializable {
 	
 	public void update(CatalogoTO catalogo){
 		this.setIdentificador(catalogo.getIdentificador());
+	}
+
+	@Override
+	public int compareTo(CatalogoTO o) {
+		
+		return identificador.compareTo(o.getIdentificador());
 	}
 	
 }

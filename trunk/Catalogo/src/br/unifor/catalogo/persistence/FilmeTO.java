@@ -5,6 +5,16 @@ public class FilmeTO extends CatalogoTO {
 	private String nome;
 	private Long quantidade;
 	
+	public FilmeTO (){
+		
+	}
+	
+	public FilmeTO (Long identificador, String nome, Long quantidade){
+		this.identificador = identificador;
+		this.nome = nome;
+		this.quantidade = quantidade;
+	}
+	
 	public String getNome() {
 		return nome;
 	}
