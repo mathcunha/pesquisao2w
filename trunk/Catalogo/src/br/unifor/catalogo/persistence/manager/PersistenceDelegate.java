@@ -12,9 +12,9 @@ public class PersistenceDelegate {
 	private static PersistenceDelegate myself; 
 	
 	private PersistenceDelegate() throws FileNotFoundException{
-		manager = new JbossCachePersistenceManager();
-		manager.config("M:/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
-		manager.createCache("M:/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
+		manager = new JbossCachePersistenceManager();		
+		manager.config("/home/objectweb/matheus/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
+		manager.createCache("/home/objectweb/matheus/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
 	}
 	
 	public static PersistenceDelegate getInstance() throws FileNotFoundException{
