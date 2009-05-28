@@ -1,11 +1,14 @@
 package br.unifor.catalogo.web.servlet;
 
 import java.io.IOException;
+import java.util.Map;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import br.unifor.catalogo.persistence.CatalogoTO;
 import br.unifor.catalogo.persistence.FilmeTO;
 import br.unifor.catalogo.persistence.manager.PersistenceDelegate;
 
@@ -44,7 +47,10 @@ public class FilmeServlet extends HttpServlet {
 		String strAcao = request.getParameter("acao");
 		
 		filme.setNome(strNome);
-		filme.setQuantidade(new Long(strQuantidade));
+		
+		if(strQuantidade != null && strQuantidade.length() > 0){
+			filme.setQuantidade(new Long(strQuantidade));
+		}
 		
 		if(strIdentificador != null && strIdentificador.length() > 0){
 			filme.setIdentificador(new Long(strIdentificador));
@@ -58,7 +64,24 @@ public class FilmeServlet extends HttpServlet {
 			}else{
 				delegate.update(filme);
 			}
+		}else if("excluir".equals(strAcao)){
+			delegate.delete(filme);
+		}else if("exibir".equals(strAcao)){
+			filme = (FilmeTO) delegate.findByPk(filme);
+			request.setAttribute("bean", filme);
+			request.getRequestDispatcher("filme/editar.jsp").forward(request, response);
 		}
+		listar(request, response, filme, delegate);			
+		
+	}	
+
+	private void listar(HttpServletRequest request, HttpServletResponse response, FilmeTO filme,
+			PersistenceDelegate delegate) throws ServletException, IOException {
+		Map<String, CatalogoTO> mapa = delegate.findAll(filme);
+		
+		request.setAttribute("itens", mapa.values());
+		
+		request.getRequestDispatcher("filme/listar.jsp").forward(request, response);
 	}
 
 }
