@@ -33,7 +33,9 @@ public class PersistenceDelegate {
 	}
 	
 	public void insert(CatalogoTO to){
-		to.setIdentificador(System.currentTimeMillis());
+		if(to.getIdentificador() == null){
+			to.setIdentificador(System.currentTimeMillis());
+		}
 		manager.insert(to);
 	}
 
