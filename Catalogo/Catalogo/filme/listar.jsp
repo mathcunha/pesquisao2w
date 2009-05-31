@@ -9,6 +9,9 @@
 </head>
 <body>
 <a href="<c:url value="/filme/editar.jsp"/>">Novo</a>
+<a href="<c:url value="/FilmeServlet"/>?acao=popular">Popular</a>
+<a href="<c:url value="/GerenciadorServlet"/>">Exibir Hash</a>
+
 
 <table>
 	<tr>

@@ -1,6 +1,7 @@
 package br.unifor.catalogo.persistence.manager;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Map;
 
 import br.unifor.catalogo.persistence.CatalogoTO;
@@ -11,13 +12,13 @@ public class PersistenceDelegate {
 	
 	private static PersistenceDelegate myself; 
 	
-	private PersistenceDelegate() throws FileNotFoundException{
+	private PersistenceDelegate() throws SecurityException, IOException{
 		manager = new JbossCachePersistenceManager();		
 		manager.config("d:/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
 		manager.createCache("d:/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
 	}
 	
-	public static PersistenceDelegate getInstance() throws FileNotFoundException{
+	public static PersistenceDelegate getInstance() throws SecurityException, IOException{
 		if(myself == null){
 			myself = new PersistenceDelegate();
 		}
