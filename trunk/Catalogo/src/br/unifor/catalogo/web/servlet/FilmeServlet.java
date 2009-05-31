@@ -88,7 +88,7 @@ public class FilmeServlet extends HttpServlet {
 		
 	}
 	
-	private void popular() throws FileNotFoundException{
+	private void popular() throws SecurityException, IOException{
 		PersistenceDelegate delegate = PersistenceDelegate.getInstance();
 		FilmeTO filme = new FilmeTO(1l,"X-Men",30l);		
 		delegate.insert(filme);
