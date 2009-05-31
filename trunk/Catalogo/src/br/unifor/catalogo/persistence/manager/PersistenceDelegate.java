@@ -13,8 +13,8 @@ public class PersistenceDelegate {
 	
 	private PersistenceDelegate() throws FileNotFoundException{
 		manager = new JbossCachePersistenceManager();		
-		manager.config("/home/objectweb/matheus/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
-		manager.createCache("/home/objectweb/matheus/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
+		manager.config("d:/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
+		manager.createCache("d:/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
 	}
 	
 	public static PersistenceDelegate getInstance() throws FileNotFoundException{
@@ -47,7 +47,13 @@ public class PersistenceDelegate {
 		return manager.findByPk(to);
 	}
 	
+	public Map getRoot(){
+		return manager.getRoot();
+	}	
+	
 	public Map findAll(CatalogoTO to){
 		return manager.findAll(to);
 	}	
+	
+	
 }
