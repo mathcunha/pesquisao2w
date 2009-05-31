@@ -77,5 +77,9 @@ public class JbossCachePersistenceManager {
 	private String getKey(CatalogoTO to) {
 		return "/catPojo/"+to.getClass().getName()+"/"+to.getIdentificador();
 	}
+	
+	public Map getRoot(){
+		return cache.findAll("/");
+	}
 
 }
