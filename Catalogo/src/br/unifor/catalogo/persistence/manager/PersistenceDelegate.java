@@ -14,8 +14,8 @@ public class PersistenceDelegate {
 	
 	private PersistenceDelegate() throws SecurityException, IOException{
 		manager = new JbossCachePersistenceManager();		
-		manager.config("d:/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
-		manager.createCache("d:/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
+		manager.config("/home/objectweb/matheus/glassfish/conf-g2cl/replSync-service.xml");
+		manager.createCache("/home/objectweb/matheus/glassfish/conf-g2cl/replSync-service.xml");
 	}
 	
 	public static PersistenceDelegate getInstance() throws SecurityException, IOException{
