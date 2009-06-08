@@ -2,6 +2,7 @@ package br.unifor.catalogo.persistence.manager;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 
 import br.unifor.catalogo.persistence.CatalogoTO;
@@ -14,8 +15,8 @@ public class PersistenceDelegate {
 	
 	private PersistenceDelegate() throws SecurityException, IOException{
 		manager = new JbossCachePersistenceManager();		
-		manager.config("/home/objectweb/matheus/glassfish/conf-g2cl/replSync-service.xml");
-		manager.createCache("/home/objectweb/matheus/glassfish/conf-g2cl/replSync-service.xml");
+		manager.config("D:/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
+		manager.createCache("D:/jbosscache-pojo-3.0.0.GA/etc/META-INF/replSync-service.xml");
 	}
 	
 	public static PersistenceDelegate getInstance() throws SecurityException, IOException{
@@ -56,5 +57,12 @@ public class PersistenceDelegate {
 		return manager.findAll(to);
 	}	
 	
+	public void newTest(){
+		manager.newTest();
+	}
+	
+	public void printResult(PrintWriter out){
+		manager.printResult(out);
+	}
 	
 }

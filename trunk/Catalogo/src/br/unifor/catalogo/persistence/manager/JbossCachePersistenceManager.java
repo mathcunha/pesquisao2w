@@ -2,6 +2,7 @@ package br.unifor.catalogo.persistence.manager;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -12,10 +13,14 @@ import org.jboss.cache.pojo.PojoCache;
 import org.jboss.cache.pojo.PojoCacheFactory;
 
 import br.unifor.catalogo.persistence.CatalogoTO;
+import br.unifor.catalogo.persistence.manager.test.TestManager;
+import br.unifor.catalogo.persistence.manager.test.TestManager.Test;
 
 public class JbossCachePersistenceManager {
 	
 	private Logger log = Logger.getLogger(getClass().getName());
+	private TestManager testManager = new TestManager();
+	private Test test;
 	
 	
 	protected PojoCache cache;
@@ -38,6 +43,10 @@ public class JbossCachePersistenceManager {
 	public void stop(){
 		cache.stop();
 		cache.destroy();
+	}
+	
+	public void newTest(){
+		test = testManager.newTest();
 	}
 
 	/**
@@ -68,21 +77,27 @@ public class JbossCachePersistenceManager {
 		String key = getKey(to);
 		long inicial = System.currentTimeMillis();
 		cache.attach(key, to);
-		log.info("update "+(System.currentTimeMillis() - inicial));
+		inicial = System.currentTimeMillis() - inicial;
+		log.info("update "+ inicial);
+		test.sumOperation(inicial);
 	}
 	
 	public void insert(CatalogoTO to){
 		String key = getKey(to);
 		long inicial = System.currentTimeMillis();
 		cache.attach(key, to);
-		log.info("insert "+(System.currentTimeMillis() - inicial));
+		inicial = System.currentTimeMillis() - inicial;
+		log.info("insert "+inicial);
+		test.sumOperation(inicial);
 	}
 
 	public CatalogoTO delete(CatalogoTO to){
 		String key = getKey(to);
 		long inicial = System.currentTimeMillis();
 		CatalogoTO retorno =  (CatalogoTO) cache.detach(key);
-		log.info("delete "+(System.currentTimeMillis() - inicial));
+		inicial = System.currentTimeMillis() - inicial;
+		log.info("delete "+inicial);
+		test.sumOperation(inicial);
 		return retorno;
 	}
 	
@@ -90,7 +105,9 @@ public class JbossCachePersistenceManager {
 		String key = getKey(to);
 		long inicial = System.currentTimeMillis();	
 		CatalogoTO retorno =  (CatalogoTO) cache.find(key);
-		log.info("findByPk "+(System.currentTimeMillis() - inicial));
+		inicial = System.currentTimeMillis() - inicial;
+		log.info("findByPk "+inicial);
+		test.sumOperation(inicial);
 		return retorno;
 	}
 	
@@ -104,6 +121,12 @@ public class JbossCachePersistenceManager {
 	
 	public Map getRoot(){
 		return cache.findAll("/");
+	}
+	
+	public void printResult(PrintWriter out){
+		for (Test test : testManager.tests) {
+			out.write(test.id+", "+test.operations+", "+test.time);
+		}
 	}
 
 }
