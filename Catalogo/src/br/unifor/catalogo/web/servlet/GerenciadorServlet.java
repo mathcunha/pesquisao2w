@@ -38,7 +38,23 @@ public class GerenciadorServlet extends HttpServlet {
 	}
 	
 	protected void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.getWriter().write(StateVerifier.calcularHash(PersistenceDelegate.getInstance().getRoot()));
+		if("zerar".equals(request.getAttribute("acao"))){
+			zerar(request, response);
+		}else if("resultado".equals(request.getAttribute("acao"))){
+			resultado(request, response);
+		}
+		else{
+			response.getWriter().write(StateVerifier.calcularHash(PersistenceDelegate.getInstance().getRoot()));
+		}
+		
+	}
+	
+	protected void resultado(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		PersistenceDelegate.getInstance().printResult(response.getWriter());
+	}
+	
+	protected void zerar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		PersistenceDelegate.getInstance().newTest();
 	}
 
 }
