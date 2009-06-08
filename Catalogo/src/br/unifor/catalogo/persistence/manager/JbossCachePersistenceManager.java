@@ -20,7 +20,7 @@ public class JbossCachePersistenceManager {
 	
 	private Logger log = Logger.getLogger(getClass().getName());
 	private TestManager testManager = new TestManager();
-	private Test test;
+	private Test test = testManager.newTest();
 	
 	
 	protected PojoCache cache;
@@ -125,7 +125,7 @@ public class JbossCachePersistenceManager {
 	
 	public void printResult(PrintWriter out){
 		for (Test test : testManager.tests) {
-			out.write(test.id+", "+test.operations+", "+test.time);
+			out.write(test.id+", "+test.operations+", "+test.time+"\n");
 		}
 	}
 
