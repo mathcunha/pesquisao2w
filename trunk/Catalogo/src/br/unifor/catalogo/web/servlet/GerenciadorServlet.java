@@ -38,9 +38,9 @@ public class GerenciadorServlet extends HttpServlet {
 	}
 	
 	protected void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if("zerar".equals(request.getAttribute("acao"))){
+		if("zerar".equals(request.getParameter("acao"))){
 			zerar(request, response);
-		}else if("resultado".equals(request.getAttribute("acao"))){
+		}else if("resultado".equals(request.getParameter("acao"))){
 			resultado(request, response);
 		}
 		else{
