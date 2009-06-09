@@ -33,6 +33,7 @@ import net.sf.jgcs.membership.BlockListener;
 import net.sf.jgcs.membership.BlockSession;
 import net.sf.jgcs.membership.MembershipListener;
 import net.sf.jgcs.membership.MembershipSession;
+import net.sf.jgcs.spread.SpGroup;
 import net.sf.jgcs.utils.FactoryUtil;
 
 import org.apache.commons.logging.Log;
@@ -58,6 +59,7 @@ import org.jboss.cache.marshall.InactiveRegionAwareRpcDispatcher_G2CL;
 import org.jboss.cache.marshall.Marshaller;
 import org.jboss.cache.notifications.Notifier;
 import org.jboss.cache.remoting.jgroups.ChannelMessageListener;
+import org.jboss.cache.stack.SpreadAddress;
 import org.jboss.cache.statetransfer.DefaultStateTransferManager;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.transaction.TransactionTable;
@@ -78,14 +80,13 @@ import org.jgroups.protocols.TP;
 import org.jgroups.stack.IpAddress;
 import org.jgroups.stack.ProtocolStack;
 
-import br.unifor.g2cl.G2CLMessage;
+import com.sleepycat.persist.evolve.Conversion;
+
 import br.unifor.g2cl.MarshalDataSession;
-import br.unifor.g2cl.MessageDispatcherListener;
 import br.unifor.g2cl.Rsp;
 import br.unifor.g2cl.RspFilter;
 import br.unifor.g2cl.RspList;
 import br.unifor.g2cl.StateTransferDataSession;
-import br.unifor.g2cl.Util;
 
 import javax.transaction.TransactionManager;
 
@@ -93,7 +94,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -279,7 +279,7 @@ public class RPCManagerImpl implements RPCManager {
             long start = System.currentTimeMillis();
             try {
             	controlSession.join();
-            	localAddress = new IpAddress(((InetSocketAddress)controlSession.getLocalAddress()).getAddress(),((InetSocketAddress)controlSession.getLocalAddress()).getPort());
+            	localAddress = convertTo(controlSession.getLocalAddress());
                //channel.connect(configuration.getClusterName(), null, null, configuration.getStateRetrievalTimeout());
                if (log.isInfoEnabled()) {
                   log.info("Cache local address is " + getLocalAddress());
@@ -307,6 +307,25 @@ public class RPCManagerImpl implements RPCManager {
             }
       }
 
+   }
+   
+   public static Address convertTo(SocketAddress socket){
+	   if(socket instanceof SpGroup){
+		   SpGroup lSocket = (SpGroup)socket;
+		   return new SpreadAddress(lSocket);
+	   }else{
+		   InetSocketAddress lSocket = (InetSocketAddress)socket;
+		   return new IpAddress(lSocket.getAddress(), lSocket.getPort());
+	   }
+   }
+   
+   public static SocketAddress convertTo(Address address){
+	   if(address instanceof SpreadAddress){
+		   SpreadAddress lAddress = (SpreadAddress)address;
+		   return lAddress.getSpGroup();
+	   }else{
+		   return new InetSocketAddress(((IpAddress)address).getIpAddress(),((IpAddress)address).getPort());
+	   }
    }
 
    public void disconnect() {
@@ -508,7 +527,7 @@ public class RPCManagerImpl implements RPCManager {
 		   
 		   SocketAddress socketAddress = null;
 		   for (Address address : recipients) {
-			   socketAddress = new InetSocketAddress(((IpAddress)address).getIpAddress(),((IpAddress)address).getPort());
+			   socketAddress = convertTo(address);
 			   retorno.add(socketAddress);
 		   }
 		   
@@ -524,12 +543,8 @@ public class RPCManagerImpl implements RPCManager {
 	   Vector<Address> retorno = new Vector<Address>(recipients.size());
 	   
 	   Address address = null;
-	   for (SocketAddress socketAddress : recipients) {
-		   try {
-			address = new  IpAddress(((InetSocketAddress)socketAddress).getHostName(),((InetSocketAddress)socketAddress).getPort());
-		} catch (UnknownHostException e) {
-			log.error("Erro", e);			
-		}
+	   for (SocketAddress socketAddress : recipients) {		   
+		   address = convertTo(socketAddress);
 		   retorno.add(address);
 	   }
 	   
@@ -862,7 +877,7 @@ public class RPCManagerImpl implements RPCManager {
 			
 			coordenador = controlSession.getMembership().getMemberAddress(controlSession.getMembership().getCoordinatorRank());
 			
-			ViewId id = new ViewId(new IpAddress((InetSocketAddress)coordenador),System.currentTimeMillis());
+			ViewId id = new ViewId(convertTo(coordenador),System.currentTimeMillis());
 			View newView=new View(id,socketAddressToAddress(controlSession.getMembership().getMembershipList()));
 			viewAccepted(newView);			
 			
@@ -976,7 +991,7 @@ public class RPCManagerImpl implements RPCManager {
 		   this.responseFilter = responseFilter;
 	   }
 	public boolean isAcceptable(Object response, SocketAddress sender) {
-		IpAddress ipAddress = new IpAddress((InetSocketAddress)sender);
+		Address ipAddress = convertTo(sender);
 		return responseFilter.isAcceptable(response, ipAddress);		   
 	}
 	public boolean needMoreResponses() {
