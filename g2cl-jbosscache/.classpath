@@ -13,6 +13,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/JGroups"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jgcs"/>
 	<classpathentry kind="lib" path="lib/jta.jar"/>
-	<classpathentry kind="lib" path="lib/jbosscache-core.jar"/>
+	<classpathentry kind="lib" path="lib/jbosscache-core.jar" sourcepath="/JbossCacheCore"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jgcs-spread"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
