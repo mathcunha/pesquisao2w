@@ -7,16 +7,16 @@
 	<classpathentry excluding="**/obsolete/*" kind="src" path="tests/perf"/>
 	<classpathentry excluding="**/obsolete/*" kind="src" path="tests/stress"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JGroups/lib/ant.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JGroups/lib/ant-junit.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JGroups/lib/ant-launcher.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JGroups/lib/bcprov-1.39.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JGroups/lib/bsh-1.2b3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JGroups/lib/commons-logging.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JGroups/lib/jms.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JGroups/lib/junit.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JGroups/lib/log4j.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JGroups/lib/serializer.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Matheus/Documents/workspace/JGroups/lib/xalan.jar"/>
+	<classpathentry kind="lib" path="lib/ant-junit.jar"/>
+	<classpathentry kind="lib" path="lib/ant-launcher.jar"/>
+	<classpathentry kind="lib" path="lib/ant.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-1.39.jar"/>
+	<classpathentry kind="lib" path="lib/bsh-1.2b3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/jms.jar"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
+	<classpathentry kind="lib" path="lib/log4j.jar"/>
+	<classpathentry kind="lib" path="lib/serializer.jar"/>
+	<classpathentry kind="lib" path="lib/xalan.jar"/>
 	<classpathentry kind="output" path="eclipse-classes"/>
 </classpath>
