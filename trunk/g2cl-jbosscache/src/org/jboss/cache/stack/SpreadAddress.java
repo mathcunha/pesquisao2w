@@ -12,14 +12,15 @@ import org.jgroups.Address;
 import org.jgroups.Global;
 
 public class SpreadAddress implements Address {
-
-	
-
 	private SpGroup spGroup;
 	
 
 	int size = -1;
 	private byte[] additional_data;
+	
+	// Used only by Externalization
+    public SpreadAddress() {
+    }
 
 	public SpreadAddress(SpGroup spGroup) {
 		this.spGroup = spGroup;
@@ -151,6 +152,10 @@ public class SpreadAddress implements Address {
 	
 	public SpGroup getSpGroup() {
 		return spGroup;
+	}
+	
+	public void setSpGroup(SpGroup spGroup) {
+		this.spGroup = spGroup;
 	}
 
 }
