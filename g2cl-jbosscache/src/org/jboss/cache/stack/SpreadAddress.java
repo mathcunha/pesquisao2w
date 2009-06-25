@@ -11,20 +11,20 @@ import net.sf.jgcs.spread.SpGroup;
 import org.jgroups.Address;
 import org.jgroups.Global;
 
-public class SpreadAddress implements Address {
-	private SpGroup spGroup;
-	
-
+public class SpreadAddress extends SpGroup implements Address {
 	int size = -1;
 	private byte[] additional_data;
 	
 	// Used only by Externalization
-    public SpreadAddress() {
+	public SpreadAddress(){
+		super("");
+	}
+		
+    public SpreadAddress(String group) {
+    	super(group);
     }
 
-	public SpreadAddress(SpGroup spGroup) {
-		this.spGroup = spGroup;
-	}
+	
 
 	public boolean isMulticastAddress() {
 		return true;
@@ -122,14 +122,14 @@ public class SpreadAddress implements Address {
                     (o != null? o.getClass() : o));
         SpreadAddress other = (SpreadAddress) o;
         
-        return this.spGroup.getGroup().compareTo(other.getSpGroup().getGroup());
+        return this.getGroup().compareTo(other.getGroup());
 	}
 	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((spGroup == null) ? 0 : spGroup.hashCode());
+		result = prime * result + ((getGroup() == null) ? 0 : getGroup().hashCode());
 		return result;
 	}
 
@@ -142,20 +142,16 @@ public class SpreadAddress implements Address {
 		if (getClass() != obj.getClass())
 			return false;
 		SpreadAddress other = (SpreadAddress) obj;
-		if (spGroup == null) {
-			if (other.spGroup != null)
+		if (getGroup() == null) {
+			if (other.getGroup() != null)
 				return false;
-		} else if (!spGroup.equals(other.spGroup))
+		} else if (!getGroup().equals(other.getGroup()))
 			return false;
 		return true;
 	}
 	
-	public SpGroup getSpGroup() {
-		return spGroup;
-	}
-	
-	public void setSpGroup(SpGroup spGroup) {
-		this.spGroup = spGroup;
+	public void setGroup(String lGroup) {
+		super.group = lGroup;
 	}
 
 }

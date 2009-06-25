@@ -309,7 +309,14 @@ public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher implements Mes
           }
 
          Message msg = new G2CLMessage();
-         msg.setPayload(buf.getBuf());
+         
+         byte[] aux = new byte[buf.getLength() - buf.getOffset() ];
+         
+         System.arraycopy(buf.getBuf(), buf.getOffset(),aux , 0, buf.getLength());
+         
+         msg.setPayload(aux);
+         
+         //System.out.println("ReplicationTask ["+buf.getBuf().length+"] off["+buf.getOffset()+"] len["+buf.getLength());
          msg.setSenderAddress(membershipSession.getLocalAddress());
          //TODO - ta errado
          //if (oob) msg.setFlag( org.jgroups.Message.OOB);

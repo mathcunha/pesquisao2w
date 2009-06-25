@@ -59,6 +59,7 @@ import org.jboss.cache.marshall.InactiveRegionAwareRpcDispatcher_G2CL;
 import org.jboss.cache.marshall.Marshaller;
 import org.jboss.cache.notifications.Notifier;
 import org.jboss.cache.remoting.jgroups.ChannelMessageListener;
+import org.jboss.cache.stack.JGroupsAddress;
 import org.jboss.cache.stack.SpreadAddress;
 import org.jboss.cache.statetransfer.DefaultStateTransferManager;
 import org.jboss.cache.transaction.GlobalTransaction;
@@ -312,19 +313,19 @@ public class RPCManagerImpl implements RPCManager {
    public static Address convertTo(SocketAddress socket){
 	   if(socket instanceof SpGroup){
 		   SpGroup lSocket = (SpGroup)socket;
-		   return new SpreadAddress(lSocket);
+		   return new SpreadAddress(lSocket.getGroup());
 	   }else{
 		   InetSocketAddress lSocket = (InetSocketAddress)socket;
-		   return new IpAddress(lSocket.getAddress(), lSocket.getPort());
+		   return new JGroupsAddress(lSocket.getAddress(), lSocket.getPort());
 	   }
    }
    
    public static SocketAddress convertTo(Address address){
 	   if(address instanceof SpreadAddress){
 		   SpreadAddress lAddress = (SpreadAddress)address;
-		   return lAddress.getSpGroup();
+		   return lAddress;
 	   }else{
-		   return new InetSocketAddress(((IpAddress)address).getIpAddress(),((IpAddress)address).getPort());
+		   return ((JGroupsAddress)address).getSocketAddress();
 	   }
    }
 
