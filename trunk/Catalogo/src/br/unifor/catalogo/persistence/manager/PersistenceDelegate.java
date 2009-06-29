@@ -9,12 +9,12 @@ import br.unifor.catalogo.persistence.CatalogoTO;
 
 public class PersistenceDelegate {
 	
-	private final JbossCachePersistenceManager manager ;
+	private final JbossCachePojoPersistenceManager manager ;
 	
 	private static PersistenceDelegate myself; 
 	
 	private PersistenceDelegate() throws SecurityException, IOException{
-		manager = new JbossCachePersistenceManager();		
+		manager = new JbossCachePojoPersistenceManager();		
 		manager.config("/home/objectweb/matheus/glassfish/conf-g2cl/replSync-service.xml");
 		manager.createCache("/home/objectweb/matheus/glassfish/conf-g2cl/replSync-service.xml");
 	}
