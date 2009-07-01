@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class CatalogoTO implements Serializable, Comparable<CatalogoTO>{
 
-	protected Long identificador;
+	protected Long identificador; 
 	
 	public Long getIdentificador() {
 		return identificador;

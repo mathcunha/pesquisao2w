@@ -29,4 +29,14 @@
     <servlet-name>GerenciadorServlet</servlet-name>
     <url-pattern>/GerenciadorServlet</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>ByteServlet</display-name>
+    <servlet-name>ByteServlet</servlet-name>
+    <servlet-class>br.unifor.catalogo.web.servlet.ByteServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ByteServlet</servlet-name>
+    <url-pattern>/ByteServlet</url-pattern>
+  </servlet-mapping>
 </web-app>
