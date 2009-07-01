@@ -316,7 +316,7 @@ public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher implements Mes
 
          // Replay capability requires responses from all members!
          //RspList retval = castMessage(dests, msg, mode, timeout, anycasting, filter);
-         RspList retval = castMessage(dests, msg, mode, timeout, filter);
+         RspList retval = castMessage(dests, msg, mode, timeout, anycasting, filter);
          
          if (trace) log.trace("responses: " + retval);
 
