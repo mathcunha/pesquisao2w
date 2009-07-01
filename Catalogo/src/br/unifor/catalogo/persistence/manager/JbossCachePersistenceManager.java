@@ -99,7 +99,7 @@ public class JbossCachePersistenceManager {
 		test.sumOperation(inicial);
 	}
 
-	public Boolean delete(CatalogoTO to){
+	public CatalogoTO delete(CatalogoTO to){
 		String key = getKey(to);
 		long inicial = System.currentTimeMillis();
 		
@@ -107,9 +107,9 @@ public class JbossCachePersistenceManager {
 		Boolean retorno = cache.getRoot().removeChild(fqn);
 		
 		inicial = System.currentTimeMillis() - inicial;
-		log.info("delete "+inicial);
+		log.info(retorno+" delete "+inicial);
 		test.sumOperation(inicial);
-		return retorno;
+		return to;
 	}
 	
 	public CatalogoTO findByPk(CatalogoTO to){
