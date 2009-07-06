@@ -79,8 +79,8 @@ public class ByteServlet extends HttpServlet {
 		} else if ("excluir".equals(strAcao)) {
 			delegate.delete(filme);
 			listar(request, response, filme, delegate);
-		} else if ("exibir".equals(strAcao)) {
-			filme = (FilmeTO) delegate.findByPk(filme);
+		} else if ("exibir".equals(strAcao)) {			
+			filme.setIdentificador(delegate.findByPk(filme).getIdentificador());
 			request.setAttribute("bean", filme);
 			request.getRequestDispatcher("byte/editar.jsp").forward(request,
 					response);
