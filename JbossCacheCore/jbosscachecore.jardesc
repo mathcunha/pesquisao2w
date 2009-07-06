@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <jardesc>
-    <jar path="/home/objectweb/matheus/jbosscache-pojo-3.0.0.GA/lib/jbosscache-core.jar"/>
+    <jar path="/home/objectweb/matheus/worspace/Catalogo/Catalogo/WEB-INF/lib/jbosscache-core.jar"/>
     <options buildIfNeeded="true" compress="false" descriptionLocation="/JbossCacheCore/jbosscachecore.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
