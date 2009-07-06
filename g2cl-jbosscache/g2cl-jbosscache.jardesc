@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="/home/objectweb/matheus/jbosscache-pojo-3.0.0.GA/lib/g2cl-jbosscache.jar"/>
+    <jar path="/home/objectweb/matheus/worspace/Catalogo/Catalogo/WEB-INF/lib/g2cl-jbosscache.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/g2cl-jbosscache/g2cl-jbosscache.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
