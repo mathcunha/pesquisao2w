@@ -16,7 +16,7 @@ import br.unifor.catalogo.persistence.CatalogoTO;
 import br.unifor.catalogo.persistence.manager.test.TestManager;
 import br.unifor.catalogo.persistence.manager.test.TestManager.Test;
 
-public class JbossCachePojoPersistenceManager {
+public class JbossCachePojoPersistenceManager implements JbossCacheManager {
 	
 	private Logger log = Logger.getLogger(getClass().getName());
 	private TestManager testManager = new TestManager();
@@ -56,7 +56,7 @@ public class JbossCachePojoPersistenceManager {
 	 * @return instance of CacheModelDelegate
 	 * @throws Exception
 	 */
-	protected void createCache(String configurationFile) {
+	public void createCache(String configurationFile) {
 		
 		cache = PojoCacheFactory.createCache(configurationFile, false);
 		 

@@ -9,14 +9,14 @@ import br.unifor.catalogo.persistence.CatalogoTO;
 
 public class PersistenceDelegate {
 	
-	private final JbossCachePersistenceManager manager ;
+	private final JbossCacheManager manager ;
 	
 	private static PersistenceDelegate myself; 
 	
 	private PersistenceDelegate() throws SecurityException, IOException{
-		manager = new JbossCachePersistenceManager();		
-		manager.config("/home/objectweb/matheus/glassfish/conf-g2cl/replSync-service.xml");
-		manager.createCache("/home/objectweb/matheus/glassfish/conf-g2cl/replSync-service.xml");
+		manager = new JbossCachePojoPersistenceManager();
+		manager.config("M:/matheus/projetos/Catalogo/Catalogo/g2cl-conf/replSync-service.xml");
+		manager.createCache("M:/matheus/projetos/Catalogo/Catalogo/g2cl-conf/replSync-service.xml");
 	}
 	
 	public static PersistenceDelegate getInstance() throws SecurityException, IOException{
