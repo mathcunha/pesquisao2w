@@ -84,9 +84,11 @@ public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher implements Mes
    private AtomicInteger replicationProcessorCount;
    private boolean asyncSerial;
    private ReplicationObserver replicationObserver;
+   protected org.jgroups.blocks.RpcDispatcher.Marshaller2 req_marshaller;
 
    public CommandAwareRpcDispatcher_G2CL() throws JGCSException {
 	   super(null, null, null, null);
+	   req_marshaller = ((MarshallerWrapper) getReqMarshaller()).getMarshaller();
    }
    
    public CommandAwareRpcDispatcher_G2CL(IMarshalDataSession marshalDataSession, MembershipSession l, Service l2,
