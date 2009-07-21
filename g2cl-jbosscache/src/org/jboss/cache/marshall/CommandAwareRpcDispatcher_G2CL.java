@@ -46,6 +46,7 @@ import net.sf.jgcs.Message;
 
 import br.unifor.g2cl.G2CLMessage;
 import br.unifor.g2cl.IMarshalDataSession;
+import br.unifor.g2cl.Marshaller;
 import br.unifor.g2cl.MessageDispatcherListener;
 import br.unifor.g2cl.RpcDispatcher;
 import br.unifor.g2cl.Rsp;
@@ -87,8 +88,7 @@ public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher implements Mes
    protected org.jgroups.blocks.RpcDispatcher.Marshaller2 req_marshaller;
 
    public CommandAwareRpcDispatcher_G2CL() throws JGCSException {
-	   super(null, null, null, null);
-	   req_marshaller = ((MarshallerWrapper) getReqMarshaller()).getMarshaller();
+	   super(null, null, null, null);	   
    }
    
    public CommandAwareRpcDispatcher_G2CL(IMarshalDataSession marshalDataSession, MembershipSession l, Service l2,
@@ -340,5 +340,11 @@ public class CommandAwareRpcDispatcher_G2CL extends RpcDispatcher implements Mes
       }
 
 	
+   }
+   
+   public void setReqMarshaller(Marshaller reqMarshaller) {
+	   super.setReqMarshaller(reqMarshaller);
+	   req_marshaller = ((MarshallerWrapper)reqMarshaller).getMarshaller();
+	   
    }
 }
