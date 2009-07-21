@@ -16,7 +16,7 @@
     <servlet-class>br.unifor.catalogo.web.servlet.FilmeServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>ByteServlet</servlet-name>
+    <servlet-name>FilmeServlet</servlet-name>
     <url-pattern>/FilmeServlet</url-pattern>
   </servlet-mapping>
   <servlet>
