@@ -57,6 +57,7 @@ import org.jboss.cache.lock.TimeoutException;
 import org.jboss.cache.marshall.CommandAwareRpcDispatcher_G2CL;
 import org.jboss.cache.marshall.InactiveRegionAwareRpcDispatcher_G2CL;
 import org.jboss.cache.marshall.Marshaller;
+import org.jboss.cache.marshall.MarshallerWrapper;
 import org.jboss.cache.notifications.Notifier;
 import org.jboss.cache.remoting.jgroups.ChannelMessageListener;
 import org.jboss.cache.stack.JGroupsAddress;
@@ -406,8 +407,8 @@ public class RPCManagerImpl implements RPCManager {
        //TODO - Verificar isto
        rpcDispatcher.setLocal(false);
        
-       rpcDispatcher.setRequestMarshaller(marshaller);
-       rpcDispatcher.setResponseMarshaller(marshaller);
+       rpcDispatcher.setReqMarshaller((br.unifor.g2cl.Marshaller)new MarshallerWrapper(marshaller));
+       //rpcDispatcher.setReqMarshaller((br.unifor.g2cl.Marshaller)new MarshallerWrapper(marshaller));
        
        /*
        ConnectionManager connectionManager = new ConnectionManager(timeout, messageDispatcher, IMessageDispatcher.class);
