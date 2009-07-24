@@ -554,7 +554,12 @@ public class RPCManagerImpl implements RPCManager {
    }
    
    public RspFilter convertRspFilter(org.jgroups.blocks.RspFilter responseFilter){
-	   return new RspFilterWrapper(responseFilter);
+	   if(responseFilter != null){
+		   return new RspFilterWrapper(responseFilter);
+	   }
+	   else{
+		   return null;
+	   }
    }
 
    public List<Object> callRemoteMethods(Vector<Address> recipients, ReplicableCommand command, int mode, long timeout, boolean useOutOfBandMessage) throws Exception {
