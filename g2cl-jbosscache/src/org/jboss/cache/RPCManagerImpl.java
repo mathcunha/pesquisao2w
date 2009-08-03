@@ -372,7 +372,8 @@ public class RPCManagerImpl implements RPCManager {
    @SuppressWarnings("deprecation")
    private void initialiseChannelAndRpcDispatcher(boolean fetchState) throws JGCSException, FileNotFoundException, IOException {
 	   	   
-	   FactoryUtil jgcsConf = new FactoryUtil("/home/objectweb/matheus/glassfish/conf-g2cl/jgroups.properties");
+	   
+	   FactoryUtil jgcsConf = new FactoryUtil(getClass().getResourceAsStream("/jgroups.properties"));
        
        ProtocolFactory o = (ProtocolFactory) jgcsConf.getInstance("jgcsProtocol");
        Protocol p = o.createProtocol();
