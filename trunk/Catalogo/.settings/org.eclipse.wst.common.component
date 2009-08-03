@@ -4,6 +4,7 @@
         <wb-resource deploy-path="/" source-path="/Catalogo"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/test"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/Catalogo/g2cl-conf"/>
         <property name="context-root" value="Catalogo"/>
         <property name="java-output-path"/>
     </wb-module>
