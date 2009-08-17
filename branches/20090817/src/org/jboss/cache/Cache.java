@@ -24,8 +24,8 @@ package org.jboss.cache;
 import net.jcip.annotations.ThreadSafe;
 import org.jboss.cache.config.Configuration;
 import org.jboss.cache.interceptors.base.CommandInterceptor;
-import org.jgroups.Address;
 
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -381,7 +381,7 @@ public interface Cache<K, V> extends Lifecycle
     * @return the local address of this cache in a cluster, or <code>null</code>
     *         if running in local mode.
     */
-   Address getLocalAddress();
+   SocketAddress getLocalAddress();
 
    /**
     * Returns a list of members in the cluster, or <code>null</code>
@@ -390,7 +390,7 @@ public interface Cache<K, V> extends Lifecycle
     * @return a {@link List} of members in the cluster, or <code>null</code>
     *         if running in local mode.
     */
-   List<Address> getMembers();
+   List<SocketAddress> getMembers();
 
    /**
     * Moves a part of the cache to a different subtree.

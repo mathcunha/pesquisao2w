@@ -66,6 +66,8 @@ import org.jgroups.util.Rsp;
 import org.jgroups.util.RspList;
 
 import javax.transaction.TransactionManager;
+
+import java.net.SocketAddress;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -87,7 +89,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RPCManagerImpl implements RPCManager {
    private Channel channel;
    private final Log log = LogFactory.getLog(RPCManagerImpl.class);
-   private volatile List<Address> members;
+   private volatile List<SocketAddress> members;
    private long replicationCount;
    private long replicationFailures;
    private boolean statisticsEnabled = false;
@@ -101,7 +103,7 @@ public class RPCManagerImpl implements RPCManager {
    /**
     * The most recent state transfer source
     */
-   volatile Address lastStateTransferSource;
+   volatile SocketAddress lastStateTransferSource;
 
    /**
     * JGroups RpcDispatcher in use.
@@ -446,15 +448,15 @@ public class RPCManagerImpl implements RPCManager {
 
    // ------------ START: RPC call methods ------------
 
-   public List<Object> callRemoteMethods(Vector<Address> recipients, ReplicableCommand command, int mode, long timeout, boolean useOutOfBandMessage) throws Exception {
+   public List<Object> callRemoteMethods(Vector<SocketAddress> recipients, ReplicableCommand command, int mode, long timeout, boolean useOutOfBandMessage) throws Exception {
       return callRemoteMethods(recipients, command, mode, timeout, null, useOutOfBandMessage);
    }
 
-   public List<Object> callRemoteMethods(Vector<Address> recipients, ReplicableCommand command, boolean synchronous, long timeout, boolean useOutOfBandMessage) throws Exception {
+   public List<Object> callRemoteMethods(Vector<SocketAddress> recipients, ReplicableCommand command, boolean synchronous, long timeout, boolean useOutOfBandMessage) throws Exception {
       return callRemoteMethods(recipients, command, synchronous ? GroupRequest.GET_ALL : GroupRequest.GET_NONE, timeout, useOutOfBandMessage);
    }
 
-   public List<Object> callRemoteMethods(Vector<Address> recipients, ReplicableCommand command, int mode, long timeout, RspFilter responseFilter, boolean useOutOfBandMessage) throws Exception {
+   public List<Object> callRemoteMethods(Vector<SocketAddress> recipients, ReplicableCommand command, int mode, long timeout, RspFilter responseFilter, boolean useOutOfBandMessage) throws Exception {
       boolean success = true;
       try {
          // short circuit if we don't have an RpcDispatcher!
@@ -513,19 +515,19 @@ public class RPCManagerImpl implements RPCManager {
 
    // ------------ START: Partial state transfer methods ------------
 
-   public void fetchPartialState(List<Address> sources, Fqn sourceTarget, Fqn integrationTarget) throws Exception {
+   public void fetchPartialState(List<SocketAddress> sources, Fqn sourceTarget, Fqn integrationTarget) throws Exception {
       String encodedStateId = sourceTarget + DefaultStateTransferManager.PARTIAL_STATE_DELIMITER + integrationTarget;
       fetchPartialState(sources, encodedStateId);
    }
 
-   public void fetchPartialState(List<Address> sources, Fqn subtree) throws Exception {
+   public void fetchPartialState(List<SocketAddress> sources, Fqn subtree) throws Exception {
       if (subtree == null) {
          throw new IllegalArgumentException("Cannot fetch partial state. Null subtree.");
       }
       fetchPartialState(sources, subtree.toString());
    }
 
-   private void fetchPartialState(List<Address> sources, String stateId) throws Exception {
+   private void fetchPartialState(List<SocketAddress> sources, String stateId) throws Exception {
       if (sources == null || sources.isEmpty() || stateId == null) {
          // should this really be throwing an exception?  Are there valid use cases where partial state may not be available? - Manik
          // Yes -- cache is configured LOCAL but app doesn't know it -- Brian
@@ -536,7 +538,7 @@ public class RPCManagerImpl implements RPCManager {
          return;
       }
 
-      List<Address> targets = new LinkedList<Address>(sources);
+      List<SocketAddress> targets = new LinkedList<SocketAddress>(sources);
 
       //skip *this* node as a target
       targets.remove(getLocalAddress());
@@ -587,7 +589,7 @@ public class RPCManagerImpl implements RPCManager {
 
    }
 
-   private boolean getState(String stateId, Address target) throws ChannelNotConnectedException, ChannelClosedException {
+   private boolean getState(String stateId, SocketAddress target) throws ChannelNotConnectedException, ChannelClosedException {
       lastStateTransferSource = target;
       return ((JChannel) channel).getState(target, stateId, configuration.getStateRetrievalTimeout(), true);
    }
@@ -599,15 +601,15 @@ public class RPCManagerImpl implements RPCManager {
 
    @ManagedAttribute(description = "Local address")
    public String getLocalAddressString() {
-      Address address = getLocalAddress();
+	   SocketAddress address = getLocalAddress();
       return address == null ? "null" : address.toString();
    }
 
-   public Address getLastStateTransferSource() {
+   public SocketAddress getLastStateTransferSource() {
       return lastStateTransferSource;
    }
 
-   public Address getLocalAddress() {
+   public SocketAddress getLocalAddress() {
       return channel != null ? channel.getLocalAddress() : null;
    }
 
@@ -617,7 +619,7 @@ public class RPCManagerImpl implements RPCManager {
       return l == null ? "null" : l.toString();
    }
 
-   public List<Address> getMembers() {
+   public List<SocketAddress> getMembers() {
       if (isInLocalMode) return null;
       if (members == null) {
          return Collections.emptyList();
@@ -630,7 +632,7 @@ public class RPCManagerImpl implements RPCManager {
       return coordinator;
    }
 
-   public Address getCoordinator() {
+   public SocketAddress getCoordinator() {
       if (channel == null) {
          return null;
       }
@@ -658,7 +660,7 @@ public class RPCManagerImpl implements RPCManager {
 
       public void viewAccepted(View newView) {
          try {
-            Vector<Address> newMembers = newView.getMembers();
+            Vector<SocketAddress> newMembers = newView.getMembers();
             if (log.isInfoEnabled()) log.info("Received new cluster view: " + newView);
             synchronized (coordinatorLock) {
                boolean needNotification = false;
@@ -667,7 +669,7 @@ public class RPCManagerImpl implements RPCManager {
                      // we had a membership list before this event.  Check to make sure we haven't lost any members,
                      // and if so, determine what members have been removed
                      // and roll back any tx and break any locks
-                     List<Address> removed = new ArrayList<Address>(members);
+                     List<SocketAddress> removed = new ArrayList<SocketAddress>(members);
                      removed.removeAll(newMembers);
                      spi.getInvocationContext().getOptionOverrides().setSkipCacheStatusCheck(true);
                      NodeSPI root = spi.getRoot();
@@ -709,7 +711,7 @@ public class RPCManagerImpl implements RPCManager {
       /**
        * Called when a member is suspected.
        */
-      public void suspect(Address suspected_mbr) {
+      public void suspect(SocketAddress suspected_mbr) {
       }
 
       /**

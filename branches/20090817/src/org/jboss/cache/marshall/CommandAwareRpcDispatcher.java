@@ -45,6 +45,7 @@ import org.jgroups.util.Rsp;
 import org.jgroups.util.RspList;
 
 import java.io.NotSerializableException;
+import java.net.SocketAddress;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -163,7 +164,7 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher {
     * org.jgroups.blocks.RspFilter)} except that this version is aware of {@link org.jboss.cache.commands.ReplicableCommand}
     * objects.
     */
-   public RspList invokeRemoteCommands(Vector<Address> dests, ReplicableCommand command, int mode, long timeout,
+   public RspList invokeRemoteCommands(Vector<SocketAddress> dests, ReplicableCommand command, int mode, long timeout,
                                        boolean anycasting, boolean oob, RspFilter filter) throws NotSerializableException, ExecutionException, InterruptedException {
       if (dests != null && dests.isEmpty()) {
          // don't send if dest list is empty
@@ -256,13 +257,13 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher {
    private class ReplicationTask implements Callable<RspList> {
       private ReplicableCommand command;
       private boolean oob;
-      private Vector<Address> dests;
+      private Vector<SocketAddress> dests;
       private int mode;
       private long timeout;
       private boolean anycasting;
       private RspFilter filter;
 
-      private ReplicationTask(ReplicableCommand command, boolean oob, Vector<Address> dests, int mode, long timeout, boolean anycasting, RspFilter filter) {
+      private ReplicationTask(ReplicableCommand command, boolean oob, Vector<SocketAddress> dests, int mode, long timeout, boolean anycasting, RspFilter filter) {
          this.command = command;
          this.oob = oob;
          this.dests = dests;

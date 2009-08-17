@@ -21,6 +21,8 @@
  */
 package org.jboss.cache.marshall;
 
+import java.net.SocketAddress;
+
 import org.jboss.cache.Fqn;
 import org.jboss.cache.commands.ReplicableCommand;
 import org.jboss.cache.transaction.GlobalTransaction;
@@ -49,7 +51,7 @@ public class MarshalledValueHelper
             type.equals(Void.class) || type.equals(Boolean.class) || type.equals(Character.class) ||
             type.equals(Byte.class) || type.equals(Short.class) || type.equals(Integer.class) ||
             type.equals(Long.class) || type.equals(Float.class) || type.equals(Double.class) ||
-            (type.isArray() && isTypeExcluded(type.getComponentType())) || type.equals(Fqn.class) || type.equals(GlobalTransaction.class) || type.equals(Address.class) ||
+            (type.isArray() && isTypeExcluded(type.getComponentType())) || type.equals(Fqn.class) || type.equals(GlobalTransaction.class) || type.equals(SocketAddress.class) ||
             ReplicableCommand.class.isAssignableFrom(type) || type.equals(MarshalledValue.class);
    }
 }

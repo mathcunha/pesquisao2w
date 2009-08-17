@@ -27,6 +27,7 @@ import org.jboss.cache.commands.WriteCommand;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jgroups.Address;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class OptimisticPrepareCommand extends PrepareCommand
 {
    public static final int METHOD_ID = 18;
 
-   public OptimisticPrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, Address address, boolean onePhaseCommit)
+   public OptimisticPrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, SocketAddress address, boolean onePhaseCommit)
    {
       super(gtx, modifications, address, onePhaseCommit);
    }
@@ -91,7 +92,7 @@ public class OptimisticPrepareCommand extends PrepareCommand
       globalTransaction = (GlobalTransaction) args[0];
       modifications = (List<WriteCommand>) args[1];
       //args[2] is probably null.
-      localAddress = (Address) args[3];
+      localAddress = (SocketAddress) args[3];
       onePhaseCommit = (Boolean) args[4];
    }
 

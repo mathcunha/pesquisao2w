@@ -26,6 +26,7 @@ import org.jboss.cache.util.Immutables;
 import org.jgroups.Address;
 
 import java.io.Serializable;
+import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -46,20 +47,20 @@ public class BuddyGroup implements Serializable
 
    private String groupName;
 
-   private Address dataOwner;
+   private SocketAddress dataOwner;
 
    private Date lastModified = new Date();
 
    /**
     * List<Address> - a list of JGroups addresses
     */
-   private final Vector<Address> buddies = new Vector<Address>();
+   private final Vector<SocketAddress> buddies = new Vector<SocketAddress>();
 
    public BuddyGroup()
    {
    }
 
-   public BuddyGroup(String groupName, Address dataOwner)
+   public BuddyGroup(String groupName, SocketAddress dataOwner)
    {
       this.groupName = groupName;
       this.dataOwner = dataOwner;
@@ -76,30 +77,30 @@ public class BuddyGroup implements Serializable
       lastModified = new Date();
    }
 
-   public Address getDataOwner()
+   public SocketAddress getDataOwner()
    {
       return dataOwner;
    }
 
-   protected void setDataOwner(Address dataOwner)
+   protected void setDataOwner(SocketAddress dataOwner)
    {
       this.dataOwner = dataOwner;
       lastModified = new Date();
    }
 
-   public List<Address> getBuddies()
+   public List<SocketAddress> getBuddies()
    {
       // defensive copy and immutable.
       return Immutables.immutableListCopy(buddies);
    }
 
-   protected void addBuddies(Collection<Address> buddies)
+   protected void addBuddies(Collection<SocketAddress> buddies)
    {
       this.buddies.addAll(buddies);
       lastModified = new Date();
    }
 
-   protected void removeBuddies(Collection<Address> buddies)
+   protected void removeBuddies(Collection<SocketAddress> buddies)
    {
       this.buddies.removeAll(buddies);
       lastModified = new Date();
@@ -127,7 +128,7 @@ public class BuddyGroup implements Serializable
     * @return a list of buddies
     * @since 2.2.0
     */
-   public Vector<Address> getBuddiesAsVector()
+   public Vector<SocketAddress> getBuddiesAsVector()
    {
       return buddies;
    }

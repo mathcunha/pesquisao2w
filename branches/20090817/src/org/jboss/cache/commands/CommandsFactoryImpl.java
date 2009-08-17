@@ -65,6 +65,8 @@ import org.jboss.cache.transaction.TransactionTable;
 import org.jgroups.Address;
 
 import javax.transaction.TransactionManager;
+
+import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -142,7 +144,7 @@ public class CommandsFactoryImpl implements CommandsFactory
       return buildPrepareCommand(gtx, Collections.singletonList(command), rpcManager.getLocalAddress(), onePhaseCommit);
    }
 
-   public PrepareCommand buildPrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, Address address, boolean onePhaseCommit)
+   public PrepareCommand buildPrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, SocketAddress address, boolean onePhaseCommit)
    {
       return new PrepareCommand(gtx, modifications, address, onePhaseCommit);
    }
@@ -227,12 +229,12 @@ public class CommandsFactoryImpl implements CommandsFactory
       return new RollbackCommand(gtx);
    }
 
-   public OptimisticPrepareCommand buildOptimisticPrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, Address address, boolean onePhaseCommit)
+   public OptimisticPrepareCommand buildOptimisticPrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, SocketAddress address, boolean onePhaseCommit)
    {
       return new OptimisticPrepareCommand(gtx, modifications, address, onePhaseCommit);
    }
 
-   public AnnounceBuddyPoolNameCommand buildAnnounceBuddyPoolNameCommand(Address address, String buddyPoolName)
+   public AnnounceBuddyPoolNameCommand buildAnnounceBuddyPoolNameCommand(SocketAddress address, String buddyPoolName)
    {
       AnnounceBuddyPoolNameCommand command = new AnnounceBuddyPoolNameCommand(address, buddyPoolName);
       command.initialize(buddyManager);

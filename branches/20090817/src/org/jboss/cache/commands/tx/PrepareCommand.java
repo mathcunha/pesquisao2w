@@ -28,6 +28,7 @@ import org.jboss.cache.commands.WriteCommand;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jgroups.Address;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,10 +44,10 @@ public class PrepareCommand extends AbstractTransactionCommand
    public static final int METHOD_ID = 10;
 
    protected List<WriteCommand> modifications;
-   protected Address localAddress;
+   protected SocketAddress localAddress;
    protected boolean onePhaseCommit;
 
-   public PrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, Address localAddress, boolean onePhaseCommit)
+   public PrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, SocketAddress localAddress, boolean onePhaseCommit)
    {
       this.globalTransaction = gtx;
       this.modifications = modifications;
@@ -73,7 +74,7 @@ public class PrepareCommand extends AbstractTransactionCommand
       return modifications;
    }
 
-   public Address getLocalAddress()
+   public SocketAddress getLocalAddress()
    {
       return localAddress;
    }
@@ -110,7 +111,7 @@ public class PrepareCommand extends AbstractTransactionCommand
    {
       globalTransaction = (GlobalTransaction) args[0];
       modifications = (List<WriteCommand>) args[1];
-      localAddress = (Address) args[2];
+      localAddress = (SocketAddress) args[2];
       onePhaseCommit = (Boolean) args[3];
    }
 
