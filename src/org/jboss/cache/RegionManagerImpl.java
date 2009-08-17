@@ -46,6 +46,7 @@ import org.jboss.cache.util.concurrent.locks.LockContainer;
 import org.jboss.cache.util.concurrent.locks.ReentrantLockContainer;
 import org.jgroups.Address;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -422,7 +423,7 @@ public class RegionManagerImpl implements RegionManager
                cache.getInvocationContext().getOptionOverrides().setCacheModeLocal(false);
             }
 
-            List<Address> members = cache.getMembers();
+            List<SocketAddress> members = cache.getMembers();
 
             // Don't bother trying to fetch state if we are in LOCAL mode
             if (members != null && !members.isEmpty())

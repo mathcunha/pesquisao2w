@@ -25,6 +25,7 @@ import org.jboss.cache.CacheException;
 import org.jboss.cache.Fqn;
 import org.jgroups.Address;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class BuddyFqnTransformer
     * @param origFqn          the original Fqn
     * @return a backup Fqn
     */
-   public Fqn getBackupFqn(Address dataOwnerAddress, Fqn origFqn)
+   public Fqn getBackupFqn(SocketAddress dataOwnerAddress, Fqn origFqn)
    {
       return getBackupFqn(getGroupNameFromAddress(dataOwnerAddress), origFqn);
    }
@@ -130,7 +131,7 @@ public class BuddyFqnTransformer
     * @param dataOwner owner of a data set
     * @return a backup root for a given data owner
     */
-   public Fqn getBackupRoot(Address dataOwner)
+   public Fqn getBackupRoot(SocketAddress dataOwner)
    {
       return Fqn.fromRelativeElements(BUDDY_BACKUP_SUBTREE_FQN, getGroupNameFromAddress(dataOwner));
    }
@@ -141,7 +142,7 @@ public class BuddyFqnTransformer
     * @param dataOwner owner of data
     * @return Fqn of dead data owner's root
     */
-   public Fqn getDeadBackupRoot(Address dataOwner)
+   public Fqn getDeadBackupRoot(SocketAddress dataOwner)
    {
       return Fqn.fromRelativeElements(BUDDY_BACKUP_SUBTREE_FQN, getGroupNameFromAddress(dataOwner) + ":DEAD");
    }
@@ -151,7 +152,7 @@ public class BuddyFqnTransformer
       return f.isDirectChildOf(BUDDY_BACKUP_SUBTREE_FQN) && f.getLastElementAsString().endsWith(":DEAD");
    }
 
-   public String getGroupNameFromAddress(Address address)
+   public String getGroupNameFromAddress(SocketAddress address)
    {
       return address.toString().replace(':', '_');
    }

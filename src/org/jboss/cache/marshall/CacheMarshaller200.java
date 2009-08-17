@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.SocketAddress;
 import java.util.*;
 
 /**
@@ -572,7 +573,7 @@ public class CacheMarshaller200 extends AbstractMarshaller {
       long id = in.readLong();
       Object address = unmarshallObject(in, refMap);
       gtx.setId(id);
-      gtx.setAddress((Address) address);
+      gtx.setAddress((SocketAddress) address);
       return gtx;
    }
 

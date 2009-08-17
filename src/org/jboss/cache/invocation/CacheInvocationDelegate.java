@@ -59,10 +59,11 @@ import org.jboss.cache.statetransfer.StateTransferManager;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.transaction.TransactionTable;
 import org.jboss.cache.util.Immutables;
-import org.jgroups.Address;
 
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+
+import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -329,12 +330,12 @@ public class CacheInvocationDelegate<K, V> extends AbstractInvocationDelegate im
       }
    }
 
-   public Address getLocalAddress() {
+   public SocketAddress getLocalAddress() {
       if (rpcManager == null) return null;
       return rpcManager.getLocalAddress();
    }
 
-   public List<Address> getMembers() {
+   public List<SocketAddress> getMembers() {
       if (rpcManager == null) return null;
       return rpcManager.getMembers();
    }

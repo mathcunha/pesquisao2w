@@ -50,6 +50,8 @@ import org.w3c.dom.Element;
 
 import javax.management.*;
 import javax.transaction.TransactionManager;
+
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -181,12 +183,12 @@ public class CacheJmxWrapper<K, V>
       }
    }
 
-   public Address getLocalAddress()
+   public SocketAddress getLocalAddress()
    {
       return cache == null ? null : cache.getLocalAddress();
    }
 
-   public List<Address> getMembers()
+   public List<SocketAddress> getMembers()
    {
       return cache == null ? null : cache.getMembers();
    }
