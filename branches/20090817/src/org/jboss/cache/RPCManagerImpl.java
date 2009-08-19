@@ -42,7 +42,6 @@ import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.commands.ReplicableCommand;
 import org.jboss.cache.config.Configuration;
 import org.jboss.cache.config.Configuration.NodeLockingScheme;
-import org.jboss.cache.config.RuntimeConfig;
 import org.jboss.cache.factories.ComponentRegistry;
 import org.jboss.cache.factories.annotations.Inject;
 import org.jboss.cache.factories.annotations.Start;
@@ -67,7 +66,6 @@ import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.transaction.TransactionTable;
 import org.jboss.cache.util.concurrent.ReclosableLatch;
 
-import org.jgroups.Channel;
 
 import br.unifor.g2cl.GroupRequest;
 import br.unifor.g2cl.MarshalDataSession;
@@ -373,10 +371,6 @@ public class RPCManagerImpl implements RPCManager {
       
       //checkAppropriateConfig();
       
-   }
-
-   public Channel getChannel() {
-      return null;
    }
 
    @Deprecated

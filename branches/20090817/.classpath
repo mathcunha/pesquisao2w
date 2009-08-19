@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="lib/jcip-annotations.jar"/>
 	<classpathentry kind="lib" path="lib/jdbm.jar"/>
 	<classpathentry kind="lib" path="lib/je.jar"/>
-	<classpathentry kind="lib" path="lib/jgroups.jar"/>
 	<classpathentry kind="lib" path="lib/jta.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/g2cl"/>

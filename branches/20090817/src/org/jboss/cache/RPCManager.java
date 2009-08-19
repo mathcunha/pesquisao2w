@@ -28,8 +28,6 @@ import java.util.Vector;
 import org.jboss.cache.RPCManagerImpl.FlushTracker;
 import org.jboss.cache.commands.ReplicableCommand;
 
-import org.jgroups.Channel;
-
 import br.unifor.g2cl.RspFilter;
 
 /**
@@ -146,13 +144,6 @@ public interface RPCManager
     * @throws Exception in the event of problems
     */
    void fetchPartialState(List<SocketAddress> sources, Fqn subtree) throws Exception;
-
-   /**
-    * Retrieves the Channel
-    *
-    * @return a channel
-    */
-   Channel getChannel();
 
    /**
     * Returns the last state transfer source address.
