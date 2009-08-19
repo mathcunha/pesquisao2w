@@ -44,7 +44,7 @@ import org.jboss.cache.jmx.annotations.ManagedOperation;
 import org.jboss.cache.lock.LockManager;
 import org.jboss.cache.util.concurrent.locks.LockContainer;
 import org.jboss.cache.util.concurrent.locks.ReentrantLockContainer;
-import org.jgroups.Address;
+
 
 import java.net.SocketAddress;
 import java.util.ArrayList;

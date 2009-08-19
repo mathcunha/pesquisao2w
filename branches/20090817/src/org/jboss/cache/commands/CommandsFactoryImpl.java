@@ -62,7 +62,7 @@ import org.jboss.cache.interceptors.InterceptorChain;
 import org.jboss.cache.notifications.Notifier;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.transaction.TransactionTable;
-import org.jgroups.Address;
+
 
 import javax.transaction.TransactionManager;
 

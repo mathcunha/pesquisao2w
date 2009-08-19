@@ -67,7 +67,7 @@ import org.jboss.cache.transaction.TransactionTable;
 import org.jboss.cache.util.concurrent.ReclosableLatch;
 import org.jboss.cache.util.reflect.ReflectionUtil;
 
-import org.jgroups.Address;
+
 import org.jgroups.Channel;
 import org.jgroups.ChannelClosedException;
 import org.jgroups.ChannelException;

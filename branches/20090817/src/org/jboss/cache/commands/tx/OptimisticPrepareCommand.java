@@ -25,7 +25,7 @@ import org.jboss.cache.InvocationContext;
 import org.jboss.cache.commands.Visitor;
 import org.jboss.cache.commands.WriteCommand;
 import org.jboss.cache.transaction.GlobalTransaction;
-import org.jgroups.Address;
+
 
 import java.net.SocketAddress;
 import java.util.ArrayList;

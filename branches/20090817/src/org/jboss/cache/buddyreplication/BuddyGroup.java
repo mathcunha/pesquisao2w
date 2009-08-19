@@ -23,7 +23,7 @@ package org.jboss.cache.buddyreplication;
 
 import net.jcip.annotations.ThreadSafe;
 import org.jboss.cache.util.Immutables;
-import org.jgroups.Address;
+
 
 import java.io.Serializable;
 import java.net.SocketAddress;

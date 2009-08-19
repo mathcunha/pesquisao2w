@@ -23,7 +23,6 @@ package org.jboss.cache.buddyreplication;
 
 import org.jboss.cache.CacheException;
 import org.jboss.cache.Fqn;
-import org.jgroups.Address;
 
 import java.net.SocketAddress;
 import java.util.ArrayList;

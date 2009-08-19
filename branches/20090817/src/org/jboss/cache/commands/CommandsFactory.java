@@ -51,7 +51,7 @@ import org.jboss.cache.commands.write.PutKeyValueCommand;
 import org.jboss.cache.commands.write.RemoveKeyCommand;
 import org.jboss.cache.commands.write.RemoveNodeCommand;
 import org.jboss.cache.transaction.GlobalTransaction;
-import org.jgroups.Address;
+
 
 import java.net.SocketAddress;
 import java.util.List;

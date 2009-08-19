@@ -33,7 +33,7 @@ import org.jboss.cache.optimistic.DefaultDataVersion;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.util.FastCopyHashMap;
 import org.jboss.cache.util.Immutables;
-import org.jgroups.Address;
+
 import org.jgroups.stack.IpAddress;
 
 import java.io.Externalizable;
