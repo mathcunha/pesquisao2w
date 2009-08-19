@@ -21,7 +21,7 @@
  */
 package org.jboss.cache.notifications.event;
 
-import net.sf.jgcs.membership.View;
+import net.sf.jgcs.membership.Membership;
 
 import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
@@ -50,12 +50,12 @@ public class EventImpl implements CacheBlockedEvent, CacheUnblockedEvent, CacheS
    private boolean originLocal = true; // by default events all originate locally
    private Fqn targetFqn;
    private boolean successful;
-   private View newView;
+   private Membership newView;
    private Type type;
    private BuddyGroup buddyGroup;
 
 
-   public EventImpl(boolean pre, Cache cache, ModificationType modificationType, Map data, Fqn fqn, Transaction transaction, boolean originLocal, Fqn targetFqn, boolean successful, View newView, Type type)
+   public EventImpl(boolean pre, Cache cache, ModificationType modificationType, Map data, Fqn fqn, Transaction transaction, boolean originLocal, Fqn targetFqn, boolean successful, Membership newView, Type type)
    {
       this.pre = pre;
       this.cache = cache;
@@ -124,7 +124,7 @@ public class EventImpl implements CacheBlockedEvent, CacheUnblockedEvent, CacheS
       return successful;
    }
 
-   public View getNewView()
+   public Membership getNewView()
    {
       return newView;
    }
@@ -176,7 +176,7 @@ public class EventImpl implements CacheBlockedEvent, CacheUnblockedEvent, CacheS
       this.successful = successful;
    }
 
-   public void setNewView(View newView)
+   public void setNewView(Membership newView)
    {
       this.newView = newView;
    }

@@ -21,7 +21,7 @@
  */
 package org.jboss.cache.notifications;
 
-import net.sf.jgcs.membership.View;
+import net.sf.jgcs.membership.Membership;
 
 import org.jboss.cache.Fqn;
 import org.jboss.cache.InvocationContext;
@@ -101,7 +101,7 @@ public interface Notifier
     * Notifies all registered listeners of a viewChange event.  Note that viewChange notifications are ALWAYS sent
     * immediately.
     */
-   void notifyViewChange(View view, InvocationContext ctx);
+   void notifyViewChange(Membership view, InvocationContext ctx);
 
    /**
     * Notifies all registered listeners of a buddy group change event.  Note that buddy group change notifications are ALWAYS sent

@@ -21,7 +21,7 @@
  */
 package org.jboss.cache.loader;
 
-import net.sf.jgcs.membership.View;
+import net.sf.jgcs.membership.Membership;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -362,11 +362,11 @@ public class SingletonStoreCacheLoader extends AbstractDelegatingCacheLoader
     * @param newView View instance containing the new view of the cluster
     * @return whether the current node is the coordinator or not.
     */
-   private boolean isCoordinator(View newView)
+   private boolean isCoordinator(Membership newView)
    {
       if (newView != null && localAddress != null)
       {
-         Vector mbrs = newView.getMembers();
+         Vector mbrs = new Vector(newView.getMembershipList());
          return mbrs != null && mbrs.size() > 0 && localAddress.equals(mbrs.firstElement());
       }
 

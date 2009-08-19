@@ -21,7 +21,8 @@
  */
 package org.jboss.cache.notifications.event;
 
-import net.sf.jgcs.membership.View;
+import net.sf.jgcs.membership.Membership;
+
 
 
 /**
@@ -35,5 +36,5 @@ public interface ViewChangedEvent extends Event
    /**
     * @return the new view associated with this view change.
     */
-   View getNewView();
+   Membership getNewView();
 }
