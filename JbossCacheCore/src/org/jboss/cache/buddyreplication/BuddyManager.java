@@ -21,7 +21,7 @@
  */
 package org.jboss.cache.buddyreplication;
 
-import net.sf.jgcs.membership.View;
+import net.sf.jgcs.membership.Membership;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -514,7 +514,7 @@ public class BuddyManager
    {
       Channel ch = configuration.getRuntimeConfig().getChannel();
       //FIXME nao utilizado
-      View currentView = null;
+      Membership currentView = null;
       List<SocketAddress> deadBuddies = new LinkedList<SocketAddress>();
       for (SocketAddress a : members) if (!currentView.containsMember(a)) deadBuddies.add(a);
       return deadBuddies;
@@ -1291,10 +1291,10 @@ public class BuddyManager
       @ViewChanged
       public void handleViewChange(ViewChangedEvent event)
       {
-         View newView = event.getNewView();
+         Membership newView = event.getNewView();
          if (trace)
             log.trace("BuddyManager CacheListener - got view change with new view " + newView);
-         Vector<SocketAddress> newMembers = newView.getMembers();
+         Vector<SocketAddress> newMembers = new Vector(newView.getMembershipList());
 
          // the whole 'oldMembers' concept is only used for buddy pool announcements.
          MembershipChange mc = new MembershipChange(oldMembers == null ? null : new Vector<SocketAddress>(oldMembers), new Vector<SocketAddress>(newMembers));

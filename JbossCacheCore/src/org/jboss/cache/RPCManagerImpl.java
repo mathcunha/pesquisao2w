@@ -31,10 +31,9 @@ import net.sf.jgcs.ProtocolFactory;
 import net.sf.jgcs.Service;
 import net.sf.jgcs.membership.BlockListener;
 import net.sf.jgcs.membership.BlockSession;
+import net.sf.jgcs.membership.Membership;
 import net.sf.jgcs.membership.MembershipListener;
 import net.sf.jgcs.membership.MembershipSession;
-import net.sf.jgcs.membership.View;
-import net.sf.jgcs.membership.ViewId;
 import net.sf.jgcs.utils.FactoryUtil;
 
 import org.apache.commons.logging.Log;
@@ -656,9 +655,9 @@ public class RPCManagerImpl implements RPCManager {
 
    protected class MembershipListenerAdaptor implements MembershipListener, BlockListener {
 
-      public void viewAccepted(View newView) {
+      public void viewAccepted(Membership newView) {
          try {
-            Vector<SocketAddress> newMembers = newView.getMembers();
+            Vector<SocketAddress> newMembers = new Vector(newView.getJoinedMembers());
             if (log.isInfoEnabled()) log.info("Received new cluster view: " + newView);
             synchronized (coordinatorLock) {
                boolean needNotification = false;
@@ -767,15 +766,8 @@ public class RPCManagerImpl implements RPCManager {
   		SocketAddress coordenador;
   		try {
   			
-  			coordenador = controlSession.getMembership().getMemberAddress(controlSession.getMembership().getCoordinatorRank());
-  			
-  			Vector<SocketAddress> members = new Vector<SocketAddress>(controlSession.getMembership().getMembershipList());
-  			  			
-  			View newView=new View(new ViewId(coordenador, System.currentTimeMillis()), members);
-  			
-  			viewAccepted(newView);			
-  			
-  			
+  			viewAccepted(controlSession.getMembership());
+
   		} catch (NotJoinedException e) {
   			// TODO Auto-generated catch block
   			e.printStackTrace();

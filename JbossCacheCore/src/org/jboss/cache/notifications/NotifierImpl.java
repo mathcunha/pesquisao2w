@@ -21,7 +21,7 @@
  */
 package org.jboss.cache.notifications;
 
-import net.sf.jgcs.membership.View;
+import net.sf.jgcs.membership.Membership;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -540,7 +540,7 @@ public class NotifierImpl implements Notifier
       }
    }
 
-   public void notifyViewChange(final View newView, InvocationContext ctx)
+   public void notifyViewChange(final Membership newView, InvocationContext ctx)
    {
       if (!viewChangedListeners.isEmpty())
       {
