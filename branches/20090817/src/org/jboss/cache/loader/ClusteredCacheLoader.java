@@ -41,7 +41,8 @@ import org.jboss.cache.config.CacheLoaderConfig.IndividualCacheLoaderConfig;
 import org.jboss.cache.factories.annotations.Inject;
 import org.jboss.cache.lock.StripedLock;
 import org.jgroups.blocks.GroupRequest;
-import org.jgroups.blocks.RspFilter;
+
+import br.unifor.g2cl.RspFilter;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

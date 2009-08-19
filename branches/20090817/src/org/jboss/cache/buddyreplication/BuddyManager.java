@@ -21,6 +21,8 @@
  */
 package org.jboss.cache.buddyreplication;
 
+import net.sf.jgcs.membership.View;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.CacheException;
@@ -60,7 +62,6 @@ import org.jboss.cache.util.reflect.ReflectionUtil;
 import org.jboss.util.stream.MarshalledValueInputStream;
 import org.jboss.util.stream.MarshalledValueOutputStream;
 import org.jgroups.Channel;
-import org.jgroups.View;
 import org.jgroups.util.Util;
 
 import java.io.ByteArrayInputStream;
@@ -512,7 +513,8 @@ public class BuddyManager
    private List<SocketAddress> checkBuddyStatus(List<SocketAddress> members)
    {
       Channel ch = configuration.getRuntimeConfig().getChannel();
-      View currentView = ch.getView();
+      //TODO nao utilizado
+      View currentView = null;
       List<SocketAddress> deadBuddies = new LinkedList<SocketAddress>();
       for (SocketAddress a : members) if (!currentView.containsMember(a)) deadBuddies.add(a);
       return deadBuddies;

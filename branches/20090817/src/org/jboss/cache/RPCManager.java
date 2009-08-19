@@ -24,13 +24,13 @@ package org.jboss.cache;
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jboss.cache.RPCManagerImpl.FlushTracker;
 import org.jboss.cache.commands.ReplicableCommand;
-import org.jgroups.Address;
+
 import org.jgroups.Channel;
-import org.jgroups.blocks.RspFilter;
+
+import br.unifor.g2cl.RspFilter;
 
 /**
  * Provides a mechanism for communicating with other caches in the cluster.  For now this is based on JGroups as an underlying

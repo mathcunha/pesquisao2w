@@ -47,9 +47,11 @@ import org.jboss.cache.commands.tx.OptimisticPrepareCommand;
 import org.jboss.cache.factories.annotations.Inject;
 import org.jboss.cache.marshall.NodeData;
 import org.jboss.cache.transaction.GlobalTransaction;
-import org.jgroups.Address;
+
 import org.jgroups.blocks.GroupRequest;
-import org.jgroups.blocks.RspFilter;
+
+import br.unifor.g2cl.RspFilter;
+
 
 import java.net.SocketAddress;
 import java.util.ArrayList;
