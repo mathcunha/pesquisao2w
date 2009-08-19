@@ -14,9 +14,9 @@ public class PersistenceDelegate {
 	private static PersistenceDelegate myself; 
 	
 	private PersistenceDelegate() throws SecurityException, IOException{
-		manager = new JbossCachePojoPersistenceManager();
-		manager.config("replSync-service.xml");
-		manager.createCache("replSync-service.xml");
+		manager = new JbossCachePersistenceManager();
+		manager.config("/replSync-service.xml");
+		manager.createCache("/replSync-service.xml");
 	}
 	
 	public static PersistenceDelegate getInstance() throws SecurityException, IOException{
