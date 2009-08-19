@@ -25,7 +25,7 @@ import org.jboss.cache.Fqn;
 import org.jboss.cache.NodeSPI;
 import org.jboss.cache.buddyreplication.BuddyManager;
 import org.jboss.cache.commands.read.GravitateDataCommand;
-import org.jgroups.Address;
+
 
 import java.net.SocketAddress;
 import java.util.Set;

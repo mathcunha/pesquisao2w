@@ -35,7 +35,7 @@ import org.jboss.cache.buddyreplication.BuddyManager;
 import org.jboss.cache.buddyreplication.GravitateResult;
 import org.jboss.cache.commands.Visitor;
 import org.jboss.cache.marshall.NodeData;
-import org.jgroups.Address;
+
 
 import java.net.SocketAddress;
 import java.util.LinkedList;

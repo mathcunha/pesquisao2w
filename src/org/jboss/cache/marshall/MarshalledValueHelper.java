@@ -26,7 +26,7 @@ import java.net.SocketAddress;
 import org.jboss.cache.Fqn;
 import org.jboss.cache.commands.ReplicableCommand;
 import org.jboss.cache.transaction.GlobalTransaction;
-import org.jgroups.Address;
+
 
 /**
  * Common functionality used by the {@link org.jboss.cache.interceptors.MarshalledValueInterceptor} and the {@link MarshalledValueMap}.

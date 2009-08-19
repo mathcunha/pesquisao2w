@@ -25,7 +25,7 @@ import org.jboss.cache.Cache;
 import org.jboss.cache.CacheException;
 import org.jboss.cache.CacheStatus;
 import org.jboss.cache.config.Configuration;
-import org.jgroups.Address;
+
 
 import java.net.SocketAddress;
 import java.util.List;

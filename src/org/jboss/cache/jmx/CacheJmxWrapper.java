@@ -42,7 +42,7 @@ import org.jboss.cache.config.parsing.element.BuddyElementParser;
 import org.jboss.cache.config.parsing.element.EvictionElementParser;
 import org.jboss.cache.config.parsing.element.LoadersElementParser;
 import org.jboss.cache.util.CachePrinter;
-import org.jgroups.Address;
+
 import org.jgroups.Channel;
 import org.jgroups.ChannelFactory;
 import org.jgroups.jmx.JChannelFactoryMBean;

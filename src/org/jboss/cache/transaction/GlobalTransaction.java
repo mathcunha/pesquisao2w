@@ -22,7 +22,7 @@
 package org.jboss.cache.transaction;
 
 
-import org.jgroups.Address;
+
 
 import java.io.Externalizable;
 import java.io.IOException;

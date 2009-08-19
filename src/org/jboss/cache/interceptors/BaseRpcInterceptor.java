@@ -35,7 +35,7 @@ import org.jboss.cache.interceptors.base.CommandInterceptor;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.transaction.TransactionContext;
 import org.jboss.cache.transaction.TransactionTable;
-import org.jgroups.Address;
+
 
 import javax.transaction.Transaction;
 

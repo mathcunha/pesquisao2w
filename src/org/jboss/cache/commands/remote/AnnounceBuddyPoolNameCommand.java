@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.InvocationContext;
 import org.jboss.cache.buddyreplication.BuddyManager;
 import org.jboss.cache.commands.ReplicableCommand;
-import org.jgroups.Address;
+
 
 /**
  * Announces a buddy pool name to the cluster.  This is not a {@link org.jboss.cache.commands.VisitableCommand} and hence

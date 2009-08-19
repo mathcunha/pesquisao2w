@@ -30,7 +30,7 @@ import org.jboss.cache.factories.annotations.Inject;
 import org.jboss.cache.factories.annotations.NonVolatile;
 import org.jboss.cache.factories.context.ContextFactory;
 import org.jboss.cache.jmx.annotations.ManagedAttribute;
-import org.jgroups.Address;
+
 
 import javax.transaction.Status;
 import javax.transaction.SystemException;
