@@ -21,6 +21,8 @@
  */
 package org.jboss.cache.loader;
 
+import net.sf.jgcs.membership.View;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.Fqn;
@@ -34,10 +36,10 @@ import org.jboss.cache.notifications.annotation.CacheStopped;
 import org.jboss.cache.notifications.annotation.ViewChanged;
 import org.jboss.cache.notifications.event.Event;
 import org.jboss.cache.notifications.event.ViewChangedEvent;
-import org.jgroups.Address;
-import org.jgroups.View;
+
 
 import java.io.ObjectInputStream;
+import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +105,7 @@ public class SingletonStoreCacheLoader extends AbstractDelegatingCacheLoader
     * Address instance that allows SingletonStoreCacheLoader to find out whether it became the coordinator of the
     * cluster, or whether it stopped being it. This dictates whether the SingletonStoreCacheLoader is active or not.
     */
-   private Address localAddress;
+   private SocketAddress localAddress;
 
    /**
     * Whether the the current node is the coordinator and therefore SingletonStoreCacheLoader is active. Being active

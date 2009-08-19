@@ -25,8 +25,9 @@ import org.jboss.cache.Cache;
 import org.jboss.cache.CacheException;
 import org.jboss.cache.CacheStatus;
 import org.jboss.cache.config.Configuration;
-import org.jgroups.Address;
 
+
+import java.net.SocketAddress;
 import java.util.List;
 
 /**
@@ -144,7 +145,7 @@ public interface CacheJmxWrapperMBean<K, V> extends LegacyConfiguration
     * @return the local address of this cache in a cluster, or <code>null</code>
     *         if running in local mode.
     */
-   Address getLocalAddress();
+   SocketAddress getLocalAddress();
 
    /**
     * Returns a list of members in the cluster, or <code>null</code>
@@ -153,7 +154,7 @@ public interface CacheJmxWrapperMBean<K, V> extends LegacyConfiguration
     * @return a {@link List} of members in the cluster, or <code>null</code>
     *         if running in local mode.
     */
-   List<Address> getMembers();
+   List<SocketAddress> getMembers();
 
    /**
     * @return number of nodes in the cache

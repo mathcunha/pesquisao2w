@@ -23,8 +23,8 @@ package org.jboss.cache.buddyreplication;
 
 import org.jboss.cache.config.BuddyReplicationConfig;
 import org.jboss.cache.config.BuddyReplicationConfig.BuddyLocatorConfig;
-import org.jgroups.Address;
 
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.Map;
 
@@ -75,5 +75,5 @@ public interface BuddyLocator
     *         <code>dataOwner</code>. Will not be <code>null</code>, may
     *         be empty.
     */
-   List<Address> locateBuddies(Map<Address, String> buddyPoolMap, List<Address> currentMembership, Address dataOwner);
+   List<SocketAddress> locateBuddies(Map<SocketAddress, String> buddyPoolMap, List<SocketAddress> currentMembership, SocketAddress dataOwner);
 }

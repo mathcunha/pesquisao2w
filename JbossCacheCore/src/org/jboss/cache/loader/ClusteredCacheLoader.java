@@ -40,12 +40,13 @@ import org.jboss.cache.commands.remote.ClusteredGetCommand;
 import org.jboss.cache.config.CacheLoaderConfig.IndividualCacheLoaderConfig;
 import org.jboss.cache.factories.annotations.Inject;
 import org.jboss.cache.lock.StripedLock;
-import org.jgroups.Address;
 import org.jgroups.blocks.GroupRequest;
-import org.jgroups.blocks.RspFilter;
+
+import br.unifor.g2cl.RspFilter;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -357,16 +358,16 @@ public class ClusteredCacheLoader extends AbstractCacheLoader
    public static class ResponseValidityFilter implements RspFilter
    {
       private int numValidResponses = 0;
-      private List<Address> pendingResponders;
+      private List<SocketAddress> pendingResponders;
 
-      public ResponseValidityFilter(List<Address> expected, Address localAddress)
+      public ResponseValidityFilter(List<SocketAddress> expected, SocketAddress localAddress)
       {
-         this.pendingResponders = new ArrayList<Address>(expected);
+         this.pendingResponders = new ArrayList<SocketAddress>(expected);
          // We'll never get a response from ourself
          this.pendingResponders.remove(localAddress);
       }
 
-      public boolean isAcceptable(Object object, Address address)
+      public boolean isAcceptable(Object object, SocketAddress address)
       {
          pendingResponders.remove(address);
 

@@ -25,8 +25,9 @@ import org.jboss.cache.Fqn;
 import org.jboss.cache.NodeSPI;
 import org.jboss.cache.buddyreplication.BuddyManager;
 import org.jboss.cache.commands.read.GravitateDataCommand;
-import org.jgroups.Address;
 
+
+import java.net.SocketAddress;
 import java.util.Set;
 
 /**
@@ -39,12 +40,12 @@ import java.util.Set;
 @Deprecated
 public class LegacyGravitateDataCommand extends GravitateDataCommand
 {
-   public LegacyGravitateDataCommand(Fqn fqn, boolean searchSubtrees, Address localAddress)
+   public LegacyGravitateDataCommand(Fqn fqn, boolean searchSubtrees, SocketAddress localAddress)
    {
       super(fqn, searchSubtrees, localAddress);
    }
 
-   public LegacyGravitateDataCommand(Address localAddress)
+   public LegacyGravitateDataCommand(SocketAddress localAddress)
    {
       super(localAddress);
    }

@@ -44,8 +44,9 @@ import org.jboss.cache.jmx.annotations.ManagedOperation;
 import org.jboss.cache.lock.LockManager;
 import org.jboss.cache.util.concurrent.locks.LockContainer;
 import org.jboss.cache.util.concurrent.locks.ReentrantLockContainer;
-import org.jgroups.Address;
 
+
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -422,7 +423,7 @@ public class RegionManagerImpl implements RegionManager
                cache.getInvocationContext().getOptionOverrides().setCacheModeLocal(false);
             }
 
-            List<Address> members = cache.getMembers();
+            List<SocketAddress> members = cache.getMembers();
 
             // Don't bother trying to fetch state if we are in LOCAL mode
             if (members != null && !members.isEmpty())
@@ -434,10 +435,10 @@ public class RegionManagerImpl implements RegionManager
          {
             // Get the state from each DataOwner and integrate in their
             // respective buddy backup cache
-            List<Address> buddies = buddyManager.getBackupDataOwners();
-            for (Address buddy : buddies)
+            List<SocketAddress> buddies = buddyManager.getBackupDataOwners();
+            for (SocketAddress buddy : buddies)
             {
-               List<Address> sources = new ArrayList<Address>(1);
+               List<SocketAddress> sources = new ArrayList<SocketAddress>(1);
                if (!cache.getMembers().contains(buddy))
                {
                   continue;

@@ -42,7 +42,7 @@ import org.jboss.cache.config.parsing.element.BuddyElementParser;
 import org.jboss.cache.config.parsing.element.EvictionElementParser;
 import org.jboss.cache.config.parsing.element.LoadersElementParser;
 import org.jboss.cache.util.CachePrinter;
-import org.jgroups.Address;
+
 import org.jgroups.Channel;
 import org.jgroups.ChannelFactory;
 import org.jgroups.jmx.JChannelFactoryMBean;
@@ -50,6 +50,8 @@ import org.w3c.dom.Element;
 
 import javax.management.*;
 import javax.transaction.TransactionManager;
+
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -181,12 +183,12 @@ public class CacheJmxWrapper<K, V>
       }
    }
 
-   public Address getLocalAddress()
+   public SocketAddress getLocalAddress()
    {
       return cache == null ? null : cache.getLocalAddress();
    }
 
-   public List<Address> getMembers()
+   public List<SocketAddress> getMembers()
    {
       return cache == null ? null : cache.getMembers();
    }

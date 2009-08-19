@@ -21,14 +21,14 @@
  */
 package org.jboss.cache;
 
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.jboss.cache.RPCManagerImpl.FlushTracker;
 import org.jboss.cache.commands.ReplicableCommand;
-import org.jgroups.Address;
-import org.jgroups.Channel;
-import org.jgroups.blocks.RspFilter;
+
+import br.unifor.g2cl.RspFilter;
 
 /**
  * Provides a mechanism for communicating with other caches in the cluster.  For now this is based on JGroups as an underlying
@@ -76,7 +76,7 @@ public interface RPCManager
     * @return a list of responses from each member contacted.
     * @throws Exception in the event of problems.
     */
-   List<Object> callRemoteMethods(Vector<Address> recipients, ReplicableCommand cacheCommand, int mode, long timeout, RspFilter responseFilter, boolean useOutOfBandMessage) throws Exception;
+   List<Object> callRemoteMethods(Vector<SocketAddress> recipients, ReplicableCommand cacheCommand, int mode, long timeout, RspFilter responseFilter, boolean useOutOfBandMessage) throws Exception;
 
    /**
     * Invokes an RPC call on other caches in the cluster.
@@ -89,7 +89,7 @@ public interface RPCManager
     * @return a list of responses from each member contacted.
     * @throws Exception in the event of problems.
     */
-   List<Object> callRemoteMethods(Vector<Address> recipients, ReplicableCommand cacheCommand, int mode, long timeout, boolean useOutOfBandMessage) throws Exception;
+   List<Object> callRemoteMethods(Vector<SocketAddress> recipients, ReplicableCommand cacheCommand, int mode, long timeout, boolean useOutOfBandMessage) throws Exception;
 
    /**
     * Invokes an RPC call on other caches in the cluster.
@@ -102,7 +102,7 @@ public interface RPCManager
     * @return a list of responses from each member contacted.
     * @throws Exception in the event of problems.
     */
-   List<Object> callRemoteMethods(Vector<Address> recipients, ReplicableCommand cacheCommand, boolean synchronous, long timeout, boolean useOutOfBandMessage) throws Exception;
+   List<Object> callRemoteMethods(Vector<SocketAddress> recipients, ReplicableCommand cacheCommand, boolean synchronous, long timeout, boolean useOutOfBandMessage) throws Exception;
 
    /**
     * @return true if the current Channel is the coordinator of the cluster.
@@ -112,19 +112,19 @@ public interface RPCManager
    /**
     * @return the Address of the current coordinator.
     */
-   Address getCoordinator();
+   SocketAddress getCoordinator();
 
    /**
     * Retrieves the local JGroups channel's address
     *
     * @return an Address
     */
-   Address getLocalAddress();
+   SocketAddress getLocalAddress();
 
    /**
     * Returns a defensively copied list of  members in the current cluster view.
     */
-   List<Address> getMembers();
+   List<SocketAddress> getMembers();
 
    /**
     * Retrieves partial state from remote instances.
@@ -134,7 +134,7 @@ public interface RPCManager
     * @param integrationTarget integration point on local cache to apply state
     * @throws Exception in the event of problems
     */
-   void fetchPartialState(List<Address> sources, Fqn sourceTarget, Fqn integrationTarget) throws Exception;
+   void fetchPartialState(List<SocketAddress> sources, Fqn sourceTarget, Fqn integrationTarget) throws Exception;
 
    /**
     * Retrieves partial state from remote instances.
@@ -143,21 +143,14 @@ public interface RPCManager
     * @param subtree Fqn subtree to retrieve.  Will be integrated at the same point.
     * @throws Exception in the event of problems
     */
-   void fetchPartialState(List<Address> sources, Fqn subtree) throws Exception;
-
-   /**
-    * Retrieves the Channel
-    *
-    * @return a channel
-    */
-   Channel getChannel();
+   void fetchPartialState(List<SocketAddress> sources, Fqn subtree) throws Exception;
 
    /**
     * Returns the last state transfer source address.
     *
     * @return the last state transfer source address
     */
-   public Address getLastStateTransferSource();
+   public SocketAddress getLastStateTransferSource();
 
    /**
     * Returns the flush tracker associated with this manager.

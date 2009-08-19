@@ -30,12 +30,14 @@ import org.jboss.cache.factories.annotations.Inject;
 import org.jboss.cache.factories.annotations.NonVolatile;
 import org.jboss.cache.factories.context.ContextFactory;
 import org.jboss.cache.jmx.annotations.ManagedAttribute;
-import org.jgroups.Address;
+
 
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+
+import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -431,7 +433,7 @@ public class TransactionTable
       GlobalTransaction gtx = get(tx);
       if (gtx == null && createIfNotExists)
       {
-         Address addr = rpcManager.getLocalAddress();
+    	 SocketAddress addr = rpcManager.getLocalAddress();
          gtx = GlobalTransaction.create(addr);
          put(tx, gtx);
          TransactionContext transactionContext;

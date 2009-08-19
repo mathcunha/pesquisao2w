@@ -22,12 +22,13 @@
 package org.jboss.cache.transaction;
 
 
-import org.jgroups.Address;
+
 
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.net.SocketAddress;
 
 
 /**
@@ -46,7 +47,7 @@ public class GlobalTransaction implements Externalizable
 
    private static long sid = 0;
 
-   private Address addr = null;
+   private SocketAddress addr = null;
    private long id = -1;
    private transient boolean remote = false;
 
@@ -60,7 +61,7 @@ public class GlobalTransaction implements Externalizable
    {
    }
 
-   private GlobalTransaction(Address addr)
+   private GlobalTransaction(SocketAddress addr)
    {
       this.addr = addr;
       id = newId();
@@ -71,7 +72,7 @@ public class GlobalTransaction implements Externalizable
       return ++sid;
    }
 
-   public static GlobalTransaction create(Address addr)
+   public static GlobalTransaction create(SocketAddress addr)
    {
       return new GlobalTransaction(addr);
    }
@@ -81,7 +82,7 @@ public class GlobalTransaction implements Externalizable
       return addr;
    }
 
-   public void setAddress(Address address)
+   public void setAddress(SocketAddress address)
    {
       addr = address;
    }
@@ -131,7 +132,7 @@ public class GlobalTransaction implements Externalizable
 
    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
    {
-      addr = (Address) in.readObject();
+      addr = (SocketAddress) in.readObject();
       id = in.readLong();
       hash_code = -1;
    }

@@ -25,11 +25,12 @@ import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.config.BuddyReplicationConfig.BuddyLocatorConfig;
-import org.jgroups.Address;
+
 import org.jgroups.stack.IpAddress;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -79,10 +80,10 @@ public class NextMemberBuddyLocator implements BuddyLocator
       }
    }
 
-   public List<Address> locateBuddies(Map<Address, String> buddyPoolMap, List<Address> currentMembership, Address dataOwner)
+   public List<SocketAddress> locateBuddies(Map<SocketAddress, String> buddyPoolMap, List<SocketAddress> currentMembership, SocketAddress dataOwner)
    {
       int numBuddiesToFind = Math.min(config.getNumBuddies(), currentMembership.size());
-      List<Address> buddies = new ArrayList<Address>(numBuddiesToFind);
+      List<SocketAddress> buddies = new ArrayList<SocketAddress>(numBuddiesToFind);
 
       // find where we are in the list.
       int dataOwnerSubscript = currentMembership.indexOf(dataOwner);
@@ -134,7 +135,7 @@ public class NextMemberBuddyLocator implements BuddyLocator
             break;
          }
 
-         Address candidate = currentMembership.get(subscript);
+         SocketAddress candidate = currentMembership.get(subscript);
          if (
                !candidate.equals(dataOwner) && // ignore self from selection as buddy
                      !buddies.contains(candidate) && // havent already considered this candidate
@@ -151,7 +152,7 @@ public class NextMemberBuddyLocator implements BuddyLocator
       return buddies;
    }
 
-   private boolean isInSameBuddyPool(Map<Address, String> buddyPoolMap, Address candidate, Address dataOwner)
+   private boolean isInSameBuddyPool(Map<SocketAddress, String> buddyPoolMap, SocketAddress candidate, SocketAddress dataOwner)
    {
       if (buddyPoolMap == null) return true;
       Object ownerPoolName = buddyPoolMap.get(dataOwner);
@@ -159,11 +160,11 @@ public class NextMemberBuddyLocator implements BuddyLocator
       return !(ownerPoolName == null || candidatePoolName == null) && ownerPoolName.equals(candidatePoolName);
    }
 
-   private boolean isColocated(Address candidate, Address dataOwner)
+   private boolean isColocated(SocketAddress candidate, SocketAddress dataOwner)
    {
       // assume they're both IpAddresses??
-      InetAddress inetC = ((IpAddress) candidate).getIpAddress();
-      InetAddress inetD = ((IpAddress) dataOwner).getIpAddress();
+      SocketAddress inetC = candidate;
+      SocketAddress inetD = dataOwner;
 
       if (inetC.equals(inetD)) return true;
 
