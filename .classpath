@@ -16,5 +16,7 @@
 	<classpathentry kind="lib" path="lib/jgroups.jar"/>
 	<classpathentry kind="lib" path="lib/jta.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/g2cl"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jgcs"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

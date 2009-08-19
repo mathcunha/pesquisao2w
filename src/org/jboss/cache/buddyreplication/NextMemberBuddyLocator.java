@@ -135,7 +135,7 @@ public class NextMemberBuddyLocator implements BuddyLocator
             break;
          }
 
-         Address candidate = currentMembership.get(subscript);
+         SocketAddress candidate = currentMembership.get(subscript);
          if (
                !candidate.equals(dataOwner) && // ignore self from selection as buddy
                      !buddies.contains(candidate) && // havent already considered this candidate
@@ -163,8 +163,8 @@ public class NextMemberBuddyLocator implements BuddyLocator
    private boolean isColocated(SocketAddress candidate, SocketAddress dataOwner)
    {
       // assume they're both IpAddresses??
-      InetAddress inetC = ((IpAddress) candidate).getIpAddress();
-      InetAddress inetD = ((IpAddress) dataOwner).getIpAddress();
+      SocketAddress inetC = candidate;
+      SocketAddress inetD = dataOwner;
 
       if (inetC.equals(inetD)) return true;
 

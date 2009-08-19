@@ -150,7 +150,7 @@ public abstract class BaseRpcInterceptor extends CommandInterceptor
       {
          if (usingBuddyReplication && !isBroadcast) call = buddyManager.transformFqns((VisitableCommand) call);
 
-         Vector<Address> callRecipients = recipients;
+         Vector<SocketAddress> callRecipients = recipients;
          if (callRecipients == null)
          {
             callRecipients = usingBuddyReplication && !isBroadcast ? buddyManager.getBuddyAddressesAsVector() : null;

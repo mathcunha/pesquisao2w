@@ -21,6 +21,21 @@
  */
 package org.jboss.cache;
 
+import net.sf.jgcs.ClosedSessionException;
+import net.sf.jgcs.DataSession;
+import net.sf.jgcs.GroupConfiguration;
+import net.sf.jgcs.JGCSException;
+import net.sf.jgcs.NotJoinedException;
+import net.sf.jgcs.Protocol;
+import net.sf.jgcs.ProtocolFactory;
+import net.sf.jgcs.Service;
+import net.sf.jgcs.membership.BlockListener;
+import net.sf.jgcs.membership.BlockSession;
+import net.sf.jgcs.membership.MembershipListener;
+import net.sf.jgcs.membership.MembershipSession;
+import net.sf.jgcs.membership.View;
+import net.sf.jgcs.utils.FactoryUtil;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.commands.ReplicableCommand;
@@ -42,13 +57,16 @@ import org.jboss.cache.lock.TimeoutException;
 import org.jboss.cache.marshall.CommandAwareRpcDispatcher;
 import org.jboss.cache.marshall.InactiveRegionAwareRpcDispatcher;
 import org.jboss.cache.marshall.Marshaller;
+import org.jboss.cache.marshall.MarshallerWrapper;
 import org.jboss.cache.notifications.Notifier;
-import org.jboss.cache.remoting.jgroups.ChannelMessageListener;
+
+
 import org.jboss.cache.statetransfer.DefaultStateTransferManager;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.transaction.TransactionTable;
 import org.jboss.cache.util.concurrent.ReclosableLatch;
 import org.jboss.cache.util.reflect.ReflectionUtil;
+
 import org.jgroups.Address;
 import org.jgroups.Channel;
 import org.jgroups.ChannelClosedException;
@@ -57,16 +75,26 @@ import org.jgroups.ChannelFactory;
 import org.jgroups.ChannelNotConnectedException;
 import org.jgroups.ExtendedMembershipListener;
 import org.jgroups.JChannel;
-import org.jgroups.View;
+
+
+
 import org.jgroups.blocks.GroupRequest;
-import org.jgroups.blocks.RspFilter;
+
 import org.jgroups.protocols.TP;
 import org.jgroups.stack.ProtocolStack;
-import org.jgroups.util.Rsp;
-import org.jgroups.util.RspList;
 
+
+import br.unifor.g2cl.MarshalDataSession;
+import br.unifor.g2cl.Rsp;
+import br.unifor.g2cl.RspFilter;
+import br.unifor.g2cl.RspList;
+import br.unifor.g2cl.StateTransferDataSession;
+
+import javax.transaction.NotSupportedException;
 import javax.transaction.TransactionManager;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.text.NumberFormat;
@@ -88,11 +116,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 @MBean(objectName = "RPCManager", description = "Manages RPC connections to remote caches")
 public class RPCManagerImpl implements RPCManager {
    private Channel channel;
+   private SocketAddress localAddress;
    private final Log log = LogFactory.getLog(RPCManagerImpl.class);
    private volatile List<SocketAddress> members;
    private long replicationCount;
    private long replicationFailures;
    private boolean statisticsEnabled = false;
+   
+   private StateTransferDataSession dataSession;
+   private MembershipSession controlSession;
 
    private final Object coordinatorLock = new Object();
    /**
@@ -220,7 +252,15 @@ public class RPCManagerImpl implements RPCManager {
             }
 
             boolean fetchState = shouldFetchStateOnStartup();
-            initialiseChannelAndRpcDispatcher(fetchState);
+            try {
+				initialiseChannelAndRpcDispatcher(fetchState);
+			} catch (JGCSException e) {
+				throw new CacheException("Unable to connect to JGroups channel", e);
+			} catch (FileNotFoundException e) {
+				throw new CacheException("Unable to connect to JGroups channel", e);
+			} catch (IOException e) {
+				throw new CacheException("Unable to connect to JGroups channel", e);
+			}
 
             if (!fetchState) {
                try {
@@ -307,59 +347,66 @@ public class RPCManagerImpl implements RPCManager {
    }
 
    @SuppressWarnings("deprecation")
-   private void initialiseChannelAndRpcDispatcher(boolean fetchState) throws CacheException {
-      channel = configuration.getRuntimeConfig().getChannel();
-      if (channel == null) {
-         // Try to create a multiplexer channel
-         channel = getMultiplexerChannel();
+   private void initialiseChannelAndRpcDispatcher(boolean fetchState) throws JGCSException, FileNotFoundException, IOException {
+	   	   
+	   
+	   FactoryUtil jgcsConf = new FactoryUtil(getClass().getResourceAsStream("/jgroups.properties"));
+       
+       ProtocolFactory o = (ProtocolFactory) jgcsConf.getInstance("jgcsProtocol");
+       Protocol p = o.createProtocol();
+       GroupConfiguration group = (GroupConfiguration) jgcsConf.getInstance("jgcsGroup");
+       Service service = (Service) jgcsConf.getInstance("jgcsService");
+   	        	
+       String jgcsHAGroupName = group.toString();
 
-         if (channel != null) {
-            ReflectionUtil.setValue(configuration, "accessible", true);
-            configuration.setUsingMultiplexer(true);
-            if (log.isDebugEnabled()) {
-               log.debug("Created Multiplexer Channel for cache cluster " + configuration.getClusterName() + " using stack " + configuration.getMultiplexerStack());
-            }
-         } else {
-            try {
-               if (configuration.getJGroupsConfigFile() != null) {
-                  URL u = configuration.getJGroupsConfigFile();
-                  if (log.isTraceEnabled()) log.trace("Grabbing cluster properties from " + u);
-                  channel = new JChannel(u);
-               } else if (configuration.getClusterConfig() == null) {
-                  log.debug("setting cluster properties to default value");
-                  channel = new JChannel(configuration.getDefaultClusterConfig());
-               } else {
-                  if (trace) {
-                     log.trace("Cache cluster properties: " + configuration.getClusterConfig());
-                  }
-                  channel = new JChannel(configuration.getClusterConfig());
-               }
-            }
-            catch (ChannelException e) {
-               throw new CacheException(e);
-            }
-         }
+       DataSession dataSession = p.openDataSession(group);
+       controlSession = (MembershipSession)p.openControlSession(group);
+       
+       log.info("jgcs HA group name is: " + jgcsHAGroupName);
 
-         configuration.getRuntimeConfig().setChannel(channel);
-      }
+       //log.info("jgcs HA jndi properties is: " + jgcs_properties);
+   	
+       this.dataSession = new StateTransferDataSession(new MarshalDataSession(dataSession), service, controlSession);
+       this.dataSession.setStateListener(messageListener);
+       
+       if (configuration.isUseRegionBasedMarshalling()) {
+           rpcDispatcher = new InactiveRegionAwareRpcDispatcher(this.dataSession,controlSession, service, spi, invocationContextContainer, interceptorChain, componentRegistry);
+        } else {
+           rpcDispatcher = new CommandAwareRpcDispatcher(this.dataSession,controlSession, service,
+                                                         invocationContextContainer, invocationContextContainer, interceptorChain, componentRegistry);
+        }
+       
+       rpcDispatcher.setMessageDispatcherListener(rpcDispatcher);
+       MembershipListenerAdaptor member = new MembershipListenerAdaptor();
+       rpcDispatcher.setMembershipListener(member);
+       ((BlockSession)controlSession).setBlockListener(member);
+       
+       //TODO - Verificar isto
+       rpcDispatcher.setLocal(false);
+       
+       rpcDispatcher.setReqMarshaller((br.unifor.g2cl.Marshaller)new MarshallerWrapper(marshaller));
+       //rpcDispatcher.setReqMarshaller((br.unifor.g2cl.Marshaller)new MarshallerWrapper(marshaller));
+       
+       /*
+       ConnectionManager connectionManager = new ConnectionManager(timeout, messageDispatcher, IMessageDispatcher.class);
+       connectionManager.setControlSession(controlSession);
+       rpcDispatcher.setMembershipListener(connectionManager);
+       
+       
+       controlSession.join();
+       
+       dispatcher = (IMessageDispatcher) Proxy.newProxyInstance(IMessageDispatcher.class.getClassLoader(), new Class[]{IMessageDispatcher.class}, connectionManager);
+		
+       messages = new LinkedList<HaMessageData>();
 
-      // Channel.LOCAL *must* be set to false so we don't see our own messages - otherwise invalidations targeted at
-      // remote instances will be received by self.
-      channel.setOpt(Channel.LOCAL, false);
-      channel.setOpt(Channel.AUTO_RECONNECT, true);
-      channel.setOpt(Channel.AUTO_GETSTATE, fetchState);
-      channel.setOpt(Channel.BLOCK, true);
-
-      if (configuration.isUseRegionBasedMarshalling()) {
-         rpcDispatcher = new InactiveRegionAwareRpcDispatcher(channel, messageListener, new MembershipListenerAdaptor(),
-                                                              spi, invocationContextContainer, interceptorChain, componentRegistry);
-      } else {
-         rpcDispatcher = new CommandAwareRpcDispatcher(channel, messageListener, new MembershipListenerAdaptor(),
-                                                       invocationContextContainer, invocationContextContainer, interceptorChain, componentRegistry);
-      }
-      checkAppropriateConfig();
-      rpcDispatcher.setRequestMarshaller(marshaller);
-      rpcDispatcher.setResponseMarshaller(marshaller);
+       processThread = new ProcessThread(messages);
+       processThread.setDaemon(true);
+       processThread.start();
+*/
+       
+      
+      //checkAppropriateConfig();
+      
    }
 
    public Channel getChannel() {
@@ -554,7 +601,7 @@ public class RPCManagerImpl implements RPCManager {
          log.debug("Node " + getLocalAddress() + " fetching partial state " + stateId + " from members " + targets);
       }
       boolean successfulTransfer = false;
-      for (Address target : targets) {
+      for (SocketAddress target : targets) {
          try {
             if (log.isDebugEnabled()) {
                log.debug("Node " + getLocalAddress() + " fetching partial state " + stateId + " from member " + target);
@@ -590,8 +637,10 @@ public class RPCManagerImpl implements RPCManager {
    }
 
    private boolean getState(String stateId, SocketAddress target) throws ChannelNotConnectedException, ChannelClosedException {
-      lastStateTransferSource = target;
-      return ((JChannel) channel).getState(target, stateId, configuration.getStateRetrievalTimeout(), true);
+	   throw new NullPointerException ("Nada!!");
+	   //TODO - será?!
+      //lastStateTransferSource = target;
+      //return ((JChannel) channel).getState(target, stateId, configuration.getStateRetrievalTimeout(), true);
    }
 
 
@@ -609,8 +658,9 @@ public class RPCManagerImpl implements RPCManager {
       return lastStateTransferSource;
    }
 
+   
    public SocketAddress getLocalAddress() {
-      return channel != null ? channel.getLocalAddress() : null;
+	   return localAddress != null ? localAddress : null;
    }
 
    @ManagedAttribute(description = "Cluster view")
@@ -656,11 +706,13 @@ public class RPCManagerImpl implements RPCManager {
 
    /*----------------------- MembershipListener ------------------------*/
 
-   protected class MembershipListenerAdaptor implements ExtendedMembershipListener {
+   protected class MembershipListenerAdaptor implements MembershipListener, BlockListener {
 
       public void viewAccepted(View newView) {
          try {
-            Vector<SocketAddress> newMembers = newView.getMembers();
+            Vector<SocketAddress> newMembers = null;
+          //TODO - Conversar com os caras
+            //newView.getMembers();
             if (log.isInfoEnabled()) log.info("Received new cluster view: " + newView);
             synchronized (coordinatorLock) {
                boolean needNotification = false;
@@ -684,7 +736,7 @@ public class RPCManagerImpl implements RPCManager {
                      }
                   }
 
-                  members = new ArrayList<Address>(newMembers); // defensive copy.
+                  members = new ArrayList<SocketAddress>(newMembers); // defensive copy.
 
                   needNotification = true;
                }
@@ -750,6 +802,44 @@ public class RPCManagerImpl implements RPCManager {
             //do not rethrow! jgroups might behave funny, resulting even in deadlock
             log.error("Error found while processing unblock", e);
          }
+      }
+
+
+      @Override
+      public void onExcluded() {
+    	  try {
+  			controlSession.leave();
+  		} catch (ClosedSessionException e) {
+  			log.info("Ao fechar a sessao", e);			
+  		} catch (JGCSException e) {
+  			log.info("Ao fechar a sessao", e);
+  		}
+		
+      }
+
+      public void onMembershipChange() {
+  		SocketAddress coordenador;
+  		try {
+  			
+  			coordenador = controlSession.getMembership().getMemberAddress(controlSession.getMembership().getCoordinatorRank());
+  			//TODO - Conversar com os caras  			
+  			//View newView=new View(id,socketAddressToAddress(controlSession.getMembership().getMembershipList()));
+  			//viewAccepted(newView);			
+  			
+  			
+  		} catch (NotJoinedException e) {
+  			// TODO Auto-generated catch block
+  			e.printStackTrace();
+  		} catch (UnsupportedOperationException e) {
+  			// TODO Auto-generated catch block
+  			e.printStackTrace();
+  		}
+  	}
+
+      @Override
+      public void onBlock() {
+    	  this.block();
+		
       }
 
    }
@@ -837,5 +927,20 @@ public class RPCManagerImpl implements RPCManager {
 
    public FlushTracker getFlushTracker() {
       return flushTracker;
+   }
+   
+   static class RspFilterWrapper implements RspFilter {
+	   private org.jgroups.blocks.RspFilter responseFilter;
+	   public RspFilterWrapper(org.jgroups.blocks.RspFilter responseFilter){
+		   this.responseFilter = responseFilter;
+	   }
+	   public boolean isAcceptable(Object response, SocketAddress sender) {
+		   //TODO Tem que ver
+		   return true;		   
+	   }
+	   public boolean needMoreResponses() {
+		   return responseFilter.needMoreResponses();
+	   }
+	   
    }
 }

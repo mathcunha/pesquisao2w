@@ -21,10 +21,11 @@
  */
 package org.jboss.cache.notifications.event;
 
+import net.sf.jgcs.membership.View;
+
 import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
 import org.jboss.cache.buddyreplication.BuddyGroup;
-import org.jgroups.View;
 
 import javax.transaction.Transaction;
 import java.util.Map;

@@ -21,6 +21,12 @@
  */
 package org.jboss.cache.marshall;
 
+import net.sf.jgcs.JGCSException;
+import net.sf.jgcs.Service;
+import net.sf.jgcs.membership.MembershipSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.InvocationContext;
 import org.jboss.cache.commands.ReplicableCommand;
 import org.jboss.cache.commands.VisitableCommand;
@@ -33,16 +39,22 @@ import org.jboss.cache.interceptors.InterceptorChain;
 import org.jboss.cache.invocation.InvocationContextContainer;
 import org.jboss.cache.util.concurrent.BoundedExecutors;
 import org.jboss.cache.util.concurrent.WithinThreadExecutor;
-import org.jgroups.Address;
-import org.jgroups.Channel;
-import org.jgroups.MembershipListener;
-import org.jgroups.Message;
-import org.jgroups.MessageListener;
-import org.jgroups.blocks.RpcDispatcher;
-import org.jgroups.blocks.RspFilter;
+
+import net.sf.jgcs.Message;
+
+
+import br.unifor.g2cl.G2CLMessage;
+import br.unifor.g2cl.IMarshalDataSession;
+import br.unifor.g2cl.Marshaller;
+import br.unifor.g2cl.MessageDispatcherListener;
+import br.unifor.g2cl.RpcDispatcher;
+import br.unifor.g2cl.Rsp;
+import br.unifor.g2cl.RspList;
+import br.unifor.g2cl.Util;
+
+import br.unifor.g2cl.RspFilter;
 import org.jgroups.util.Buffer;
-import org.jgroups.util.Rsp;
-import org.jgroups.util.RspList;
+
 
 import java.io.NotSerializableException;
 import java.net.SocketAddress;
@@ -61,7 +73,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Manik Surtani (<a href="mailto:manik AT jboss DOT org">manik AT jboss DOT org</a>)
  * @since 2.2.0
  */
-public class CommandAwareRpcDispatcher extends RpcDispatcher {
+public class CommandAwareRpcDispatcher extends RpcDispatcher implements MessageDispatcherListener {
+	protected final Log log=LogFactory.getLog(getClass());
+	protected Object server_obj ; 
    protected InvocationContextContainer invocationContextContainer;
    protected InterceptorChain interceptorChain;
    protected ComponentRegistry componentRegistry;
@@ -70,14 +84,19 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher {
    private AtomicInteger replicationProcessorCount;
    private boolean asyncSerial;
    private ReplicationObserver replicationObserver;
+   protected org.jgroups.blocks.RpcDispatcher.Marshaller2 req_marshaller;
 
-   public CommandAwareRpcDispatcher() {
+   public CommandAwareRpcDispatcher() throws JGCSException {
+	   super(null, null, null, null);	   
    }
-
-   public CommandAwareRpcDispatcher(Channel channel, MessageListener l, MembershipListener l2,
+   
+   public CommandAwareRpcDispatcher(IMarshalDataSession marshalDataSession, MembershipSession l, Service l2,
                                     Object serverObj, InvocationContextContainer container, InterceptorChain interceptorChain,
-                                    ComponentRegistry componentRegistry) {
-      super(channel, l, l2, serverObj);
+                                    ComponentRegistry componentRegistry) throws JGCSException {
+      super(marshalDataSession, l, l2, serverObj);
+      
+      server_obj = serverObj;
+      
       this.invocationContextContainer = container;
       this.componentRegistry = componentRegistry;
       this.interceptorChain = interceptorChain;
@@ -145,13 +164,13 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher {
       super.stop();
    }
 
-   protected boolean isValid(Message req) {
+   protected boolean isValid(G2CLMessage req) {
       if (server_obj == null) {
          log.error("no method handler is registered. Discarding request.");
          return false;
       }
 
-      if (req == null || req.getLength() == 0) {
+      if (req == null || req.getPayload().length == 0) {
          log.error("message or message buffer is null");
          return false;
       }
@@ -196,16 +215,21 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher {
       }
       return true;
    }
+   
+   public Object handle(ReplicableCommand command, G2CLMessage req) throws Throwable{
+	   return executeCommand(command, req);
+   }
 
    /**
     * Message contains a Command. Execute it against *this* object and return result.
     */
    @Override
-   public Object handle(Message req) {
+   public Object handle(G2CLMessage req) {
       if (isValid(req)) {
          try {
-            ReplicableCommand command = (ReplicableCommand) req_marshaller.objectFromByteBuffer(req.getBuffer(), req.getOffset(), req.getLength());
-            Object execResult = executeCommand(command, req);
+            ReplicableCommand command = //(ReplicableCommand)Util.getObjectFromByte(req.getPayload()); 
+            	(ReplicableCommand) req_marshaller.objectFromByteBuffer(req.getPayload());
+            Object execResult = handle(command, req);
             if (log.isTraceEnabled()) log.trace("Command : " + command + " executed, result is: " + execResult);
             return execResult;
          }
@@ -218,10 +242,10 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher {
       }
    }
 
-   protected Object executeCommand(ReplicableCommand cmd, Message req) throws Throwable {
+   protected Object executeCommand(ReplicableCommand cmd, G2CLMessage req) throws Throwable {
       try {
          if (cmd == null) throw new NullPointerException("Unable to execute a null command!  Message was " + req);
-         if (trace) log.trace("Executing command: " + cmd + " [sender=" + req.getSrc() + "]");
+         if (trace) log.trace("Executing command: " + cmd + " [sender=" + req.getSenderAddress() + "]");
 
          if (cmd instanceof VisitableCommand) {
             InvocationContext ctx = invocationContextContainer.get();
@@ -251,7 +275,9 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher {
 
    @Override
    public String toString() {
-      return getClass().getSimpleName() + "[Outgoing marshaller: " + req_marshaller + "; incoming marshaller: " + rsp_marshaller + "]";
+	   //TODO - retornando null
+	   return "VC TEM QUE REFAZER!";
+      //return getClass().getSimpleName() + "[Outgoing marshaller: " + req_marshaller + "; incoming marshaller: " + rsp_marshaller + "]";
    }
 
    private class ReplicationTask implements Callable<RspList> {
@@ -276,19 +302,30 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher {
       public RspList call() throws Exception {
          Buffer buf;
          try {
-            buf = req_marshaller.objectToBuffer(command);
-         }
-         catch (Exception e) {
-            if (log.isErrorEnabled()) log.error(e);
-            throw new RuntimeException("Failure to marshal argument(s)", e);
-         }
+             buf = req_marshaller.objectToBuffer(command);
+          }
+          catch (Exception e) {
+             if (log.isErrorEnabled()) log.error(e);
+             throw new RuntimeException("Failure to marshal argument(s)", e);
+          }
 
-         Message msg = new Message();
-         msg.setBuffer(buf);
-         if (oob) msg.setFlag(Message.OOB);
+         Message msg = new G2CLMessage();
+         
+         byte[] aux = new byte[buf.getLength() - buf.getOffset() ];
+         
+         System.arraycopy(buf.getBuf(), buf.getOffset(),aux , 0, buf.getLength());
+         
+         msg.setPayload(aux);
+         
+         //System.out.println("ReplicationTask ["+buf.getBuf().length+"] off["+buf.getOffset()+"] len["+buf.getLength());
+         msg.setSenderAddress(membershipSession.getLocalAddress());
+         //TODO - ta errado
+         //if (oob) msg.setFlag( org.jgroups.Message.OOB);
 
          // Replay capability requires responses from all members!
+         //RspList retval = castMessage(dests, msg, mode, timeout, anycasting, filter);
          RspList retval = castMessage(dests, msg, mode, timeout, anycasting, filter);
+         
          if (trace) log.trace("responses: " + retval);
 
          // a null response is 99% likely to be due to a marshalling problem - we throw a NSE, this needs to be changed when
@@ -300,5 +337,13 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher {
 
          return retval;
       }
+
+	
+   }
+   
+   public void setReqMarshaller(Marshaller reqMarshaller) {
+	   super.setReqMarshaller(reqMarshaller);
+	   req_marshaller = ((MarshallerWrapper)reqMarshaller).getMarshaller();
+	   
    }
 }

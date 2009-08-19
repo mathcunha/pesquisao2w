@@ -43,7 +43,7 @@ public class BuddyFqnTransformer
    /**
     * Utility method that retrieves a buddy backup Fqn given the actual Fqn of some data and the data owner's Address.
     *
-    * @param dataOwnerAddress the JGroups {@link org.jgroups.Address}  of the data owner
+    * @param dataOwnerAddress the JGroups {@link java.net.SocketAddress}  of the data owner
     * @param origFqn          the original Fqn
     * @return a backup Fqn
     */

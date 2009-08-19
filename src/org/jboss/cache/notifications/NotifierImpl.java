@@ -21,6 +21,8 @@
  */
 package org.jboss.cache.notifications;
 
+import net.sf.jgcs.membership.View;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.Cache;
@@ -42,7 +44,6 @@ import static org.jboss.cache.notifications.event.Event.Type.*;
 import org.jboss.cache.util.Immutables;
 import org.jboss.cache.util.concurrent.BoundedExecutors;
 import org.jboss.cache.util.concurrent.WithinThreadExecutor;
-import org.jgroups.View;
 
 import javax.transaction.Transaction;
 import java.lang.annotation.Annotation;

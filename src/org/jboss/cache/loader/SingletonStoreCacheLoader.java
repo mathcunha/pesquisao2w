@@ -21,6 +21,8 @@
  */
 package org.jboss.cache.loader;
 
+import net.sf.jgcs.membership.View;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.Fqn;
@@ -34,8 +36,7 @@ import org.jboss.cache.notifications.annotation.CacheStopped;
 import org.jboss.cache.notifications.annotation.ViewChanged;
 import org.jboss.cache.notifications.event.Event;
 import org.jboss.cache.notifications.event.ViewChangedEvent;
-import org.jgroups.Address;
-import org.jgroups.View;
+
 
 import java.io.ObjectInputStream;
 import java.net.SocketAddress;

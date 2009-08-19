@@ -435,10 +435,10 @@ public class RegionManagerImpl implements RegionManager
          {
             // Get the state from each DataOwner and integrate in their
             // respective buddy backup cache
-            List<Address> buddies = buddyManager.getBackupDataOwners();
-            for (Address buddy : buddies)
+            List<SocketAddress> buddies = buddyManager.getBackupDataOwners();
+            for (SocketAddress buddy : buddies)
             {
-               List<Address> sources = new ArrayList<Address>(1);
+               List<SocketAddress> sources = new ArrayList<SocketAddress>(1);
                if (!cache.getMembers().contains(buddy))
                {
                   continue;
