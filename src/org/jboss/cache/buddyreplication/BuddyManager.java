@@ -513,7 +513,7 @@ public class BuddyManager
    private List<SocketAddress> checkBuddyStatus(List<SocketAddress> members)
    {
       Channel ch = configuration.getRuntimeConfig().getChannel();
-      //TODO nao utilizado
+      //FIXME nao utilizado
       View currentView = null;
       List<SocketAddress> deadBuddies = new LinkedList<SocketAddress>();
       for (SocketAddress a : members) if (!currentView.containsMember(a)) deadBuddies.add(a);

@@ -274,10 +274,8 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher implements MessageD
    }
 
    @Override
-   public String toString() {
-	   //TODO - retornando null
-	   return "VC TEM QUE REFAZER!";
-      //return getClass().getSimpleName() + "[Outgoing marshaller: " + req_marshaller + "; incoming marshaller: " + rsp_marshaller + "]";
+   public String toString() {	   
+      return getClass().getSimpleName() + "[Outgoing marshaller: " + req_marshaller + "; incoming marshaller: " + req_marshaller + "]";
    }
 
    private class ReplicationTask implements Callable<RspList> {
@@ -319,7 +317,7 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher implements MessageD
          
          //System.out.println("ReplicationTask ["+buf.getBuf().length+"] off["+buf.getOffset()+"] len["+buf.getLength());
          msg.setSenderAddress(membershipSession.getLocalAddress());
-         //TODO - ta errado
+         //TODO - DIFERENTE DO JBOSSCACHE ORIGINAL
          //if (oob) msg.setFlag( org.jgroups.Message.OOB);
 
          // Replay capability requires responses from all members!

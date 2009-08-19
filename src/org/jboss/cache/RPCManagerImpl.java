@@ -34,6 +34,7 @@ import net.sf.jgcs.membership.BlockSession;
 import net.sf.jgcs.membership.MembershipListener;
 import net.sf.jgcs.membership.MembershipSession;
 import net.sf.jgcs.membership.View;
+import net.sf.jgcs.membership.ViewId;
 import net.sf.jgcs.utils.FactoryUtil;
 
 import org.apache.commons.logging.Log;
@@ -65,38 +66,21 @@ import org.jboss.cache.statetransfer.DefaultStateTransferManager;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.transaction.TransactionTable;
 import org.jboss.cache.util.concurrent.ReclosableLatch;
-import org.jboss.cache.util.reflect.ReflectionUtil;
-
 
 import org.jgroups.Channel;
-import org.jgroups.ChannelClosedException;
-import org.jgroups.ChannelException;
-import org.jgroups.ChannelFactory;
-import org.jgroups.ChannelNotConnectedException;
-import org.jgroups.ExtendedMembershipListener;
-import org.jgroups.JChannel;
 
-
-
-import org.jgroups.blocks.GroupRequest;
-
-import org.jgroups.protocols.TP;
-import org.jgroups.stack.ProtocolStack;
-
-
+import br.unifor.g2cl.GroupRequest;
 import br.unifor.g2cl.MarshalDataSession;
 import br.unifor.g2cl.Rsp;
 import br.unifor.g2cl.RspFilter;
 import br.unifor.g2cl.RspList;
 import br.unifor.g2cl.StateTransferDataSession;
 
-import javax.transaction.NotSupportedException;
 import javax.transaction.TransactionManager;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -114,8 +98,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author <a href="mailto:manik AT jboss DOT org">Manik Surtani (manik AT jboss DOT org)</a>
  */
 @MBean(objectName = "RPCManager", description = "Manages RPC connections to remote caches")
-public class RPCManagerImpl implements RPCManager {
-   private Channel channel;
+public class RPCManagerImpl implements RPCManager {   
    private SocketAddress localAddress;
    private final Log log = LogFactory.getLog(RPCManagerImpl.class);
    private volatile List<SocketAddress> members;
@@ -182,53 +165,53 @@ public class RPCManagerImpl implements RPCManager {
    }
 
    public class FlushTracker {
-      private final ReclosableLatch flushBlockGate = new ReclosableLatch();
-      private final AtomicInteger flushCompletionCount = new AtomicInteger();
-      private final ReclosableLatch flushWaitGate = new ReclosableLatch(false);
+	      private final ReclosableLatch flushBlockGate = new ReclosableLatch();
+	      private final AtomicInteger flushCompletionCount = new AtomicInteger();
+	      private final ReclosableLatch flushWaitGate = new ReclosableLatch(false);
 
-      public void block() {
-         flushBlockGate.close();
-         flushWaitGate.open();
-      }
+	      public void block() {
+	         flushBlockGate.close();
+	         flushWaitGate.open();
+	      }
 
-      public void unblock() {
-         flushWaitGate.close();
-         flushCompletionCount.incrementAndGet();
-         flushBlockGate.open();
-      }
+	      public void unblock() {
+	         flushWaitGate.close();
+	         flushCompletionCount.incrementAndGet();
+	         flushBlockGate.open();
+	      }
 
-      public int getFlushCompletionCount() {
-         return flushCompletionCount.get();
-      }
+	      public int getFlushCompletionCount() {
+	         return flushCompletionCount.get();
+	      }
 
-      public void waitForFlushCompletion(long timeout) {
-         for (; ;) {
-            try {
-               if (channel.flushSupported() && !flushBlockGate.await(timeout, TimeUnit.MILLISECONDS)) {
-                  throw new TimeoutException("State retrieval timed out waiting for flush to block. (timeout = " + timeout + " millis) ");
-               }
-               return;
-            }
-            catch (InterruptedException e) {
-               Thread.currentThread().interrupt();
-            }
-         }
-      }
+	      public void waitForFlushCompletion(long timeout) {
+	         for (; ;) {
+	            try {
+	               if (false/*default false channel.flushSupported()*/ && !flushBlockGate.await(timeout, TimeUnit.MILLISECONDS)) {
+	                  throw new TimeoutException("State retrieval timed out waiting for flush to block. (timeout = " + timeout + " millis) ");
+	               }
+	               return;
+	            }
+	            catch (InterruptedException e) {
+	               Thread.currentThread().interrupt();
+	            }
+	         }
+	      }
 
-      public void waitForFlushStart(long timeout) {
-         for (; ;) {
-            try {
-               if (channel.flushSupported() && !flushWaitGate.await(timeout, TimeUnit.MILLISECONDS)) {
-                  throw new TimeoutException("State retrieval timed out waiting for flush to block. (timeout = " + timeout + " millis) ");
-               }
-               return;
-            }
-            catch (InterruptedException e) {
-               Thread.currentThread().interrupt();
-            }
-         }
-      }
-   }
+	      public void waitForFlushStart(long timeout) {
+	         for (; ;) {
+	            try {
+	               if (false/*default false channel.flushSupported()*/ && !flushWaitGate.await(timeout, TimeUnit.MILLISECONDS)) {
+	                  throw new TimeoutException("State retrieval timed out waiting for flush to block. (timeout = " + timeout + " millis) ");
+	               }
+	               return;
+	            }
+	            catch (InterruptedException e) {
+	               Thread.currentThread().interrupt();
+	            }
+	         }
+	      }
+	   }
 
    // ------------ START: Lifecycle methods ------------
 
@@ -262,57 +245,41 @@ public class RPCManagerImpl implements RPCManager {
 				throw new CacheException("Unable to connect to JGroups channel", e);
 			}
 
-            if (!fetchState) {
-               try {
-                  channel.connect(configuration.getClusterName());
-                  if (log.isInfoEnabled()) {
-                     log.info("Cache local address is " + getLocalAddress());
-                  }
-               }
-               catch (ChannelException e) {
-                  throw new CacheException("Unable to connect to JGroups channel", e);
-               }
-
-               if (!fetchState) {
-                  return;
-               }
-            }
-
-
             long start = System.currentTimeMillis();
             try {
-               channel.connect(configuration.getClusterName(), null, null, configuration.getStateRetrievalTimeout());
-               if (log.isInfoEnabled()) {
-                  log.info("Cache local address is " + getLocalAddress());
-               }
+            	controlSession.join();
+            	localAddress = controlSession.getLocalAddress();
+               //channel.connect(configuration.getClusterName(), null, null, configuration.getStateRetrievalTimeout());
+            	if (log.isInfoEnabled()) {
+            		log.info("Cache local address is " + getLocalAddress());
+            	}
 
-               if (getMembers().size() > 1) {
-                  messageListener.waitForState();
-               }
-            }
-            catch (ChannelException e) {
-               throw new CacheException("Unable to connect to JGroups channel", e);
-            }
+            	if (getMembers().size() > 1) {
+            	   	dataSession.requestState();
+            	   	messageListener.waitForState();
+               	}else{
+            	   	messageListener.setStateSet(true);
+               	}
+            }            
             catch (Exception ex) {
                // make sure we disconnect from the channel before we throw this exception!
                // JBCACHE-761
-               disconnect();
-               throw new CacheException("Unable to fetch state on startup", ex);
-            }
-
-            if (log.isInfoEnabled()) {
-               log.info("state was retrieved successfully (in " + (System.currentTimeMillis() - start) + " milliseconds)");
+            	disconnect();
+            	throw new CacheException("Unable to fetch state on startup", ex);
             }
       }
 
    }
 
    public void disconnect() {
-      if (channel != null && channel.isOpen()) {
-         log.info("Disconnecting and closing the Channel");
-         channel.disconnect();
-         channel.close();
-      }
+	   try {
+		controlSession.leave();
+	} catch (ClosedSessionException e) {
+		log.error("Problem leaving control session; setting it to null", e);
+		e.printStackTrace();
+	} catch (JGCSException e) {
+		log.error("Problem leaving control session; setting it to null", e);
+	}
    }
 
    @Stop(priority = 8)
@@ -324,7 +291,7 @@ public class RPCManagerImpl implements RPCManager {
          log.error("Problem closing channel; setting it to null", toLog);
       }
 
-      channel = null;
+      
       configuration.getRuntimeConfig().setChannel(null);
       if (rpcDispatcher != null) {
          log.info("Stopping the RpcDispatcher");
@@ -380,8 +347,7 @@ public class RPCManagerImpl implements RPCManager {
        MembershipListenerAdaptor member = new MembershipListenerAdaptor();
        rpcDispatcher.setMembershipListener(member);
        ((BlockSession)controlSession).setBlockListener(member);
-       
-       //TODO - Verificar isto
+              
        rpcDispatcher.setLocal(false);
        
        rpcDispatcher.setReqMarshaller((br.unifor.g2cl.Marshaller)new MarshallerWrapper(marshaller));
@@ -410,29 +376,8 @@ public class RPCManagerImpl implements RPCManager {
    }
 
    public Channel getChannel() {
-      return channel;
+      return null;
    }
-
-
-   private JChannel getMultiplexerChannel() throws CacheException {
-      String stackName = configuration.getMultiplexerStack();
-
-      RuntimeConfig rtc = configuration.getRuntimeConfig();
-      ChannelFactory channelFactory = rtc.getMuxChannelFactory();
-      JChannel muxchannel = null;
-
-      if (channelFactory != null) {
-         try {
-            muxchannel = (JChannel) channelFactory.createMultiplexerChannel(stackName, configuration.getClusterName());
-         }
-         catch (Exception e) {
-            throw new CacheException("Failed to create multiplexed channel using stack " + stackName, e);
-         }
-      }
-
-      return muxchannel;
-   }
-
 
    @Deprecated
    private void removeLocksForDeadMembers(NodeSPI node, List deadMembers) {
@@ -636,11 +581,10 @@ public class RPCManagerImpl implements RPCManager {
 
    }
 
-   private boolean getState(String stateId, SocketAddress target) throws ChannelNotConnectedException, ChannelClosedException {
-	   throw new NullPointerException ("Nada!!");
-	   //TODO - será?!
-      //lastStateTransferSource = target;
-      //return ((JChannel) channel).getState(target, stateId, configuration.getStateRetrievalTimeout(), true);
+   private boolean getState(String stateId, SocketAddress target) throws IOException {	   
+      lastStateTransferSource = target;
+      this.dataSession.requestState(target);
+      return true;
    }
 
 
@@ -682,13 +626,15 @@ public class RPCManagerImpl implements RPCManager {
       return coordinator;
    }
 
-   public SocketAddress getCoordinator() {
-      if (channel == null) {
-         return null;
-      }
+	public SocketAddress getCoordinator() {
 
-      synchronized (coordinatorLock) {
-         while (members == null || members.isEmpty()) {
+
+		if (controlSession == null) {
+			return null;
+		}
+
+		synchronized (coordinatorLock) {
+			while (members == null || members.isEmpty()) {
             log.debug("getCoordinator(): waiting on viewAccepted()");
             try {
                coordinatorLock.wait();
@@ -698,7 +644,15 @@ public class RPCManagerImpl implements RPCManager {
                break;
             }
          }
-         return members != null && members.size() > 0 ? members.get(0) : null;
+         try {
+			return members != null && members.size() > 0 ? controlSession.getMembership().getMemberAddress(controlSession.getMembership().getCoordinatorRank()) : null;
+         } catch (NotJoinedException e) {			
+			e.printStackTrace();
+			return null;
+         } catch (UnsupportedOperationException e) {
+			e.printStackTrace();
+			return null;
+         }
       }
    }
 
@@ -710,9 +664,7 @@ public class RPCManagerImpl implements RPCManager {
 
       public void viewAccepted(View newView) {
          try {
-            Vector<SocketAddress> newMembers = null;
-          //TODO - Conversar com os caras
-            //newView.getMembers();
+            Vector<SocketAddress> newMembers = newView.getMembers();
             if (log.isInfoEnabled()) log.info("Received new cluster view: " + newView);
             synchronized (coordinatorLock) {
                boolean needNotification = false;
@@ -822,9 +774,12 @@ public class RPCManagerImpl implements RPCManager {
   		try {
   			
   			coordenador = controlSession.getMembership().getMemberAddress(controlSession.getMembership().getCoordinatorRank());
-  			//TODO - Conversar com os caras  			
-  			//View newView=new View(id,socketAddressToAddress(controlSession.getMembership().getMembershipList()));
-  			//viewAccepted(newView);			
+  			
+  			Vector<SocketAddress> members = new Vector<SocketAddress>(controlSession.getMembership().getMembershipList());
+  			  			
+  			View newView=new View(new ViewId(coordenador, System.currentTimeMillis()), members);
+  			
+  			viewAccepted(newView);			
   			
   			
   		} catch (NotJoinedException e) {
@@ -896,51 +851,8 @@ public class RPCManagerImpl implements RPCManager {
       return NumberFormat.getInstance().format(ration) + "%";
    }
 
-   /**
-    * Checks to see whether the cache is using an appropriate JGroups config.
-    */
-   private void checkAppropriateConfig() {
-      //if we use a shared transport do not log any warn message
-      if (configuration.getMultiplexerStack() != null) {
-         return;
-      }
-      //bundling is not good for sync caches
-      Configuration.CacheMode cacheMode = configuration.getCacheMode();
-      if (!cacheMode.equals(Configuration.CacheMode.LOCAL) && configuration.getCacheMode().isSynchronous()) {
-         ProtocolStack stack = ((JChannel) channel).getProtocolStack();
-         TP transport = stack.getTransport();
-         if (transport.isEnableBundling()) {
-            log.warn("You have enabled jgroups's message bundling, which is not recommended for sync replication. If there is no particular " +
-                  "reason for this we strongly recommend to disable message bundling in JGroups config (enable_bundling=\"false\").");
-         }
-      }
-      //bundling is good for async caches
-      if (!cacheMode.isSynchronous()) {
-         ProtocolStack stack = ((JChannel) channel).getProtocolStack();
-         TP transport = stack.getTransport();
-         if (!transport.isEnableBundling()) {
-            log.warn("You have disabled jgroups's message bundling, which is not recommended for async replication. If there is no particular " +
-                  "reason for this we strongly recommend to enable message bundling in JGroups config (enable_bundling=\"true\").");
-         }
-      }
-   }
-
+   
    public FlushTracker getFlushTracker() {
       return flushTracker;
-   }
-   
-   static class RspFilterWrapper implements RspFilter {
-	   private org.jgroups.blocks.RspFilter responseFilter;
-	   public RspFilterWrapper(org.jgroups.blocks.RspFilter responseFilter){
-		   this.responseFilter = responseFilter;
-	   }
-	   public boolean isAcceptable(Object response, SocketAddress sender) {
-		   //TODO Tem que ver
-		   return true;		   
-	   }
-	   public boolean needMoreResponses() {
-		   return responseFilter.needMoreResponses();
-	   }
-	   
    }
 }
