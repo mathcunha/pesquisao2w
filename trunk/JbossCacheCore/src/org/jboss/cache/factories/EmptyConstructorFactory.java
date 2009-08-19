@@ -21,6 +21,7 @@
  */
 package org.jboss.cache.factories;
 
+import org.jboss.cache.ChannelMessageListener;
 import org.jboss.cache.DataContainer;
 import org.jboss.cache.RegionRegistry;
 import org.jboss.cache.batch.BatchContainer;
@@ -35,7 +36,6 @@ import org.jboss.cache.marshall.Marshaller;
 import org.jboss.cache.marshall.VersionAwareMarshaller;
 import org.jboss.cache.mvcc.MVCCNodeHelper;
 import org.jboss.cache.notifications.Notifier;
-import org.jboss.cache.remoting.jgroups.ChannelMessageListener;
 import org.jboss.cache.transaction.TransactionTable;
 
 /**

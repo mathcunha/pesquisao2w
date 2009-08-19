@@ -21,6 +21,8 @@
  */
 package org.jboss.cache.buddyreplication;
 
+import net.sf.jgcs.membership.View;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.CacheException;
@@ -59,12 +61,11 @@ import org.jboss.cache.util.concurrent.ConcurrentHashSet;
 import org.jboss.cache.util.reflect.ReflectionUtil;
 import org.jboss.util.stream.MarshalledValueInputStream;
 import org.jboss.util.stream.MarshalledValueOutputStream;
-import org.jgroups.Address;
 import org.jgroups.Channel;
-import org.jgroups.View;
 import org.jgroups.util.Util;
 
 import java.io.ByteArrayInputStream;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -119,19 +120,19 @@ public class BuddyManager
    /**
     * Map of buddy pools received from broadcasts
     */
-   final Map<Address, String> buddyPool = new ConcurrentHashMap<Address, String>();
+   final Map<SocketAddress, String> buddyPool = new ConcurrentHashMap<SocketAddress, String>();
 
    /**
     * The nullBuddyPool is a set of addresses that have not specified buddy pools.
     */
-   final Set<Address> nullBuddyPool = new ConcurrentHashSet<Address>();
+   final Set<SocketAddress> nullBuddyPool = new ConcurrentHashSet<SocketAddress>();
 
    /**
     * Map of buddy groups the current instance participates in as a backup node.
     * Keyed on String group name, values are BuddyGroup objects.
     * Needs to deal with concurrent access - concurrent assignTo/removeFrom buddy grp
     */
-   final Map<Address, BuddyGroup> buddyGroupsIParticipateIn = new ConcurrentHashMap<Address, BuddyGroup>();
+   final Map<SocketAddress, BuddyGroup> buddyGroupsIParticipateIn = new ConcurrentHashMap<SocketAddress, BuddyGroup>();
 
    /**
     * Queue to deal with queued up view change requests - which are handled asynchronously
@@ -287,7 +288,7 @@ public class BuddyManager
          dataContainer.registerInternalFqn(BuddyManager.BUDDY_BACKUP_SUBTREE_FQN);
          buddyGroup = new BuddyGroup();
          buddyGroup.setDataOwner(cache.getLocalAddress());
-         Address localAddress = rpcManager.getLocalAddress();
+         SocketAddress localAddress = rpcManager.getLocalAddress();
          if (localAddress == null)
          {
             if (configuration.getCacheMode() == Configuration.CacheMode.LOCAL)
@@ -369,10 +370,10 @@ public class BuddyManager
 
    static class MembershipChange
    {
-      final List<Address> oldMembers;
-      final List<Address> newMembers;
+      final List<SocketAddress> oldMembers;
+      final List<SocketAddress> newMembers;
 
-      public MembershipChange(List<Address> oldMembers, List<Address> newMembers)
+      public MembershipChange(List<SocketAddress> oldMembers, List<SocketAddress> newMembers)
       {
          this.oldMembers = oldMembers;
          this.newMembers = newMembers;
@@ -388,12 +389,12 @@ public class BuddyManager
        * Returns the list of nodes that were in the old view and are not in the new view, and which are also in the
        * <b>filter</b> param.
        */
-      public Set<Address> getDroppedNodes(Collection<Address> filter)
+      public Set<SocketAddress> getDroppedNodes(Collection<SocketAddress> filter)
       {
          if (oldMembers == null || oldMembers.isEmpty())
             return Collections.emptySet();
-         Set<Address> result = new HashSet<Address>();
-         for (Address oldMember : oldMembers)
+         Set<SocketAddress> result = new HashSet<SocketAddress>();
+         for (SocketAddress oldMember : oldMembers)
          {
             if (!newMembers.contains(oldMember) && filter.contains(oldMember))
             {
@@ -432,9 +433,9 @@ public class BuddyManager
     * have been added.  Makes use of the BuddyLocator and then
     * makes RPC calls to remote nodes to assign/remove buddies.
     */
-   private void reassignBuddies(List<Address> members) throws CacheException
+   private void reassignBuddies(List<SocketAddress> members) throws CacheException
    {
-      List<Address> membership = new ArrayList<Address>(members); // defensive copy
+      List<SocketAddress> membership = new ArrayList<SocketAddress>(members); // defensive copy
 
       if (log.isDebugEnabled())
       {
@@ -442,18 +443,18 @@ public class BuddyManager
          log.debug("Entering updateGroup.  Current group: " + buddyGroup + ".  Current View membership: " + membership);
       }
       // some of my buddies have died!
-      List<Address> newBuddies = buddyLocator.locateBuddies(buddyPool, membership, buddyGroup.getDataOwner());
-      List<Address> unreachableBuddies;
+      List<SocketAddress> newBuddies = buddyLocator.locateBuddies(buddyPool, membership, buddyGroup.getDataOwner());
+      List<SocketAddress> unreachableBuddies;
       if (!(unreachableBuddies = checkBuddyStatus(newBuddies)).isEmpty())
       {
          // some of the new buddies are unreachable.  Ditch them, try the algo again.
          membership.removeAll(unreachableBuddies);
          newBuddies = buddyLocator.locateBuddies(buddyPool, membership, buddyGroup.getDataOwner());
       }
-      List<Address> uninitialisedBuddies = new ArrayList<Address>();
-      List<Address> originalBuddies = buddyGroup.getBuddies();
+      List<SocketAddress> uninitialisedBuddies = new ArrayList<SocketAddress>();
+      List<SocketAddress> originalBuddies = buddyGroup.getBuddies();
 
-      for (Address newBuddy : newBuddies)
+      for (SocketAddress newBuddy : newBuddies)
       {
          if (!originalBuddies.contains(newBuddy))
          {
@@ -461,9 +462,9 @@ public class BuddyManager
          }
       }
 
-      List<Address> obsoleteBuddies = new ArrayList<Address>();
+      List<SocketAddress> obsoleteBuddies = new ArrayList<SocketAddress>();
       // find obsolete buddies
-      for (Address origBuddy : originalBuddies)
+      for (SocketAddress origBuddy : originalBuddies)
       {
          if (!newBuddies.contains(origBuddy))
          {
@@ -509,22 +510,23 @@ public class BuddyManager
     * @param members
     * @return
     */
-   private List<Address> checkBuddyStatus(List<Address> members)
+   private List<SocketAddress> checkBuddyStatus(List<SocketAddress> members)
    {
       Channel ch = configuration.getRuntimeConfig().getChannel();
-      View currentView = ch.getView();
-      List<Address> deadBuddies = new LinkedList<Address>();
-      for (Address a : members) if (!currentView.containsMember(a)) deadBuddies.add(a);
+      //FIXME nao utilizado
+      View currentView = null;
+      List<SocketAddress> deadBuddies = new LinkedList<SocketAddress>();
+      for (SocketAddress a : members) if (!currentView.containsMember(a)) deadBuddies.add(a);
       return deadBuddies;
    }
 
    // -------------- methods to be called by the tree cache  --------------------
 
    /**
-    * Called by CacheImpl._remoteAnnounceBuddyPoolName(Address address, String buddyPoolName)
+    * Called by CacheImpl._remoteAnnounceBuddyPoolName(SocketAddress address, String buddyPoolName)
     * when a view change occurs and caches need to inform the cluster of which buddy pool it is in.
     */
-   public void handlePoolNameBroadcast(Address address, String poolName)
+   public void handlePoolNameBroadcast(SocketAddress address, String poolName)
    {
       if (log.isDebugEnabled())
       {
@@ -569,7 +571,7 @@ public class BuddyManager
 
       if (log.isInfoEnabled()) log.info("Removing self from buddy group " + groupName);
 
-      for (Map.Entry<Address, String> me : buddyPool.entrySet())
+      for (Map.Entry<SocketAddress, String> me : buddyPool.entrySet())
       {
          if (me.getValue().equals(groupName))
          {
@@ -695,9 +697,9 @@ public class BuddyManager
     * Returns a List<IpAddress> identifying the DataOwner for each buddy
     * group for which this node serves as a backup node.
     */
-   public List<Address> getBackupDataOwners()
+   public List<SocketAddress> getBackupDataOwners()
    {
-      List<Address> owners = new ArrayList<Address>();
+      List<SocketAddress> owners = new ArrayList<SocketAddress>();
       for (BuddyGroup group : buddyGroupsIParticipateIn.values())
       {
          owners.add(group.getDataOwner());
@@ -714,7 +716,7 @@ public class BuddyManager
     * List excludes self.  Used by the BaseRPCInterceptor when deciding
     * who to replicate to.
     */
-   public List<Address> getBuddyAddresses()
+   public List<SocketAddress> getBuddyAddresses()
    {
       return buddyGroup.getBuddies();
    }
@@ -724,14 +726,14 @@ public class BuddyManager
     *
     * @since 2.2.0
     */
-   public Vector<Address> getBuddyAddressesAsVector()
+   public Vector<SocketAddress> getBuddyAddressesAsVector()
    {
       return buddyGroup.getBuddiesAsVector();
    }
 
-   public List<Address> getMembersOutsideBuddyGroup()
+   public List<SocketAddress> getMembersOutsideBuddyGroup()
    {
-      List<Address> members = new ArrayList<Address>(rpcManager.getMembers());
+      List<SocketAddress> members = new ArrayList<SocketAddress>(rpcManager.getMembers());
       members.remove(rpcManager.getLocalAddress());
       members.removeAll(getBuddyAddresses());
       return members;
@@ -778,7 +780,7 @@ public class BuddyManager
 
    // -------------- internal helpers methods --------------------
 
-   private void removeFromGroup(List<Address> buddies)
+   private void removeFromGroup(List<SocketAddress> buddies)
    {
       if (log.isDebugEnabled())
       {
@@ -830,7 +832,7 @@ public class BuddyManager
    }
 
    @SuppressWarnings("deprecation")
-   private void addBuddies(List<Address> buddies) throws CacheException
+   private void addBuddies(List<SocketAddress> buddies) throws CacheException
    {
       if (log.isDebugEnabled())
       {
@@ -1048,7 +1050,7 @@ public class BuddyManager
       broadcastBuddyPoolMembership(null);
    }
 
-   private void broadcastBuddyPoolMembership(List<Address> recipients)
+   private void broadcastBuddyPoolMembership(List<SocketAddress> recipients)
    {
       // broadcast to other caches
       if (log.isDebugEnabled())
@@ -1068,13 +1070,13 @@ public class BuddyManager
       }
    }
 
-   private void makeRemoteCall(List<Address> recipients, ReplicableCommand call) throws Exception
+   private void makeRemoteCall(List<SocketAddress> recipients, ReplicableCommand call) throws Exception
    {
       // remove non-members from dest list
       if (recipients != null)
       {
-         Iterator<Address> recipientsIt = recipients.iterator();
-         List<Address> members = cache.getMembers();
+         Iterator<SocketAddress> recipientsIt = recipients.iterator();
+         List<SocketAddress> members = cache.getMembers();
          while (recipientsIt.hasNext())
          {
             if (!members.contains(recipientsIt.next()))
@@ -1085,11 +1087,11 @@ public class BuddyManager
          }
       }
 
-      rpcManager.callRemoteMethods(recipients == null ? null : new Vector<Address>(recipients), call, true, config.getBuddyCommunicationTimeout(), false);
+      rpcManager.callRemoteMethods(recipients == null ? null : new Vector<SocketAddress>(recipients), call, true, config.getBuddyCommunicationTimeout(), false);
    }
 
 
-   private void migrateDefunctData(NodeSPI backupRoot, Address dataOwner)
+   private void migrateDefunctData(NodeSPI backupRoot, SocketAddress dataOwner)
    {
       Fqn defunctBackupRootFqn = getDefunctBackupRootFqn(dataOwner);
 
@@ -1107,7 +1109,7 @@ public class BuddyManager
       backupRoot.getParentDirect().removeChild(backupRoot.getFqn().getLastElement());
    }
 
-   private Fqn getDefunctBackupRootFqn(Address dataOwner)
+   private Fqn getDefunctBackupRootFqn(SocketAddress dataOwner)
    {
       // the defunct Fqn should be: /_BUDDY_BACKUP_/dataOwnerAddess:DEAD/N
       // where N is a number.
@@ -1221,10 +1223,10 @@ public class BuddyManager
          // look for missing data owners.
          // if the view change involves the removal of a data owner of a group in which we participate in, we should
          // rename the backup the region accordingly, and remove the group from the list in which the current instance participates.
-         Set<Address> toRemove = members.getDroppedNodes(buddyGroupsIParticipateIn.keySet());
+         Set<SocketAddress> toRemove = members.getDroppedNodes(buddyGroupsIParticipateIn.keySet());
          if (log.isTraceEnabled()) log.trace("removed members are: " + toRemove);
 
-         for (Address a : toRemove)
+         for (SocketAddress a : toRemove)
          {
             if (log.isTraceEnabled()) log.trace("handleEnqueuedViewChange is removing: " + a);
             BuddyGroup bg = buddyGroupsIParticipateIn.remove(a);
@@ -1248,17 +1250,17 @@ public class BuddyManager
          }
          else
          {
-            List<Address> delta = new ArrayList<Address>();
+            List<SocketAddress> delta = new ArrayList<SocketAddress>();
             delta.addAll(members.newMembers);
             delta.removeAll(members.oldMembers);
             broadcastBuddyPoolMembership(delta);
          }
       }
 
-      private boolean buddyPoolInfoAvailable(List<Address> newMembers)
+      private boolean buddyPoolInfoAvailable(List<SocketAddress> newMembers)
       {
          boolean infoReceived = true;
-         for (Address address : newMembers)
+         for (SocketAddress address : newMembers)
          {
             // make sure no one is concurrently writing to nullBuddyPool.
             synchronized (nullBuddyPool)
@@ -1284,7 +1286,7 @@ public class BuddyManager
    @CacheListener
    public class ViewChangeListener
    {
-      private Vector<Address> oldMembers;
+      private Vector<SocketAddress> oldMembers;
 
       @ViewChanged
       public void handleViewChange(ViewChangedEvent event)
@@ -1292,12 +1294,12 @@ public class BuddyManager
          View newView = event.getNewView();
          if (trace)
             log.trace("BuddyManager CacheListener - got view change with new view " + newView);
-         Vector<Address> newMembers = newView.getMembers();
+         Vector<SocketAddress> newMembers = newView.getMembers();
 
          // the whole 'oldMembers' concept is only used for buddy pool announcements.
-         MembershipChange mc = new MembershipChange(oldMembers == null ? null : new Vector<Address>(oldMembers), new Vector<Address>(newMembers));
+         MembershipChange mc = new MembershipChange(oldMembers == null ? null : new Vector<SocketAddress>(oldMembers), new Vector<SocketAddress>(newMembers));
          enqueueViewChange(mc);
-         if (oldMembers == null) oldMembers = new Vector<Address>();
+         if (oldMembers == null) oldMembers = new Vector<SocketAddress>();
          oldMembers.clear();
          oldMembers.addAll(newMembers);
       }

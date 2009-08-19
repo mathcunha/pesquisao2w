@@ -21,15 +21,18 @@
  */
 package org.jboss.cache.marshall;
 
+import net.sf.jgcs.JGCSException;
+import net.sf.jgcs.Service;
+import net.sf.jgcs.membership.MembershipSession;
+
 import org.jboss.cache.commands.ReplicableCommand;
 import org.jboss.cache.factories.ComponentRegistry;
 import org.jboss.cache.interceptors.InterceptorChain;
 import org.jboss.cache.invocation.InvocationContextContainer;
-import org.jgroups.Channel;
-import org.jgroups.MembershipListener;
-import org.jgroups.Message;
-import org.jgroups.MessageListener;
-import org.jgroups.blocks.RpcDispatcher;
+
+import br.unifor.g2cl.G2CLMessage;
+import br.unifor.g2cl.IMarshalDataSession;
+import br.unifor.g2cl.Util;
 
 /**
  * Extends {@link org.jgroups.blocks.RpcDispatcher} and adds the possibility that the marshaller may throw {@link
@@ -43,34 +46,44 @@ public class InactiveRegionAwareRpcDispatcher extends CommandAwareRpcDispatcher 
 
    /**
     * Only provide the flavour of the {@link RpcDispatcher} constructor that we care about.
+ * @throws JGCSException 
     */
-   public InactiveRegionAwareRpcDispatcher(Channel channel, MessageListener l, MembershipListener l2, Object serverObj,
+   public InactiveRegionAwareRpcDispatcher(IMarshalDataSession marshalDataSession, MembershipSession l, Service l2,
+           Object serverObj,
                                            InvocationContextContainer container, InterceptorChain interceptorChain,
-                                           ComponentRegistry componentRegistry) {
-      super(channel, l, l2, serverObj, container, interceptorChain, componentRegistry);
+                                           ComponentRegistry componentRegistry) throws JGCSException {
+      super(marshalDataSession, l, l2, serverObj, container, interceptorChain, componentRegistry);
    }
 
+   /*
    @Override
    public void setRequestMarshaller(Marshaller m) {
       super.setRequestMarshaller(m);
       requestMarshaller = (org.jboss.cache.marshall.Marshaller) m;
    }
-
+*/
 
    /**
     * Message contains MethodCall. Execute it against *this* object and return result. Use MethodCall.invoke() to do
     * this. Return result.
     */
    @Override
-   public Object handle(Message req) {
+   public Object handle(G2CLMessage req) {
       if (isValid(req)) {
          RegionalizedMethodCall rmc;
          ReplicableCommand command;
 
          try {
             // we will ALWAYS be using the marshaller to unmarshall requests.
-            rmc = requestMarshaller.regionalizedMethodCallFromByteBuffer(req.getBuffer());
-            command = rmc.command;
+        	 Object cmd = req_marshaller.objectFromByteBuffer(req.getPayload());
+        	 if(cmd instanceof RegionalizedMethodCall){
+        		 rmc = (RegionalizedMethodCall) cmd;
+        		 command = rmc.command;
+        	 }else{
+        		 return super.handle((ReplicableCommand) cmd , req);
+        	 }
+            
+            
          }
          catch (Throwable e) {
             if (e instanceof InactiveRegionException) {

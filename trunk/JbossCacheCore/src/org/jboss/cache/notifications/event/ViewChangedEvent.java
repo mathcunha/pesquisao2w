@@ -21,7 +21,8 @@
  */
 package org.jboss.cache.notifications.event;
 
-import org.jgroups.View;
+import net.sf.jgcs.membership.View;
+
 
 /**
  * This event is passed in to any method annotated with {@link org.jboss.cache.notifications.annotation.ViewChanged}.

@@ -21,12 +21,14 @@
  */
 package org.jboss.cache.commands.remote;
 
+import java.net.SocketAddress;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.InvocationContext;
 import org.jboss.cache.buddyreplication.BuddyManager;
 import org.jboss.cache.commands.ReplicableCommand;
-import org.jgroups.Address;
+
 
 /**
  * Announces a buddy pool name to the cluster.  This is not a {@link org.jboss.cache.commands.VisitableCommand} and hence
@@ -45,14 +47,14 @@ public class AnnounceBuddyPoolNameCommand implements ReplicableCommand
    private BuddyManager buddyManager;
 
    /*parameters */
-   private Address address;
+   private SocketAddress address;
    private String buddyPoolName;
 
    public AnnounceBuddyPoolNameCommand()
    {
    }
 
-   public AnnounceBuddyPoolNameCommand(Address address, String buddyPoolName)
+   public AnnounceBuddyPoolNameCommand(SocketAddress address, String buddyPoolName)
    {
       this.address = address;
       this.buddyPoolName = buddyPoolName;
@@ -84,7 +86,7 @@ public class AnnounceBuddyPoolNameCommand implements ReplicableCommand
       return METHOD_ID;
    }
 
-   public Address getAddress()
+   public SocketAddress getAddress()
    {
       return address;
    }
@@ -101,7 +103,7 @@ public class AnnounceBuddyPoolNameCommand implements ReplicableCommand
 
    public void setParameters(int commandId, Object[] args)
    {
-      address = (Address) args[0];
+      address = (SocketAddress) args[0];
       buddyPoolName = (String) args[1];
    }
 

@@ -35,8 +35,9 @@ import org.jboss.cache.buddyreplication.BuddyManager;
 import org.jboss.cache.buddyreplication.GravitateResult;
 import org.jboss.cache.commands.Visitor;
 import org.jboss.cache.marshall.NodeData;
-import org.jgroups.Address;
 
+
+import java.net.SocketAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -60,20 +61,20 @@ public class GravitateDataCommand extends AbstractDataCommand
 
    /* parametres */
    protected boolean searchSubtrees;
-   private Address localAddress;
+   private SocketAddress localAddress;
 
    private static final Log log = LogFactory.getLog(GravitateDataCommand.class);
    private static final boolean trace = log.isTraceEnabled();
    private BuddyFqnTransformer buddyFqnTransformer;
 
-   public GravitateDataCommand(Fqn fqn, boolean searchSubtrees, Address localAddress)
+   public GravitateDataCommand(Fqn fqn, boolean searchSubtrees, SocketAddress localAddress)
    {
       this.fqn = fqn;
       this.searchSubtrees = searchSubtrees;
       this.localAddress = localAddress;
    }
 
-   public GravitateDataCommand(Address localAddress)
+   public GravitateDataCommand(SocketAddress localAddress)
    {
       this.localAddress = localAddress;
    }

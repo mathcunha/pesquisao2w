@@ -51,8 +51,9 @@ import org.jboss.cache.commands.write.PutKeyValueCommand;
 import org.jboss.cache.commands.write.RemoveKeyCommand;
 import org.jboss.cache.commands.write.RemoveNodeCommand;
 import org.jboss.cache.transaction.GlobalTransaction;
-import org.jgroups.Address;
 
+
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.Map;
 
@@ -85,7 +86,7 @@ public interface CommandsFactory
 
    PrepareCommand buildPrepareCommand(GlobalTransaction gtx, WriteCommand command, boolean onePhaseCommit);
 
-   PrepareCommand buildPrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, Address address, boolean onePhaseCommit);
+   PrepareCommand buildPrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, SocketAddress address, boolean onePhaseCommit);
 
    CommitCommand buildCommitCommand(GlobalTransaction gtx);
 
@@ -119,9 +120,9 @@ public interface CommandsFactory
 
    RollbackCommand buildRollbackCommand(GlobalTransaction gtx);
 
-   OptimisticPrepareCommand buildOptimisticPrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, Address address, boolean onePhaseCommit);
+   OptimisticPrepareCommand buildOptimisticPrepareCommand(GlobalTransaction gtx, List<WriteCommand> modifications, SocketAddress address, boolean onePhaseCommit);
 
-   AnnounceBuddyPoolNameCommand buildAnnounceBuddyPoolNameCommand(Address address, String buddyPoolName);
+   AnnounceBuddyPoolNameCommand buildAnnounceBuddyPoolNameCommand(SocketAddress address, String buddyPoolName);
 
    RemoveFromBuddyGroupCommand buildRemoveFromBuddyGroupCommand(String groupName);
 

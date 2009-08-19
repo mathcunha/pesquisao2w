@@ -35,9 +35,11 @@ import org.jboss.cache.interceptors.base.CommandInterceptor;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.transaction.TransactionContext;
 import org.jboss.cache.transaction.TransactionTable;
-import org.jgroups.Address;
+
 
 import javax.transaction.Transaction;
+
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.Vector;
 
@@ -107,7 +109,7 @@ public abstract class BaseRpcInterceptor extends CommandInterceptor
       replicateCall(ctx, null, call, sync, o, false);
    }
 
-   protected void replicateCall(InvocationContext ctx, Vector<Address> recipients, ReplicableCommand c, boolean sync, Option o, boolean useOutOfBandMessage) throws Throwable
+   protected void replicateCall(InvocationContext ctx, Vector<SocketAddress> recipients, ReplicableCommand c, boolean sync, Option o, boolean useOutOfBandMessage) throws Throwable
    {
       long syncReplTimeout = configuration.getSyncReplTimeout();
 
@@ -135,7 +137,7 @@ public abstract class BaseRpcInterceptor extends CommandInterceptor
       replicateCall(recipients, c, sync, true, useOutOfBandMessage, false, syncReplTimeout);
    }
 
-   protected void replicateCall(Vector<Address> recipients, ReplicableCommand call, boolean sync, boolean wrapCacheCommandInReplicateMethod, boolean useOutOfBandMessage, boolean isBroadcast, long timeout) throws Throwable
+   protected void replicateCall(Vector<SocketAddress> recipients, ReplicableCommand call, boolean sync, boolean wrapCacheCommandInReplicateMethod, boolean useOutOfBandMessage, boolean isBroadcast, long timeout) throws Throwable
    {
       if (trace) log.trace("Broadcasting call " + call + " to recipient list " + recipients);
 
@@ -148,7 +150,7 @@ public abstract class BaseRpcInterceptor extends CommandInterceptor
       {
          if (usingBuddyReplication && !isBroadcast) call = buddyManager.transformFqns((VisitableCommand) call);
 
-         Vector<Address> callRecipients = recipients;
+         Vector<SocketAddress> callRecipients = recipients;
          if (callRecipients == null)
          {
             callRecipients = usingBuddyReplication && !isBroadcast ? buddyManager.getBuddyAddressesAsVector() : null;

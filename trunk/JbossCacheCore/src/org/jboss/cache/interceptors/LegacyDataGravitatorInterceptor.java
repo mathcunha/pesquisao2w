@@ -47,10 +47,13 @@ import org.jboss.cache.commands.tx.OptimisticPrepareCommand;
 import org.jboss.cache.factories.annotations.Inject;
 import org.jboss.cache.marshall.NodeData;
 import org.jboss.cache.transaction.GlobalTransaction;
-import org.jgroups.Address;
-import org.jgroups.blocks.GroupRequest;
-import org.jgroups.blocks.RspFilter;
 
+import org.jgroups.blocks.GroupRequest;
+
+import br.unifor.g2cl.RspFilter;
+
+
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -350,7 +353,7 @@ public class LegacyDataGravitatorInterceptor extends BaseRpcInterceptor
    {
       if (trace) log.trace("Requesting data gravitation for Fqn " + fqn);
 
-      List<Address> mbrs = rpcManager.getMembers();
+      List<SocketAddress> mbrs = rpcManager.getMembers();
       Boolean searchSubtrees = buddyManager.isDataGravitationSearchBackupTrees();
       GravitateDataCommand command = commandsFactory.buildGravitateDataCommand(fqn, searchSubtrees);
       // doing a GET_ALL is crappy but necessary since JGroups' GET_FIRST could return null results from nodes that do
@@ -462,12 +465,12 @@ public class LegacyDataGravitatorInterceptor extends BaseRpcInterceptor
       private boolean validResponseFound;
       int memberCount;
 
-      public ResponseValidityFilter(int memberCount, Address localAddress)
+      public ResponseValidityFilter(int memberCount, SocketAddress localAddress)
       {
          this.memberCount = memberCount;
       }
 
-      public boolean isAcceptable(Object object, Address address)
+      public boolean isAcceptable(Object object, SocketAddress address)
       {
          if (object instanceof GravitateResult)
          {
