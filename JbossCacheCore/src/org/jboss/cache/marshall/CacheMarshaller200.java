@@ -33,7 +33,6 @@ import org.jboss.cache.optimistic.DefaultDataVersion;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.util.FastCopyHashMap;
 import org.jboss.cache.util.Immutables;
-import org.jgroups.stack.IpAddress;
 
 
 
@@ -266,8 +265,6 @@ public class CacheMarshaller200 extends AbstractMarshaller {
          } else {
             throw new IllegalArgumentException("MethodCall does not have a valid method id.  Was this method call created with MethodCallFactory?");
          }
-      } else if (o instanceof org.jgroups.blocks.MethodCall) {
-         throw new IllegalArgumentException("Usage of a legacy MethodCall object!!");
       } else if (o instanceof MarshalledValue) {
          out.writeByte(MAGICNUMBER_MARSHALLEDVALUE);
          ((MarshalledValue) o).writeExternal(out);
@@ -279,9 +276,6 @@ public class CacheMarshaller200 extends AbstractMarshaller {
          out.writeByte(MAGICNUMBER_GTX);
          if (useRefs) writeReference(out, createReference(o, refMap));
          marshallGlobalTransaction((GlobalTransaction) o, out, refMap);
-      } else if (o instanceof IpAddress) {
-         out.writeByte(MAGICNUMBER_IPADDRESS);
-         marshallIpAddress((IpAddress) o, out);
       } else if (o instanceof DefaultDataVersion) {
          out.writeByte(MAGICNUMBER_DEFAULT_DATA_VERSION);
          marshallDefaultDataVersion((DefaultDataVersion) o, out);
@@ -395,11 +389,7 @@ public class CacheMarshaller200 extends AbstractMarshaller {
             marshallObject(o, out, refMap);
          }
       }
-   }
-
-   private void marshallIpAddress(IpAddress ipAddress, ObjectOutputStream out) throws Exception {
-      ipAddress.writeExternal(out);
-   }
+   }   
 
    @SuppressWarnings("unchecked")
    private void marshallCollection(Collection c, ObjectOutputStream out, Map refMap) throws Exception {
@@ -473,9 +463,6 @@ public class CacheMarshaller200 extends AbstractMarshaller {
             if (useRefs) reference = readReference(in);
             retVal = unmarshallGlobalTransaction(in, refMap);
             if (useRefs) refMap.putReferencedObject(reference, retVal);
-            return retVal;
-         case MAGICNUMBER_IPADDRESS:
-            retVal = unmarshallIpAddress(in);
             return retVal;
          case MAGICNUMBER_DEFAULT_DATA_VERSION:
             retVal = unmarshallDefaultDataVersion(in);
@@ -593,12 +580,6 @@ public class CacheMarshaller200 extends AbstractMarshaller {
          fqn = Fqn.ROOT;
       }
       return fqn;
-   }
-
-   private IpAddress unmarshallIpAddress(ObjectInputStream in) throws Exception {
-      IpAddress ipAddress = new IpAddress();
-      ipAddress.readExternal(in);
-      return ipAddress;
    }
 
    private List unmarshallArrayList(ObjectInputStream in, UnmarshalledReferences refMap) throws Exception {

@@ -37,6 +37,7 @@ import org.jboss.cache.config.Configuration;
 import org.jboss.cache.factories.ComponentRegistry;
 import org.jboss.cache.interceptors.InterceptorChain;
 import org.jboss.cache.invocation.InvocationContextContainer;
+import org.jboss.cache.io.Buffer;
 import org.jboss.cache.util.concurrent.BoundedExecutors;
 import org.jboss.cache.util.concurrent.WithinThreadExecutor;
 
@@ -53,7 +54,6 @@ import br.unifor.g2cl.RspList;
 import br.unifor.g2cl.Util;
 
 import br.unifor.g2cl.RspFilter;
-import org.jboss.cache.util.Buffer;
 
 import java.io.NotSerializableException;
 import java.net.SocketAddress;
