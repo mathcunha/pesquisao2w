@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JGroups"/>
 	<classpathentry kind="lib" path="lib/amazon-s3.jar"/>
 	<classpathentry kind="lib" path="lib/c3p0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec.jar"/>
@@ -17,5 +16,6 @@
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/g2cl"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jgcs"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JGroups"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
