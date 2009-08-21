@@ -50,9 +50,9 @@ import org.jboss.cache.commands.write.InvalidateCommand;
 import org.jboss.cache.config.Configuration;
 import org.jboss.cache.factories.annotations.Inject;
 import org.jboss.cache.factories.annotations.Start;
+import org.jboss.cache.io.Buffer;
 import org.jboss.cache.io.ByteBuffer;
 import org.jboss.cache.transaction.GlobalTransaction;
-import org.jboss.cache.util.Buffer;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
