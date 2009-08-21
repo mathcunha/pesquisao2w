@@ -359,4 +359,15 @@ public class VersionAwareMarshaller extends AbstractMarshaller
 
       return marshaller.objectFromObjectStream(in);
    }
+
+	@Override
+	public byte[] getArrayFromObject(Object o) throws Exception {
+		return objectToByteBuffer(o);
+	}
+	
+	@Override
+	public Object getObjectFromByte(byte[] arr, int offset, int length)
+			throws Exception {
+		return objectFromByteBuffer(arr, offset, length);
+	}
 }

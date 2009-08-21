@@ -40,8 +40,8 @@ import org.jboss.cache.commands.remote.ClusteredGetCommand;
 import org.jboss.cache.config.CacheLoaderConfig.IndividualCacheLoaderConfig;
 import org.jboss.cache.factories.annotations.Inject;
 import org.jboss.cache.lock.StripedLock;
-import org.jgroups.blocks.GroupRequest;
 
+import br.unifor.g2cl.GroupRequest;
 import br.unifor.g2cl.RspFilter;
 
 import java.io.ObjectInputStream;

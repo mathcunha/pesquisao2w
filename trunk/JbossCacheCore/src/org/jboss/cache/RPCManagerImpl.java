@@ -56,10 +56,10 @@ import org.jboss.cache.lock.TimeoutException;
 import org.jboss.cache.marshall.CommandAwareRpcDispatcher;
 import org.jboss.cache.marshall.InactiveRegionAwareRpcDispatcher;
 import org.jboss.cache.marshall.Marshaller;
-import org.jboss.cache.marshall.MarshallerWrapper;
 import org.jboss.cache.notifications.Notifier;
 
 
+import org.jboss.cache.remoting.jgroups.ChannelMessageListener;
 import org.jboss.cache.statetransfer.DefaultStateTransferManager;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.transaction.TransactionTable;
@@ -347,7 +347,7 @@ public class RPCManagerImpl implements RPCManager {
               
        rpcDispatcher.setLocal(false);
        
-       rpcDispatcher.setReqMarshaller((br.unifor.g2cl.Marshaller)new MarshallerWrapper(marshaller));
+       rpcDispatcher.setReqMarshaller(marshaller);
        //rpcDispatcher.setReqMarshaller((br.unifor.g2cl.Marshaller)new MarshallerWrapper(marshaller));
        
        /*

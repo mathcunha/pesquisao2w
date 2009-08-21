@@ -21,7 +21,7 @@
  */
 package org.jboss.cache.io;
 
-import org.jgroups.util.Buffer;
+import org.jboss.cache.util.Buffer;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
