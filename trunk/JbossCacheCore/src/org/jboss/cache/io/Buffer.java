@@ -1,4 +1,4 @@
-package org.jboss.cache.util;
+package org.jboss.cache.io;
 
 
 public class Buffer {

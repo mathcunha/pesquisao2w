@@ -43,7 +43,7 @@ import java.lang.reflect.Method;
  * @deprecated - in favour of {@link org.jboss.cache.commands.ReplicableCommand} instances.  Will be removed in 3.X.
  */
 @Deprecated
-public class MethodCall extends org.jgroups.blocks.MethodCall
+public class MethodCall extends br.unifor.g2cl.MethodCall
 {
    /**
     * It's unclear why this class would be serialized.
@@ -54,7 +54,7 @@ public class MethodCall extends org.jgroups.blocks.MethodCall
 
    public MethodCall()
    {
-      // for serialization
+      super(null, null, null);
    }
 
    /**
@@ -76,12 +76,12 @@ public class MethodCall extends org.jgroups.blocks.MethodCall
 
    protected MethodCall(Method method, Object... arguments)
    {
-      super(method, arguments);
+      super(method.getName(), null, arguments);
    }
 
    protected MethodCall(Method method, int methodIdInteger, Object... arguments)
    {
-      super(method, arguments);
+      super(method.getName(), null, arguments);
       this.methodIdInteger = methodIdInteger;
    }
 
@@ -95,7 +95,6 @@ public class MethodCall extends org.jgroups.blocks.MethodCall
       return methodIdInteger;
    }
 
-   @Override
    public short getId()
    {
       throw new RuntimeException("Use of incorrect method!  Are you sure you intend to do this instead of getMethodId()?!?");
@@ -106,16 +105,16 @@ public class MethodCall extends org.jgroups.blocks.MethodCall
    {
       StringBuilder ret = new StringBuilder();
       ret.append("MethodName: ");
-      ret.append(method_name);
+      ret.append(getName());
       ret.append("; MethodIdInteger: ");
       ret.append(methodIdInteger);
       ret.append("; Args: (");
-      if (args != null && args.length > 0)
+      if (getArgs() != null && getArgs().length > 0)
       {
-         if (log.isTraceEnabled())
+         if (true)//TODO - PODE SER? log.isTraceEnabled()
          {
             boolean first = true;
-            for (Object arg : args)
+            for (Object arg : getArgs())
             {
                if (first) first = false;
                else ret.append(", ");
@@ -126,8 +125,8 @@ public class MethodCall extends org.jgroups.blocks.MethodCall
          else
          {
             ret.append(" arg[0] = ");
-            ret.append(args[0]);
-            if (args.length > 1) ret.append(" ...");
+            ret.append(getArgs()[0]);
+            if (getArgs().length > 1) ret.append(" ...");
          }
       }
 

@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.jboss.cache.config;
-
+//FIXME TIRAR OS IMPORTS
 import org.jboss.cache.RPCManager;
 import org.jboss.cache.buddyreplication.BuddyGroup;
 import org.jboss.cache.util.Util;
