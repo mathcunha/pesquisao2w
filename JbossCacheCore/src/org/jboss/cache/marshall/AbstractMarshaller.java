@@ -52,7 +52,7 @@ import org.jboss.cache.factories.annotations.Inject;
 import org.jboss.cache.factories.annotations.Start;
 import org.jboss.cache.io.ByteBuffer;
 import org.jboss.cache.transaction.GlobalTransaction;
-import org.jgroups.util.Buffer;
+import org.jboss.cache.util.Buffer;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;

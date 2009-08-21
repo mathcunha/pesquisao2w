@@ -26,7 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.cache.config.BuddyReplicationConfig.BuddyLocatorConfig;
 
-import org.jgroups.stack.IpAddress;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;

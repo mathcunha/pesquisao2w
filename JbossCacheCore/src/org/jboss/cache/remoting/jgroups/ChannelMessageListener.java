@@ -1,3 +1,5 @@
+package org.jboss.cache.remoting.jgroups;
+
 /*
  * JBoss, Home of Professional Open Source.
  * Copyright 2000 - 2008, Red Hat Middleware LLC, and individual contributors
@@ -19,7 +21,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.cache.remoting.jgroups;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,11 +34,13 @@ import org.jboss.cache.statetransfer.DefaultStateTransferManager;
 import org.jboss.cache.statetransfer.StateTransferManager;
 import org.jboss.util.stream.MarshalledValueInputStream;
 import org.jboss.util.stream.MarshalledValueOutputStream;
-import org.jgroups.ExtendedMessageListener;
-import org.jgroups.Message;
-import org.jgroups.util.Util;
+
+import br.unifor.g2cl.G2CLMessage;
+import br.unifor.g2cl.MessageDispatcherListener;
+import br.unifor.g2cl.StateListener;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -48,7 +51,7 @@ import java.io.OutputStream;
  * @since 2.1.0
  */
 @NonVolatile
-public class ChannelMessageListener implements ExtendedMessageListener
+public class ChannelMessageListener implements MessageDispatcherListener, StateListener
 {
    /**
     * Reference to an exception that was raised during
@@ -144,15 +147,9 @@ public class ChannelMessageListener implements ExtendedMessageListener
       }
    }
 
-   /**
-    * Callback, does nothing.
-    */
-   public void receive(Message msg)
-   {
-   }
-
    public byte[] getState()
    {
+	   System.out.println("enviando novo estado !!!!");
       MarshalledValueOutputStream out = null;
       byte[] result;
       ExposedByteArrayOutputStream baos = new ExposedByteArrayOutputStream(16 * 1024);
@@ -169,13 +166,14 @@ public class ChannelMessageListener implements ExtendedMessageListener
       finally
       {
          result = baos.getRawBuffer();
-         Util.close(out);
+         close(out);
       }
       return result;
    }
 
    public void setState(byte[] new_state)
    {
+	   System.out.println("recebendo  %%%��$$$$$$$ novo estado !!!!");
       if (new_state == null)
       {
          log.debug("transferred state is null (may be first member in cluster)");
@@ -195,7 +193,7 @@ public class ChannelMessageListener implements ExtendedMessageListener
       }
       finally
       {
-         Util.close(in);
+         close(in);
          synchronized (stateLock)
          {
             // Notify wait that state has been set.
@@ -232,7 +230,7 @@ public class ChannelMessageListener implements ExtendedMessageListener
       finally
       {
          result = baos.getRawBuffer();
-         Util.close(out);
+         close(out);
       }
       return result;
    }
@@ -251,7 +249,7 @@ public class ChannelMessageListener implements ExtendedMessageListener
       }
       finally
       {
-         Util.close(out);
+         close(out);
       }
    }
 
@@ -276,7 +274,7 @@ public class ChannelMessageListener implements ExtendedMessageListener
       }
       finally
       {
-         Util.close(out);
+         close(out);
       }
    }
 
@@ -300,7 +298,7 @@ public class ChannelMessageListener implements ExtendedMessageListener
       }
       finally
       {
-         Util.close(in);
+         close(in);
          synchronized (stateLock)
          {
             // Notify wait that state has been set.
@@ -348,7 +346,7 @@ public class ChannelMessageListener implements ExtendedMessageListener
       }
       finally
       {
-         Util.close(in);
+         close(in);
          synchronized (stateLock)
          {
             // Notify wait that state has been set.
@@ -396,7 +394,7 @@ public class ChannelMessageListener implements ExtendedMessageListener
       }
       finally
       {
-         Util.close(in);
+         close(in);
          synchronized (stateLock)
          {
             // Notify wait that state has been set.
@@ -404,4 +402,31 @@ public class ChannelMessageListener implements ExtendedMessageListener
          }
       }
    }
+
+	public Object handle(G2CLMessage message) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public boolean hasState() {
+		return isStateSet;
+	}
+	
+	public void stateIncoming(byte[] state) {
+		setState(state);
+	}
+	
+	public byte[] stateOutgoing() {
+		return getState();
+	}
+	public static void close(InputStream inp) {
+	    if(inp != null)
+	        try {inp.close();} catch(IOException e) {}
+	}
+	
+	public static void close(OutputStream out) {
+	    if(out != null) {
+	        try {out.close();} catch(IOException e) {}
+	    }
+	}
 }

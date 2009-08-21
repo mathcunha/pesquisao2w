@@ -45,7 +45,7 @@ import net.sf.jgcs.Message;
 
 import br.unifor.g2cl.G2CLMessage;
 import br.unifor.g2cl.IMarshalDataSession;
-import br.unifor.g2cl.Marshaller;
+import org.jboss.cache.marshall.Marshaller;
 import br.unifor.g2cl.MessageDispatcherListener;
 import br.unifor.g2cl.RpcDispatcher;
 import br.unifor.g2cl.Rsp;
@@ -53,8 +53,7 @@ import br.unifor.g2cl.RspList;
 import br.unifor.g2cl.Util;
 
 import br.unifor.g2cl.RspFilter;
-import org.jgroups.util.Buffer;
-
+import org.jboss.cache.util.Buffer;
 
 import java.io.NotSerializableException;
 import java.net.SocketAddress;
@@ -84,7 +83,7 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher implements MessageD
    private AtomicInteger replicationProcessorCount;
    private boolean asyncSerial;
    private ReplicationObserver replicationObserver;
-   protected org.jgroups.blocks.RpcDispatcher.Marshaller2 req_marshaller;
+   protected Marshaller req_marshaller;
 
    public CommandAwareRpcDispatcher() throws JGCSException {
 	   super(null, null, null, null);	   
@@ -299,7 +298,7 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher implements MessageD
 
       public RspList call() throws Exception {
          Buffer buf;
-         try {
+         try {        	 
              buf = req_marshaller.objectToBuffer(command);
           }
           catch (Exception e) {
@@ -341,7 +340,7 @@ public class CommandAwareRpcDispatcher extends RpcDispatcher implements MessageD
    
    public void setReqMarshaller(Marshaller reqMarshaller) {
 	   super.setReqMarshaller(reqMarshaller);
-	   req_marshaller = ((MarshallerWrapper)reqMarshaller).getMarshaller();
+	   req_marshaller = reqMarshaller;
 	   
    }
 }

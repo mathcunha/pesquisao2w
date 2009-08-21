@@ -61,10 +61,9 @@ import org.jboss.cache.util.concurrent.ConcurrentHashSet;
 import org.jboss.cache.util.reflect.ReflectionUtil;
 import org.jboss.util.stream.MarshalledValueInputStream;
 import org.jboss.util.stream.MarshalledValueOutputStream;
-import org.jgroups.Channel;
-import org.jgroups.util.Util;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -512,7 +511,7 @@ public class BuddyManager
     */
    private List<SocketAddress> checkBuddyStatus(List<SocketAddress> members)
    {
-      Channel ch = configuration.getRuntimeConfig().getChannel();
+      //Channel ch = configuration.getRuntimeConfig().getChannel();
       //FIXME nao utilizado
       Membership currentView = null;
       List<SocketAddress> deadBuddies = new LinkedList<SocketAddress>();
@@ -1036,7 +1035,9 @@ public class BuddyManager
       }
       finally
       {
-         Util.close(out);
+    	  if(out != null) {
+              try {out.close();} catch(IOException e) {}
+          }
       }
 
       return result;

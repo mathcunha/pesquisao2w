@@ -23,7 +23,6 @@ package org.jboss.cache.marshall;
 
 import org.jboss.cache.Fqn;
 import org.jboss.cache.io.ByteBuffer;
-import org.jgroups.blocks.RpcDispatcher;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -53,7 +52,7 @@ import java.io.ObjectOutputStream;
  * @author <a href="mailto://manik AT jboss DOT org">Manik Surtani</a>
  * @since 2.0.0
  */
-public interface Marshaller extends RpcDispatcher.Marshaller2
+public interface Marshaller extends br.unifor.g2cl.Marshaller
 {
    /**
     * Marshalls an object to a given {@link ObjectOutputStream}
@@ -122,4 +121,10 @@ public interface Marshaller extends RpcDispatcher.Marshaller2
     * @throws Exception
     */
    ByteBuffer objectToBuffer(Object o) throws Exception;
+
+   Object objectFromByteBuffer(byte[] buf, int offset, int length) throws Exception;
+   
+   byte[] objectToByteBuffer(Object obj) throws Exception;
+   Object objectFromByteBuffer(byte[] buf) throws Exception;
+   
 }

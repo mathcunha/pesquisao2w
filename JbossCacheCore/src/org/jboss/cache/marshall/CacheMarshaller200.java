@@ -33,8 +33,9 @@ import org.jboss.cache.optimistic.DefaultDataVersion;
 import org.jboss.cache.transaction.GlobalTransaction;
 import org.jboss.cache.util.FastCopyHashMap;
 import org.jboss.cache.util.Immutables;
-
 import org.jgroups.stack.IpAddress;
+
+
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -825,5 +826,17 @@ public class CacheMarshaller200 extends AbstractMarshaller {
             throw new CacheException("Unknown array type");
       }
    }
+
+	@Override
+	public byte[] getArrayFromObject(Object o) throws Exception {
+		
+		return objectToByteBuffer(o);
+	}
+	
+	@Override
+	public Object getObjectFromByte(byte[] arr, int offset, int length)
+			throws Exception {
+		return objectFromByteBuffer(arr, offset, length);		
+	}
 }
 

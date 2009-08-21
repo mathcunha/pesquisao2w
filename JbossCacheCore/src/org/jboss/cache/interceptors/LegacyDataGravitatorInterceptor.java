@@ -48,13 +48,10 @@ import org.jboss.cache.factories.annotations.Inject;
 import org.jboss.cache.marshall.NodeData;
 import org.jboss.cache.transaction.GlobalTransaction;
 
-import org.jgroups.blocks.GroupRequest;
-
+import br.unifor.g2cl.GroupRequest;
 import br.unifor.g2cl.RspFilter;
 
-
 import java.net.SocketAddress;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
