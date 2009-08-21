@@ -149,9 +149,4 @@ public class SpreadAddress extends SpGroup implements Address {
 			return false;
 		return true;
 	}
-	
-	public void setGroup(String lGroup) {
-		super.group = lGroup;
-	}
-
 }
