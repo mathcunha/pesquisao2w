@@ -22,7 +22,6 @@
 package org.jboss.cache;
 
 import org.jboss.cache.config.Configuration;
-import org.jgroups.ChannelFactory;
 
 import java.util.Set;
 
@@ -60,7 +59,7 @@ public interface CacheManager
     *
     * @return a channel factory
     */
-   ChannelFactory getChannelFactory();
+   
 
    /**
     * Get a cache configured according to the given configuration name,

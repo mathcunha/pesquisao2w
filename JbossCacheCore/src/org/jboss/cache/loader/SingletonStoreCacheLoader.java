@@ -366,8 +366,8 @@ public class SingletonStoreCacheLoader extends AbstractDelegatingCacheLoader
    {
       if (newView != null && localAddress != null)
       {
-         Vector mbrs = new Vector(newView.getMembershipList());
-         return mbrs != null && mbrs.size() > 0 && localAddress.equals(mbrs.firstElement());
+         List<SocketAddress> mbrs = newView.getMembershipList();
+         return mbrs != null && mbrs.size() > 0 && localAddress.equals(mbrs.get(0));
       }
 
       /* Invalid new view, so previous value returned */

@@ -289,7 +289,7 @@ public class RPCManagerImpl implements RPCManager {
       }
 
       
-      configuration.getRuntimeConfig().setChannel(null);
+      //configuration.getRuntimeConfig().setChannel(null);
       if (rpcDispatcher != null) {
          log.info("Stopping the RpcDispatcher");
          rpcDispatcher.stop();
@@ -657,7 +657,7 @@ public class RPCManagerImpl implements RPCManager {
 
       public void viewAccepted(Membership newView) {
          try {
-            Vector<SocketAddress> newMembers = new Vector(newView.getJoinedMembers());
+            List<SocketAddress> newMembers = newView.getJoinedMembers();
             if (log.isInfoEnabled()) log.info("Received new cluster view: " + newView);
             synchronized (coordinatorLock) {
                boolean needNotification = false;

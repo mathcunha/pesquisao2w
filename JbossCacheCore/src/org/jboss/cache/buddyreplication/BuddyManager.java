@@ -1295,7 +1295,7 @@ public class BuddyManager
          Membership newView = event.getNewView();
          if (trace)
             log.trace("BuddyManager CacheListener - got view change with new view " + newView);
-         Vector<SocketAddress> newMembers = new Vector(newView.getMembershipList());
+         List<SocketAddress> newMembers = newView.getMembershipList();
 
          // the whole 'oldMembers' concept is only used for buddy pool announcements.
          MembershipChange mc = new MembershipChange(oldMembers == null ? null : new Vector<SocketAddress>(oldMembers), new Vector<SocketAddress>(newMembers));
