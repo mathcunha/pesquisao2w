@@ -22,8 +22,6 @@
 package org.jboss.cache.jmx;
 
 import org.jboss.cache.Region;
-import org.jgroups.ChannelFactory;
-import org.jgroups.jmx.JChannelFactoryMBean;
 import org.w3c.dom.Element;
 
 import javax.transaction.TransactionManager;
@@ -353,13 +351,5 @@ public interface LegacyConfiguration
     * @param stackName the name of the multiplexer stack
     */
    void setMultiplexerStack(String stackName);
-
-   ChannelFactory getMuxChannelFactory();
-
-   void setMuxChannelFactory(ChannelFactory factory);
-
-   JChannelFactoryMBean getMultiplexerService();
-
-   void setMultiplexerService(JChannelFactoryMBean muxService);
 
 }

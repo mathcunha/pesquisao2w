@@ -16,6 +16,5 @@
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/g2cl"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jgcs"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JGroups"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
