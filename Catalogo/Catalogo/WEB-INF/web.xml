@@ -39,4 +39,14 @@
     <servlet-name>ByteServlet</servlet-name>
     <url-pattern>/ByteServlet</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>HashTableServlet</display-name>
+    <servlet-name>HashTableServlet</servlet-name>
+    <servlet-class>br.unifor.catalogo.web.servlet.HashTableServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>HashTableServlet</servlet-name>
+    <url-pattern>/HashTableServlet</url-pattern>
+  </servlet-mapping>
 </web-app>
