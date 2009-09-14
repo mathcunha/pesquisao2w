@@ -1,8 +1,9 @@
 package br.unifor.catalogo.persistence;
 
+import java.io.Serializable;
 import java.util.Map.Entry;
 
-public class EntryTO implements Entry<Object, Object> {
+public class EntryTO implements Entry, Serializable {
 	private Object key; 
 	private Object value;
 	
@@ -28,5 +29,7 @@ public class EntryTO implements Entry<Object, Object> {
 		value = arg0;
 		return aux;
 	}
+	
+	
 
 }
