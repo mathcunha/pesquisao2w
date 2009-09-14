@@ -135,7 +135,6 @@ public class JbossCacheHashTable {
 	
 	public void newTest() {
 		test = testManager.newTest();
-		
 	}
 
 	
