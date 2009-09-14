@@ -1,25 +1,16 @@
 package br.unifor.catalogo.web.servlet;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.sun.xml.rpc.processor.modeler.j2ee.xml.resSharingScopeType;
-
-import br.unifor.catalogo.persistence.CatalogoTO;
 import br.unifor.catalogo.persistence.EntryTO;
-import br.unifor.catalogo.persistence.FilmeTO;
 import br.unifor.catalogo.persistence.manager.JbossCacheHashTable;
 import br.unifor.catalogo.persistence.manager.PersistenceDelegate;
 
@@ -78,7 +69,10 @@ public class HashTableServlet extends HttpServlet {
 		}else if("exibir".equals(strAcao)){
 			jbossCache.findByPk(new EntryTO(chave, null));
 			listar(request, response);
+		}else if("resultado".equals(strAcao)){
+			resultado(request, response);
 		}
+		
 	}
 	
 	private void update (Byte ini, Byte fim, Byte valor){
@@ -109,7 +103,7 @@ public class HashTableServlet extends HttpServlet {
 	private void listar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Set mapaByte = jbossCache.findAll(new EntryTO((byte)1,(byte)1));
 		
-		List lista = new ArrayList( 512);
+		List lista = new ArrayList( 129);
 		
 		for (Object object : mapaByte) {
 			lista.add(object);
@@ -121,15 +115,15 @@ public class HashTableServlet extends HttpServlet {
 	}
 	
 	protected void popular(){
-		byte ini = (byte)64;
-		byte fim = (byte)(ini *2);
+		int ini = 128;
+		int fim = ini;//(byte)(ini *2);
 
-		for (byte i = 0; i < (byte)ini; i++) {
-			jbossCache.insert(new EntryTO(i,i));
+		for (int i = 0; i < ini; i++) {
+			jbossCache.insert(new EntryTO((byte)i,(byte)i));
 		}
 		
-		for (byte i = (byte)ini; i < (byte)fim; i++) {
-			jbossCache.insert(new EntryTO(i,"S"+i));
+		for (int i = ini; i < fim; i++) {
+			jbossCache.insert(new EntryTO((byte)i,"S"+i));
 		}
 	}
 	/*
@@ -198,7 +192,10 @@ public class HashTableServlet extends HttpServlet {
 
 		
 	}*/
-	
+
+	protected void resultado(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		jbossCache.printResult(response.getWriter());
+	}
 	
 
 }
