@@ -3,7 +3,9 @@ package br.unifor.catalogo.persistence.manager;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
@@ -12,7 +14,9 @@ import org.jboss.cache.CacheFactory;
 import org.jboss.cache.DefaultCacheFactory;
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
+import org.jboss.cache.UnversionedNode;
 import org.jboss.cache.config.Configuration;
+import org.jboss.cache.mvcc.RepeatableReadNode;
 
 import br.unifor.catalogo.persistence.EntryTO;
 import br.unifor.catalogo.persistence.manager.test.TestManager;
@@ -27,6 +31,18 @@ public class JbossCacheHashTable {
 	
 	protected Cache cache;
 	protected Configuration config ;
+	
+	public JbossCacheHashTable(){
+		try {
+			config("/replSync-service.xml");
+			createCache("/replSync-service.xml");
+		} catch (SecurityException e) {			
+			e.printStackTrace();
+		} catch (IOException e) {			
+			e.printStackTrace();
+		}
+		
+	}
 	
 	public void config(String configurationFile) throws SecurityException,
 			IOException {
@@ -66,13 +82,24 @@ public class JbossCacheHashTable {
 	}
 
 	
-	public Map findAll(Entry<Object, Object> par) {
+	public Set findAll(Entry par) {
 		Fqn fqn = Fqn.fromString("/catPojo/"+par.getKey().getClass().getName());
-		return cache.getData(fqn);
+		Node no = cache.getNode(fqn);
+		
+		
+		Object[] vetor = no.getChildren().toArray();
+		Set retorno = new HashSet<Map.Entry>(vetor.length);
+		for (Object object : vetor) {
+			RepeatableReadNode lNo = (RepeatableReadNode) object;
+			EntryTO entry = new EntryTO(lNo.get("k"), lNo.get("v"));
+			retorno.add(entry);
+		}
+		
+		return retorno;
 	}
 
 	
-	public Entry<Object, Object> findByPk(Entry<Object, Object> par) {
+	public Entry findByPk(Entry par) {
 		String key = getKey(par.getKey());
 		long inicial = System.currentTimeMillis();	
 		
@@ -87,7 +114,7 @@ public class JbossCacheHashTable {
 		return retorno;
 	}
 
-	public void insert(Entry<Object, Object> par) {
+	public void insert(Entry par) {
 		String key = getKey(par.getKey());
 		long inicial = System.currentTimeMillis();
 		
@@ -117,7 +144,7 @@ public class JbossCacheHashTable {
 		
 	}
 
-	public void update(Entry<Object, Object> par) {
+	public void update(Entry par) {
 		String key = getKey(par.getKey());
 		long inicial = System.currentTimeMillis();
 		
