@@ -1,6 +1,8 @@
 package br.unifor.catalogo.web.servlet;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +21,19 @@ import br.unifor.catalogo.persistence.manager.PersistenceDelegate;
  */
 public class HashTableServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private String ip; 
 	
+	
+	@Override
+	public void init() throws ServletException {
+		try {
+			ip = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {			
+			e.printStackTrace();
+		}
+		super.init();
+	}
+
 	private static final JbossCacheHashTable jbossCache = new JbossCacheHashTable();  
        
     /**
@@ -48,6 +62,8 @@ public class HashTableServlet extends HttpServlet {
 		String strAcao = request.getParameter("acao");
 		
 		Byte chave = request.getParameter("identificador") == null ? -1 : new Byte(request.getParameter("identificador"));
+		String sessionId = request.getSession().getId();
+		
 		Byte valor = request.getParameter("valor") == null ? -1 : new Byte(request.getParameter("valor"));
 		Byte ini = request.getParameter("ini") == null ? -1 : new Byte(request.getParameter("ini"));
 		Byte fim = request.getParameter("fim") == null ? -1 : new Byte(request.getParameter("fim"));
@@ -57,7 +73,7 @@ public class HashTableServlet extends HttpServlet {
 			
 		}else if("teste".equals(strAcao)){
 			popular();
-			listar(request, response);
+			listar(request, response, new EntryTO((byte)1,(byte)1));
 		}else if("update".equals(strAcao)){
 			jbossCache.newTest();
 			if(tamanho != null){
@@ -68,10 +84,21 @@ public class HashTableServlet extends HttpServlet {
 			
 		}else if("exibir".equals(strAcao)){
 			jbossCache.findByPk(new EntryTO(chave, null));
-			listar(request, response);
+			listar(request, response, new EntryTO((byte)1,(byte)1));
 		}else if("resultado".equals(strAcao)){
 			resultado(request, response);
+		}else if(strAcao.indexOf("inserir") >= 0 ){
+			insert(ip+sessionId, new Integer(strAcao.split("_")[1]));
+		}else if("listar".equals(strAcao)){
+			listar(request, response, new EntryTO("Opa",(byte)1));
 		}
+		
+	}
+	
+	private void insert (String chave, Integer tamanho){		
+			EntryTO entry = new EntryTO(chave,gerarString(tamanho));
+			jbossCache.insert(entry);
+			jbossCache.delete(entry);
 		
 	}
 	
@@ -100,8 +127,8 @@ public class HashTableServlet extends HttpServlet {
 		return retorno;
 	}
 	
-	private void listar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Set mapaByte = jbossCache.findAll(new EntryTO((byte)1,(byte)1));
+	private void listar(HttpServletRequest request, HttpServletResponse response, EntryTO tipo) throws ServletException, IOException {
+		Set mapaByte = jbossCache.findAll(tipo);
 		
 		List lista = new ArrayList( 129);
 		
