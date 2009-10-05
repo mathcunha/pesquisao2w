@@ -61,7 +61,9 @@ public class HashTableServlet extends HttpServlet {
 	protected void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String strAcao = request.getParameter("acao");
 		
-		Byte chave = request.getParameter("identificador") == null ? -1 : new Byte(request.getParameter("identificador"));
+		Byte identificador = request.getParameter("identificador") == null ? -1 : new Byte(request.getParameter("identificador"));
+		String chave = request.getParameter("chave");
+		
 		String sessionId = request.getSession().getId();
 		
 		Byte valor = request.getParameter("valor") == null ? -1 : new Byte(request.getParameter("valor"));
@@ -83,7 +85,7 @@ public class HashTableServlet extends HttpServlet {
 			}
 			
 		}else if("exibir".equals(strAcao)){
-			jbossCache.findByPk(new EntryTO(chave, null));
+			jbossCache.findByPk(new EntryTO(identificador, null));
 			listar(request, response, new EntryTO((byte)1,(byte)1));
 		}else if("resultado".equals(strAcao)){
 			resultado(request, response);
@@ -91,14 +93,22 @@ public class HashTableServlet extends HttpServlet {
 			insert(ip+sessionId, new Integer(strAcao.split("_")[1]));
 		}else if("listar".equals(strAcao)){
 			listar(request, response, new EntryTO("Opa",(byte)1));
+		}else if("delete".equals(strAcao)){
+			jbossCache.delete(new EntryTO(chave,(byte)1));
 		}
 		
 	}
 	
 	private void insert (String chave, Integer tamanho){		
-			EntryTO entry = new EntryTO(chave,gerarString(tamanho));
-			jbossCache.insert(entry);
-			jbossCache.delete(entry);
+			String valor = gerarString(tamanho);
+			EntryTO lEntry = new EntryTO(chave, valor); 
+			//for (int i = 0; i < 10; i++) {
+			//	EntryTO lEntry = new EntryTO(chave+i, valor); 
+			//	jbossCache.insert(lEntry);
+			//	jbossCache.delete(lEntry);
+			//}
+			jbossCache.insert(lEntry);
+			jbossCache.delete(lEntry);
 		
 	}
 	
