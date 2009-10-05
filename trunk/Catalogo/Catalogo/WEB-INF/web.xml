@@ -49,4 +49,7 @@
     <servlet-name>HashTableServlet</servlet-name>
     <url-pattern>/HashTableServlet</url-pattern>
   </servlet-mapping>
+  <session-config>
+  	<session-timeout>1</session-timeout>
+  </session-config>
 </web-app>

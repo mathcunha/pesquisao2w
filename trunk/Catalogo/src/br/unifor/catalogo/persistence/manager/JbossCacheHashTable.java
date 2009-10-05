@@ -25,8 +25,8 @@ import br.unifor.catalogo.persistence.manager.test.TestManager.Test;
 public class JbossCacheHashTable {
 
 	private Logger log = Logger.getLogger(getClass().getName());
-	private TestManager testManager = new TestManager();
-	private Test test = testManager.newTest();
+	//private TestManager testManager = new TestManager();
+	//private Test test = testManager.newTest();
 	
 	
 	protected Cache cache;
@@ -77,7 +77,7 @@ public class JbossCacheHashTable {
 		
 		inicial = System.currentTimeMillis() - inicial;
 		log.info(retorno+" delete "+inicial);
-		test.sumOperation(inicial);
+		//test.sumOperation(inicial);
 		return par;
 	}
 
@@ -110,7 +110,7 @@ public class JbossCacheHashTable {
 		
 		inicial = System.currentTimeMillis() - inicial;
 		log.info("findByPk "+inicial);
-		test.sumOperation(inicial);
+		//test.sumOperation(inicial);
 		return retorno;
 	}
 
@@ -128,13 +128,13 @@ public class JbossCacheHashTable {
 		
 		inicial = System.currentTimeMillis() - inicial;
 		log.info("insert "+inicial);
-		test.sumOperation(inicial);
+		//test.sumOperation(inicial);
 		
 	}
 
 	
 	public void newTest() {
-		test = testManager.newTest();
+		//test = testManager.newTest();
 	}
 
 	
@@ -154,7 +154,7 @@ public class JbossCacheHashTable {
 		
 		inicial = System.currentTimeMillis() - inicial;
 		log.info("update "+ inicial);
-		test.sumOperation(inicial);
+		//test.sumOperation(inicial);
 	}
 	
 	private String getKey(Object obj) {
@@ -166,9 +166,9 @@ public class JbossCacheHashTable {
 	}
 	
 	public void printResult(PrintWriter out){
-		for (Test test : testManager.tests) {
+		/*for (Test test : testManager.tests) {
 			out.write(test.id+", "+test.operations+", "+test.time+"\n");
-		}
+		}*/
 	}
 
 }
