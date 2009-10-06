@@ -66,10 +66,28 @@ public class JbossCacheHashTable {
 		cache.start();
 		
 	}
+	
+	public void insert(Entry par) {
+		String key = getKey(par.getKey());
+		long inicial = System.currentTimeMillis();
+		
+		Fqn fqn = Fqn.fromString(key);
+		Node no = cache.getRoot().addChild(fqn);
+		no.put("k", par.getKey());
+		
+		if(par.getValue() != null){
+			no.put("v", par.getValue());
+		}
+		
+		inicial = System.currentTimeMillis() - inicial;
+		log.info("insert "+inicial);
+		//test.sumOperation(inicial);
+		
+	}
 
 	
-	public Entry<Object, Object> delete(Entry<Object, Object> par) {
-		String key = getKey(par);
+	public Entry<Object, Object> delete(Entry par) {
+		String key = getKey(par.getKey());
 		long inicial = System.currentTimeMillis();
 		
 		Fqn fqn = Fqn.fromString(key);
@@ -113,25 +131,6 @@ public class JbossCacheHashTable {
 		//test.sumOperation(inicial);
 		return retorno;
 	}
-
-	public void insert(Entry par) {
-		String key = getKey(par.getKey());
-		long inicial = System.currentTimeMillis();
-		
-		Fqn fqn = Fqn.fromString(key);
-		Node no = cache.getRoot().addChild(fqn);
-		no.put("k", par.getKey());
-		
-		if(par.getValue() != null){
-			no.put("v", par.getValue());
-		}
-		
-		inicial = System.currentTimeMillis() - inicial;
-		log.info("insert "+inicial);
-		//test.sumOperation(inicial);
-		
-	}
-
 	
 	public void newTest() {
 		//test = testManager.newTest();
