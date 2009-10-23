@@ -95,6 +95,8 @@ public class HashTableServlet extends HttpServlet {
 			listar(request, response, new EntryTO("Opa",(byte)1));
 		}else if("delete".equals(strAcao)){
 			jbossCache.delete(new EntryTO(chave,(byte)1));
+		}else if("primeiro".equals(strAcao)){
+			jbossCache.insert(new EntryTO(chave,valor));
 		}
 		
 	}
