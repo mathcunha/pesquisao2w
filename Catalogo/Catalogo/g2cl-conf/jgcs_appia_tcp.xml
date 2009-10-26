@@ -4,8 +4,7 @@
 
 <appia>
 
-
-<template name="teste_t">
+<template name="teste_tcp">
 	<session name="tcp" sharing="global">
 		<protocol>net.sf.appia.protocols.tcpcomplete.TcpCompleteLayer</protocol>
 	</session>
@@ -61,10 +60,61 @@
 </template>
 
 
+<template name="teste_t">
+	<session name="udp" sharing="global">
+		<protocol>net.sf.appia.protocols.udpsimple.UdpSimpleLayer</protocol>
+	</session>
+	<session name="nakfifo" sharing="private">
+		<protocol>net.sf.appia.protocols.nakfifo.multicast.NakFifoMulticastLayer</protocol>
+	</session>
+	<session name="gbl" sharing="label">
+		<protocol>net.sf.appia.protocols.group.bottom.GroupBottomLayer</protocol>
+	</session>
+	<session name="gol" sharing="label">
+		<protocol>net.sf.appia.protocols.group.heal.GossipOutLayer</protocol>
+	</session>
+	<session name="suspectl" sharing="label">
+		<protocol>net.sf.appia.protocols.group.suspect.SuspectLayer</protocol>
+	</session>		
+	<session name="intral" sharing="label">
+		<protocol>net.sf.appia.protocols.group.intra.IntraLayer</protocol>
+	</session>
+	<session name="interl" sharing="label">
+		<protocol>net.sf.appia.protocols.group.inter.InterLayer</protocol>
+	</session>
+	<session name="hl" sharing="label">
+		<protocol>net.sf.appia.protocols.group.heal.HealLayer</protocol>
+	</session>
+	<session name="stablel" sharing="label">
+		<protocol>net.sf.appia.protocols.group.stable.StableLayer</protocol>
+	</session>
+	<session name="ll" sharing="label">
+		<protocol>net.sf.appia.protocols.group.leave.LeaveLayer</protocol>
+	</session>
+	
+	<session name="vsl" sharing="label">
+		<protocol>net.sf.appia.protocols.group.sync.VSyncLayer</protocol>
+	</session>
+	
+	<session name="loopback" sharing="private">
+		<protocol>net.sf.appia.protocols.loopBack.LoopBackLayer</protocol>
+	</session>
+
+	<session name="atsl" sharing="private">
+		<protocol>net.sf.appia.jgcs.protocols.top.TOPLayer</protocol>
+	</session>
+
+</template>
+
+
 <channel name="canal_teste" template="teste_t" initialized="no">	
 	<chsession name="atsl">
 		<parameter name="gossip_address">224.2.2.2:10000</parameter>
 	</chsession>
+	<chsession name="udp">
+		<parameter name="multicast">224.2.2.5:11000</parameter>
+	</chsession>
+	
 </channel>
 
 
