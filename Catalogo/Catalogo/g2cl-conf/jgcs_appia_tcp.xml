@@ -64,7 +64,7 @@
 	<session name="udp" sharing="global">
 		<protocol>net.sf.appia.protocols.udpsimple.UdpSimpleLayer</protocol>
 	</session>
-	<session name="nakfifo" sharing="private">
+	<session name="nakfifo" sharing="global">
 		<protocol>net.sf.appia.protocols.nakfifo.multicast.NakFifoMulticastLayer</protocol>
 	</session>
 	<session name="gbl" sharing="label">
@@ -100,19 +100,114 @@
 		<protocol>net.sf.appia.protocols.loopBack.LoopBackLayer</protocol>
 	</session>
 
-	<session name="atsl" sharing="private">
+	<session name="atsl" sharing="global">
 		<protocol>net.sf.appia.jgcs.protocols.top.TOPLayer</protocol>
 	</session>
 
 </template>
 
+<template name="udp_matheus">
+	<session name="udp" sharing="global">
+		<protocol>net.sf.appia.protocols.udpsimple.UdpSimpleLayer</protocol>
+	</session>
+	<session name="nakfifo" sharing="global">
+		<protocol>net.sf.appia.protocols.nakfifo.multicast.NakFifoMulticastLayer</protocol>
+	</session>
+	<session name="gbl" sharing="label">
+		<protocol>net.sf.appia.protocols.group.bottom.GroupBottomLayer</protocol>
+	</session>
+	<session name="gol" sharing="label">
+		<protocol>net.sf.appia.protocols.group.heal.GossipOutLayer</protocol>
+	</session>
+	<session name="suspectl" sharing="label">
+		<protocol>net.sf.appia.protocols.group.suspect.SuspectLayer</protocol>
+	</session>		
+	<session name="intral" sharing="label">
+		<protocol>net.sf.appia.protocols.group.intra.IntraLayer</protocol>
+	</session>
+	<session name="interl" sharing="label">
+		<protocol>net.sf.appia.protocols.group.inter.InterLayer</protocol>
+	</session>
+	<session name="hl" sharing="label">
+		<protocol>net.sf.appia.protocols.group.heal.HealLayer</protocol>
+	</session>
+	<session name="stablel" sharing="label">
+		<protocol>net.sf.appia.protocols.group.stable.StableLayer</protocol>
+	</session>
+	<session name="ll" sharing="label">
+		<protocol>net.sf.appia.protocols.group.leave.LeaveLayer</protocol>
+	</session>
 
-<channel name="canal_teste" template="teste_udp" initialized="no">	
+	<!-- session name="total" sharing="private">
+		<protocol>net.sf.appia.protocols.total.sequencer.TotalSequencerLayer</protocol>
+	</session-->
+	<session name="loopback" sharing="private">
+		<protocol>net.sf.appia.protocols.loopBack.LoopBackLayer</protocol>
+	</session>
+
+	<session name="atsl" sharing="private">
+		<protocol>net.sf.appia.jgcs.protocols.top.TOPLayer</protocol>
+	</session>
+</template>
+
+<template name="Udp+NakFifoMulticast Template">
+	<session name="udp" sharing="private">
+		<protocol>net.sf.appia.protocols.udpsimple.UdpSimpleLayer</protocol>
+	</session>
+	<session name="nakfifo" sharing="private">
+		<protocol>net.sf.appia.protocols.nakfifo.multicast.NakFifoMulticastLayer</protocol>
+	</session>
+	<session name="frag" sharing="private">
+		<protocol>net.sf.appia.protocols.frag.FragLayer</protocol>
+	</session>
+	<session name="gbl" sharing="private">
+		<protocol>net.sf.appia.protocols.group.bottom.GroupBottomLayer</protocol>
+	</session>
+	<session name="gol" sharing="private">
+		<protocol>net.sf.appia.protocols.group.heal.GossipOutLayer</protocol>
+	</session>
+	<session name="suspectl" sharing="private">
+		<protocol>net.sf.appia.protocols.group.suspect.SuspectLayer</protocol>
+	</session>		
+	<session name="intral" sharing="private">
+		<protocol>net.sf.appia.protocols.group.intra.IntraLayer</protocol>
+	</session>
+	<session name="interl" sharing="private">
+		<protocol>net.sf.appia.protocols.group.inter.InterLayer</protocol>
+	</session>
+	<session name="hl" sharing="private">
+		<protocol>net.sf.appia.protocols.group.heal.HealLayer</protocol>
+	</session>
+	<session name="stablel" sharing="private">
+		<protocol>net.sf.appia.protocols.group.stable.StableLayer</protocol>
+	</session>
+	<session name="ll" sharing="private">
+		<protocol>net.sf.appia.protocols.group.leave.LeaveLayer</protocol>
+	</session>
+	<session name="vsl" sharing="private">
+		<protocol>net.sf.appia.protocols.group.sync.VSyncLayer</protocol>
+	</session>
+	<session name="loopback" sharing="private">
+		<protocol>net.sf.appia.protocols.loopBack.LoopBackLayer</protocol>
+	</session>
+	<session name="atsl" sharing="private">
+		<protocol>net.sf.appia.jgcs.protocols.top.TOPLayer</protocol>
+	</session>
+</template>
+
+<channel name="canal_teste" template="udp_matheus" initialized="no">	
 	<chsession name="atsl">
-		<parameter name="gossip_address">224.2.2.2:10000</parameter>
-		<parameter name="multicast">224.2.2.5:11000</parameter>
+		<parameter name="gossip_address">224.0.0.1:10000</parameter>
 	</chsession>
 </channel>
+
+
+<!-- channel name="canal_teste" template="Udp+NakFifoMulticast Template" initialized="no">	
+	<chsession name="atsl">
+		<parameter name="gossip_address">224.0.0.3:10001</parameter>		
+	</chsession>
+</channel-->
+
 
 
 </appia>
