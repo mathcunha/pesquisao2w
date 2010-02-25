@@ -8,6 +8,10 @@ import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.xml.sax.SAXException;
+
+import br.unifor.onaga.occi.xml.Storage;
+
 public class OCCIClient {
 	
 	protected static Logger log = Logger.getLogger(OCCIClient.class.getName());
@@ -16,8 +20,8 @@ public class OCCIClient {
 	public static final String password = "oneadmin";
 	public static final String endpoint = "http://localhost:4567";
 
-	public static String list_storage() {
-		String retorno = null;
+	public static Storage list_storage() {
+		Storage storage = null;
 		//<STORAGE>    <DISK href="http://localhost:4567/storage/1"/>    <DISK href="http://localhost:4567/storage/2"/></STORAGE>
 		try {
 			String command = "occi-storage --url " + endpoint + " --user " + username
@@ -27,25 +31,15 @@ public class OCCIClient {
 			
 			Process process = Runtime.getRuntime().exec(command);
 
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					process.getInputStream()));
-			String line = null;
-
-			StringBuffer out = new StringBuffer();
-			while ((line = in.readLine()) != null) {
-				out.append(line);
-			}
-
-			retorno = out.toString();
-			
-			log.log(Level.FINE, retorno);
+			storage = Storage.loadFromInputStream(process.getInputStream());
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.log(Level.SEVERE, e.getMessage(), e);
+		} catch (SAXException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
 		}
 
-		return retorno;
+		return storage;
 	}
 
 	public static File createVMFile(String id) {
@@ -77,8 +71,7 @@ public class OCCIClient {
 			writer.close();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.log(Level.SEVERE, e.getMessage(), e);
 		}
 
 		return file;
