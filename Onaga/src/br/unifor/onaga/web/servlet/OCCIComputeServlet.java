@@ -1,9 +1,7 @@
 package br.unifor.onaga.web.servlet;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.logging.Logger;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,42 +10,36 @@ import javax.servlet.http.HttpServletResponse;
 import br.unifor.onaga.web.OCCIClient;
 
 /**
- * Servlet implementation class OCCIStorageServlet
+ * Servlet implementation class OCCIComputeServlet
  */
-public class OCCIStorageServlet extends HttpServlet {
-	protected Logger log = Logger.getLogger(OCCIStorageServlet.class.getName()); 
-	
+public class OCCIComputeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public OCCIStorageServlet() {
+    public OCCIComputeServlet() {
         super();
         // TODO Auto-generated constructor stub
+    }
+    
+    private void doRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    	String id = (String)request.getParameter("id");
+    	OCCIClient.deploy_vm(id);
     }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doRequest(response);
-	}
-
-	private void doRequest(HttpServletResponse response) throws IOException {
-		String retorno = OCCIClient.list_storage();
-		
-		response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-	    out.print(log.getLevel());
-	    out.print(retorno);
+		doRequest(request, response);
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+		doRequest(request, response);
 	}
 
 }

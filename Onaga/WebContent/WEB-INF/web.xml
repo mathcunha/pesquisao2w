@@ -19,4 +19,14 @@
     <servlet-name>OCCIStorageServlet</servlet-name>
     <url-pattern>/OCCIStorage</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>OCCIComputeServlet</display-name>
+    <servlet-name>OCCIComputeServlet</servlet-name>
+    <servlet-class>br.unifor.onaga.web.servlet.OCCIComputeServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>OCCIComputeServlet</servlet-name>
+    <url-pattern>/OCCICompute</url-pattern>
+  </servlet-mapping>
 </web-app>
