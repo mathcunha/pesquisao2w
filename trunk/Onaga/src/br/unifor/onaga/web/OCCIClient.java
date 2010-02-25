@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import org.xml.sax.SAXException;
 
+import br.unifor.onaga.occi.xml.Disk;
 import br.unifor.onaga.occi.xml.Storage;
 
 public class OCCIClient {
@@ -40,6 +41,27 @@ public class OCCIClient {
 		}
 
 		return storage;
+	}
+	
+	public static Disk show_storage(String id) {
+		Disk disk = null;		
+		try {
+			String command = "occi-storage --url " + endpoint + " --user " + username
+			+ " --password " + password + " show "+id;
+			
+			log.log(Level.FINE, command);
+			
+			Process process = Runtime.getRuntime().exec(command);
+
+			disk = Disk.loadFromInputStream(process.getInputStream());
+
+		} catch (IOException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+		} catch (SAXException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+		}
+
+		return disk;
 	}
 
 	public static File createVMFile(String id) {

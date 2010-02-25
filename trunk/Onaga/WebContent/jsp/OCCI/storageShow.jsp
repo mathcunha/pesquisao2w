@@ -9,9 +9,8 @@
 </head>
 <body>
 <table>
-<c:forEach items="${requestScope.storage.disks}" var="disk" varStatus="status">
-	<tr><td>${disk.href} id ${disk.idFromHref}</td></tr>
-</c:forEach>
+	<tr><td>id</td><td>${disk.id} </td></tr>
+	<tr><td>name</td><td>${disk.name} </td></tr>
 </table>
 </body>
 </html>

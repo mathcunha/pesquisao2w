@@ -2,6 +2,7 @@ package br.unifor.onaga.occi.xml;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.commons.digester.Digester;
 import org.xml.sax.SAXException;
@@ -18,7 +19,7 @@ public class Disk {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(String id) {		
 		this.id = id;
 	}
 
@@ -45,6 +46,16 @@ public class Disk {
 	public void setUrl(String url) {
 		this.url = url;
 	}
+	
+	public String getIdFromHref(){
+		String retorno = null;
+		
+		int last = getHref().lastIndexOf("/");
+		
+		
+		
+		return getHref().substring(last+1, getHref().length());
+	}
 
 	public String getHref() {
 		return href;
@@ -53,18 +64,31 @@ public class Disk {
 	public void setHref(String href) {
 		this.href = href;
 	}
-	
-	public static Disk loadFromFile(File file) throws IOException, SAXException{
-		Digester digester = new Digester();
+
+	public static void config(Digester digester) {
 		digester.addObjectCreate("DISK", Disk.class);
-		digester.addBeanPropertySetter("DISK/ID");
-		digester.addBeanPropertySetter("DISK/NAME");
-		digester.addBeanPropertySetter("DISK/SIZE");
-		digester.addBeanPropertySetter("DISK/URL");
+		//digester.addBeanPropertySetter("DISK/id");
+		digester.addBeanPropertySetter("DISK/ID", "id");
+
+		digester.addBeanPropertySetter("DISK/NAME","name");
+		digester.addBeanPropertySetter("DISK/SIZE","size");
+		digester.addBeanPropertySetter("DISK/URL","url");
 		digester.addBeanPropertySetter("DISK/href");
-		
-		
-		return (Disk)digester.parse(file);
+	}
+
+	public static Disk loadFromFile(File file) throws IOException, SAXException {
+		Digester digester = new Digester();
+
+		config(digester);
+
+		return (Disk) digester.parse(file);
+	}
+
+	public static Disk loadFromInputStream(InputStream input)
+			throws IOException, SAXException {
+		Digester digester = new Digester();
+		config(digester);
+		return (Disk) digester.parse(input);
 	}
 
 }
