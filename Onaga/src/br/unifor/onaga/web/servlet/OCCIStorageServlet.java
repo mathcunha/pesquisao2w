@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import br.unifor.onaga.occi.xml.Storage;
 import br.unifor.onaga.web.OCCIClient;
 
 /**
@@ -31,23 +32,22 @@ public class OCCIStorageServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doRequest(response);
+		doRequest(request, response);
 	}
 
-	private void doRequest(HttpServletResponse response) throws IOException {
-		String retorno = OCCIClient.list_storage();
+	private void doRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		Storage retorno = OCCIClient.list_storage();
 		
-		response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-	    out.print(log.getLevel());
-	    out.print(retorno);
+		
+		request.setAttribute("storage", retorno);
+		request.getRequestDispatcher("/jsp/OCCI/storageList.jsp").forward(request, response);
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+		doRequest(request, response);
 	}
 
 }
