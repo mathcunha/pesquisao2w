@@ -18,7 +18,7 @@ public class OCCIClient {
 
 	public static String list_storage() {
 		String retorno = null;
-
+		//<STORAGE>    <DISK href="http://localhost:4567/storage/1"/>    <DISK href="http://localhost:4567/storage/2"/></STORAGE>
 		try {
 			String command = "occi-storage --url " + endpoint + " --user " + username
 			+ " --password " + password + " list";
@@ -62,9 +62,9 @@ public class OCCIClient {
 			writer.write("		<STATE>PENDING</STATE>");
 			writer.write("		<INSTANCE_TYPE>small</INSTANCE_TYPE>");
 			writer.write("		<STORAGE>");
-			writer.write("			<DISK image=\""+id+"\" dev=\"sda1\"/>");
+			writer.write("			<DISK image=\""+id+"\" dev=\"sda2\"/>");
 
-			writer.write("			<SWAP size=\"1024\" dev=\"sda2\"/>");
+			writer.write("			<SWAP size=\"1024\" dev=\"sda1\"/>");
 			writer.write("		</STORAGE>");
 			writer.write("		<NETWORK>");
 			
