@@ -10,6 +10,8 @@ import java.util.logging.Logger;
 
 import org.xml.sax.SAXException;
 
+import br.unifor.onaga.occi.xml.Compute;
+import br.unifor.onaga.occi.xml.Computes;
 import br.unifor.onaga.occi.xml.Disk;
 import br.unifor.onaga.occi.xml.Storage;
 
@@ -129,8 +131,84 @@ public class OCCIClient {
 			log.log(Level.FINE, retorno);
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.log(Level.SEVERE, e.getMessage(), e);
+		}
+
+		return retorno;
+	}
+	
+	public static Computes list_compute() {
+		Computes retorno = null;
+		//<STORAGE>    <DISK href="http://localhost:4567/storage/1"/>    <DISK href="http://localhost:4567/storage/2"/></STORAGE>
+		try {
+			String command = "occi-compute --url " + endpoint + " --user " + username
+			+ " --password " + password + " list";
+			
+			log.log(Level.FINE, command);
+			
+			Process process = Runtime.getRuntime().exec(command);
+
+			retorno = Computes.loadFromInputStream(process.getInputStream());
+
+		} catch (IOException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+		} catch (SAXException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+		}
+
+		return retorno;
+	}
+	
+	public static Compute show_compute(String id) {
+		Compute retorno = null;
+		try {
+			String command = "occi-compute --url " + endpoint + " --user " + username
+			+ " --password " + password + " show "+id;
+			
+			log.log(Level.FINE, command);
+			
+			Process process = Runtime.getRuntime().exec(command);
+
+			retorno = Compute.loadFromInputStream(process.getInputStream());
+
+		} catch (IOException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+		} catch (SAXException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+		}
+
+		return retorno;
+	}
+	
+	public static String delete_compute(String id) {
+		String retorno = null;
+
+		try {
+			
+			String command = 
+				"occi-compute --url " + endpoint + " --user " + username
+				+ " --password " + password + " delete "+id;
+			
+			log.log(Level.FINE, command);
+			
+			Process process = Runtime.getRuntime().exec(command);
+
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					process.getInputStream()));
+			String line = null;
+
+			StringBuffer out = new StringBuffer();
+			while ((line = in.readLine()) != null) {
+				out.append(line);
+			}
+
+			
+			retorno = out.toString();
+			
+			log.log(Level.FINE, retorno);
+
+		} catch (IOException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
 		}
 
 		return retorno;
