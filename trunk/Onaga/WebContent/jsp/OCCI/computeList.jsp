@@ -9,8 +9,8 @@
 </head>
 <body>
 <table>
-<c:forEach items="${requestScope.storage.disks}" var="disk" varStatus="status">
-	<tr><td>${disk.href}</td> <td><a href="<c:url value="OCCIStorage?acao=show&id=${disk.idFromHref}"/>">Detalhar</a></td></tr>
+<c:forEach items="${requestScope.items.computes}" var="item" varStatus="status">
+	<tr><td>${item.href}</td> <td><a href="<c:url value="OCCICompute?acao=show&id=${item.idFromHref}"/>">Detalhar</a></td></tr>
 </c:forEach>
 </table>
 </body>

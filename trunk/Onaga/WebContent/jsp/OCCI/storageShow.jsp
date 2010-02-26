@@ -9,8 +9,12 @@
 </head>
 <body>
 <table>
+
 	<tr><td>id</td><td>${disk.id} </td></tr>
 	<tr><td>name</td><td>${disk.name} </td></tr>
+	<tr><td>url</td><td>${disk.url} </td></tr>
+	<tr><td>size</td><td>${disk.size} </td></tr>
+	<tr><td colspan="1"><a href="<c:url value="OCCICompute?acao=create&id=${disk.id}"/>">Nova!</a></td></tr>
 </table>
 </body>
 </html>

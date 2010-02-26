@@ -48,13 +48,17 @@ public class Disk {
 	}
 	
 	public String getIdFromHref(){
-		String retorno = null;
+		int last = getHref().lastIndexOf("/");		
+		String str = getHref().substring(last+1, getHref().length()).trim();
+		String retorno = "";
+        
+        for (int i = 0; i < str.length(); i++) {
+            if (Character.isDigit(str.charAt(i))){            	
+            	retorno = retorno + str.charAt(i);
+            }
+        }
 		
-		int last = getHref().lastIndexOf("/");
-		
-		
-		
-		return getHref().substring(last+1, getHref().length());
+		return retorno;
 	}
 
 	public String getHref() {

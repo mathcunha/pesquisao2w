@@ -29,24 +29,24 @@ public class Storage {
 		disks.add(disk);
 	}
 
-	public static void config(Digester digester) {
-		digester.addObjectCreate("STORAGE", Storage.class);
-		digester.addObjectCreate("STORAGE/DISK", Disk.class);		
-		digester.addSetProperties("STORAGE/DISK","href","href");
-		digester.addSetNext("STORAGE/DISK", "addDisk");
+	public static void config(Digester digester, String level) {
+		digester.addObjectCreate(level+"STORAGE", Storage.class);
+		digester.addObjectCreate(level+"STORAGE/DISK", Disk.class);		
+		digester.addSetProperties(level+"STORAGE/DISK","href","href");
+		digester.addSetNext(level+"STORAGE/DISK", "addDisk");
 	}
 
 	public static Storage loadFromFile(File file) throws IOException,
 			SAXException {
 		Digester digester = new Digester();
-		config(digester);
+		config(digester,"");
 		return (Storage) digester.parse(file);
 	}
 
 	public static Storage loadFromInputStream(InputStream input)
 			throws IOException, SAXException {
 		Digester digester = new Digester();
-		config(digester);
+		config(digester,"");
 		return (Storage) digester.parse(input);
 	}
 }
