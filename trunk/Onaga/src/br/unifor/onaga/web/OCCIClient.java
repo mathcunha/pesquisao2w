@@ -74,22 +74,22 @@ public class OCCIClient {
 		
 		try {
 			FileWriter writer = new FileWriter(file);
-			writer.write("	<COMPUTE>");
-			writer.write("		<ID>0</ID>");
-			writer.write("		<NAME>"+file.getName()+"</NAME>");
-			writer.write("		<STATE>PENDING</STATE>");
-			writer.write("		<INSTANCE_TYPE>small</INSTANCE_TYPE>");
-			writer.write("		<STORAGE>");
-			writer.write("			<DISK image=\""+id+"\" dev=\"sda2\"/>");
+			writer.write("	<COMPUTE> \n");
+			writer.write("		<ID>0</ID> \n");
+			writer.write("		<NAME>"+file.getName()+"</NAME> \n");
+			writer.write("		<STATE>PENDING</STATE> \n");
+			writer.write("		<INSTANCE_TYPE>small</INSTANCE_TYPE> \n");
+			writer.write("		<STORAGE> \n");
+			writer.write("			<DISK image=\""+id+"\" dev=\"sda2\"/> \n");
 
-			writer.write("			<SWAP size=\"1024\" dev=\"sda1\"/>");
-			writer.write("		</STORAGE>");
-			writer.write("		<NETWORK>");
+			writer.write("			<SWAP size=\"1024\" dev=\"sda1\"/> \n");
+			writer.write("		</STORAGE> \n");
+			writer.write("		<NETWORK> \n");
 			
-			writer.write("			<NIC network=\"0\" />");
+			writer.write("			<NIC network=\"0\" /> \n");
 
-			writer.write("		</NETWORK>");
-			writer.write("	</COMPUTE>");
+			writer.write("		</NETWORK> \n");
+			writer.write("	</COMPUTE> \n");
 			
 			writer.flush();
 			writer.close();
