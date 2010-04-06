@@ -1,4 +1,4 @@
-package br.unifor.onaga.ejb;
+package br.unifor.onaga.ejb.session;
 import javax.ejb.Local;
 
 @Local
