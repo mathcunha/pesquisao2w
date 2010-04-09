@@ -1,7 +1,13 @@
+import javax.ejb.EJB;
+
+import br.unifor.onaga.ejb.session.RegisterSessionRemote;
+
 
 public class Main {
+	@EJB
+	RegisterSessionRemote session;
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		Main nada = new Main();
 	}
 
 	/* (non-Java-doc)
@@ -9,6 +15,7 @@ public class Main {
 	 */
 	public Main() {
 		super();
+		session.addVirtualMachine("matheus", "ip", "info");
 	}
 
 }
