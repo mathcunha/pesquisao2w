@@ -4,7 +4,7 @@ import br.unifor.onaga.ejb.session.RegisterSessionRemote;
 
 
 public class Main {
-	@EJB(mappedName="RegisterSession")
+	@EJB
 	RegisterSessionRemote session;
 	public static void main(String[] args) {
 		Main nada = new Main();
@@ -16,7 +16,7 @@ public class Main {
 	public Main() {
 		super();
 		System.out.println("Matheus Cunha!");
-		session.addVirtualMachine("matheus", "ip", "info");
+		//session.addVirtualMachine("matheus", "ip", "info");
 	}
 
 }

@@ -3,11 +3,11 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="5"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/application-client_5.xsd">
 
- <display-name>A sample application client</display-name>
+ <display-name>ONAGA EJB application client</display-name>
 
  <ejb-ref>
    <ejb-ref-name>ejb/RegisterSession</ejb-ref-name>
    <remote>br.unifor.onaga.ejb.session.RegisterSessionRemote</remote>
-   <ejb-link>RegisterSession</ejb-link>
+   <!--ejb-link>RegisterSession</ejb-link-->
  </ejb-ref>
 </application-client>
