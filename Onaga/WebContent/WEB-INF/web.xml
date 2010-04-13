@@ -29,4 +29,14 @@
     <servlet-name>OCCIComputeServlet</servlet-name>
     <url-pattern>/OCCICompute</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>VirtualApplianceServlet</display-name>
+    <servlet-name>VirtualApplianceServlet</servlet-name>
+    <servlet-class>br.unifor.onaga.web.servlet.virtualappliance.VirtualApplianceServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>VirtualApplianceServlet</servlet-name>
+    <url-pattern>/VirtualApplianceServlet</url-pattern>
+  </servlet-mapping>
 </web-app>
