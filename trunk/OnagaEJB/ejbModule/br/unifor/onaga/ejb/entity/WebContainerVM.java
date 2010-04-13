@@ -18,7 +18,6 @@ public class WebContainerVM extends VirtualMachine {
 	private static final long serialVersionUID = 1L;
 
 	private String jk_route;
-	private String webContext;
 	private String jmxUrl;
 	private List<WebContext> contexts;
 
@@ -38,15 +37,6 @@ public class WebContainerVM extends VirtualMachine {
 
 	public void setJmxUrl(String jmxUrl) {
 		this.jmxUrl = jmxUrl;
-	}
-
-	public void setWebContext(String webContext) {
-		this.webContext = webContext;
-	}
-
-	@Column(name = "VW_CONTEXT", length = 30, nullable = false)
-	public String getWebContext() {
-		return webContext;
 	}
 
 	public void setContexts(List<WebContext> contexts) {
