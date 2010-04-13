@@ -30,12 +30,14 @@ public class Main_JNDI {
 
         VirtualAppliance appliance = new VirtualAppliance();
         appliance.setName(args[0]);
-        appliance = (VirtualAppliance) businessItf.add(appliance);
-        System.out.println(appliance.toString());
+        
+        appliance = (VirtualAppliance) businessItf.getOrInsert(appliance);
+        
+        
         
         
         VirtualMachine machine = new VirtualMachine();
-        machine.setName(args[1]);
+        machine.setName(args[1]); 
         machine.setIp(args[2]);
         machine.setVirtualAppliance(appliance);
         businessItf.add(machine);

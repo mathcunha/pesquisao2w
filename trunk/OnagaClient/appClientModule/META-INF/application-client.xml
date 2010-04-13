@@ -8,6 +8,6 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
  <ejb-ref>
    <ejb-ref-name>ejb/RegisterSession</ejb-ref-name>
    <remote>br.unifor.onaga.ejb.session.RegisterSessionRemote</remote>
-   <!--ejb-link>RegisterSession</ejb-link-->
+   <ejb-link>OnagaEJB.jar#RegisterSession</ejb-link>
  </ejb-ref>
 </application-client>
