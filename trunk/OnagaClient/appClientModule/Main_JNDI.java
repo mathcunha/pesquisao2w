@@ -1,8 +1,11 @@
+import java.util.Date;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import br.unifor.onaga.ejb.entity.VirtualAppliance;
 import br.unifor.onaga.ejb.entity.VirtualMachine;
+import br.unifor.onaga.ejb.entity.WebContainerVM;
 import br.unifor.onaga.ejb.session.RegisterSessionRemote;
 
 
@@ -42,6 +45,11 @@ public class Main_JNDI {
         machine.setVirtualAppliance(appliance);
         businessItf.add(machine);
         
+        WebContainerVM vm = new WebContainerVM(); 
+        vm.setIp(machine.getIp()+"12");
+        vm.setJmxUrl(JNDI_NAME+(new Date()));
+        vm.setVirtualAppliance(appliance);
+        businessItf.add(vm);
     }
 
 
