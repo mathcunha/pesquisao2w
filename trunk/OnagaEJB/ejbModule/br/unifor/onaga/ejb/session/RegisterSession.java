@@ -16,6 +16,8 @@ import javax.persistence.PersistenceContext;
 import br.unifor.onaga.ejb.entity.OnagaEntityAB;
 import br.unifor.onaga.ejb.entity.VirtualAppliance;
 import br.unifor.onaga.ejb.entity.VirtualMachine;
+import br.unifor.onaga.ejb.entity.WebContainerVM;
+import br.unifor.onaga.rn.WebContainerRN;
 
 /**
  * Session Bean implementation class RegisterSession
@@ -25,6 +27,8 @@ import br.unifor.onaga.ejb.entity.VirtualMachine;
 @TransactionManagement(TransactionManagementType.CONTAINER)
 public class RegisterSession implements RegisterSessionRemote,
 		RegisterSessionLocal {
+
+	private WebContainerRN webContainerRn = new WebContainerRN();
 
 	@PersistenceContext(unitName = "onaga")
 	private EntityManager em;
@@ -39,27 +43,42 @@ public class RegisterSession implements RegisterSessionRemote,
 
 	}
 
-	public List<OnagaEntityAB> findAll(VirtualAppliance virtual){
+	public List<OnagaEntityAB> findAll(VirtualAppliance virtual) {
 		return em.createNamedQuery("findAllVirtualAppliance").getResultList();
 	}
-	
+
 	public OnagaEntityAB getOrInsert(OnagaEntityAB entity) {
 		OnagaEntityAB retorno = entity;
-		
-        try {
-            retorno = (OnagaEntityAB) em.createNamedQuery(entity.getDefaultNamedQuery()).setParameter("name", entity.getName()).getSingleResult();            
-        } catch (NoResultException e) {
-            add(entity);
-        }
 
-        return retorno;
-    }
+		try {
+			retorno = (OnagaEntityAB) em.createNamedQuery(
+					entity.getDefaultNamedQuery()).setParameter("name",
+					entity.getName()).getSingleResult();
+		} catch (NoResultException e) {
+			add(entity);
+		}
+
+		return retorno;
+	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public OnagaEntityAB add(OnagaEntityAB onagaEntity) {
-		
+
 		em.persist(onagaEntity);
 		System.out.println(onagaEntity.toString());
+		return onagaEntity;
+	}
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public WebContainerVM add(WebContainerVM onagaEntity) {
+		onagaEntity
+				.setVirtualAppliance((VirtualAppliance) getOrInsert(onagaEntity
+						.getVirtualAppliance()));
+		
+		em.persist(webContainerRn.getNewWebContainerVM(onagaEntity));
+		
+		System.out.println(onagaEntity.toString());
+		
 		return onagaEntity;
 	}
 }
