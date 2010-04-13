@@ -11,4 +11,7 @@ OnagaEAR</display-name>
   <module>
     <ejb>OnagaEJB.jar</ejb>
   </module>
+  <module>
+    <java>OnagaClient.jar</java>
+  </module>
 </application>
