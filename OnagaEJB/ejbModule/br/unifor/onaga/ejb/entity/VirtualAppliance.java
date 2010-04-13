@@ -8,6 +8,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -15,6 +17,16 @@ import javax.persistence.Transient;
 
 @Entity(name="VirtualAppliance")
 @Table(name = "VA_VIRTUAL_APPLIANCE")
+@NamedQueries({
+  @NamedQuery(name="findVirtualApplianceByName",
+              query="SELECT o " +
+                    "FROM VirtualAppliance o " +
+                    "WHERE o.name = :name "),
+                    
+  @NamedQuery(name="findAllVirtualAppliance",
+              query="SELECT o " +
+                    "FROM VirtualAppliance o ")
+})
 public class VirtualAppliance extends OnagaEntityAB {
 	/**
 	 * 
@@ -83,5 +95,10 @@ public class VirtualAppliance extends OnagaEntityAB {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+
+	@Transient
+	public String getDefaultNamedQuery() {		
+		return "findVirtualApplianceByName";
 	}
 }

@@ -1,5 +1,7 @@
 package br.unifor.onaga.ejb.session;
 
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.Stateless;
@@ -8,6 +10,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 import br.unifor.onaga.ejb.entity.OnagaEntityAB;
@@ -36,31 +39,27 @@ public class RegisterSession implements RegisterSessionRemote,
 
 	}
 
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public VirtualMachine addVirtualMachine(VirtualMachine virtualMachine) {
-
-		em.persist(virtualMachine);
-		System.out.println(virtualMachine.toString());
-		return virtualMachine;
+	public List<OnagaEntityAB> findAll(VirtualAppliance virtual){
+		return em.createNamedQuery("findAllVirtualAppliance").getResultList();
 	}
+	
+	public OnagaEntityAB getOrInsert(OnagaEntityAB entity) {
+		OnagaEntityAB retorno = entity;
+		
+        try {
+            retorno = (OnagaEntityAB) em.createNamedQuery(entity.getDefaultNamedQuery()).setParameter("name", entity.getName()).getSingleResult();            
+        } catch (NoResultException e) {
+            add(entity);
+        }
 
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public VirtualAppliance addVirtualAppliance(
-			VirtualAppliance virtualAppliance) {
-
-		em.persist(virtualAppliance);
-		System.out.println(virtualAppliance.toString());
-		return virtualAppliance;
-	}
+        return retorno;
+    }
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public OnagaEntityAB add(OnagaEntityAB onagaEntity) {
-		if (onagaEntity instanceof VirtualMachine) {
-			return addVirtualMachine((VirtualMachine) onagaEntity);
-		} else if (onagaEntity instanceof VirtualAppliance) {
-			return addVirtualAppliance((VirtualAppliance) onagaEntity);
-		}
-		em.flush();
-		return null;
+		
+		em.persist(onagaEntity);
+		System.out.println(onagaEntity.toString());
+		return onagaEntity;
 	}
 }

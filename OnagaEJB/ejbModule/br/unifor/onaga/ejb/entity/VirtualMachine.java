@@ -7,11 +7,24 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity(name = "VirtualMachine")
 @Table(name = "VM_VIRTUAL_MACHINE")
+@NamedQueries({
+  @NamedQuery(name="findVirtualMachineByName",
+              query="SELECT o " +
+                    "FROM VirtualMachine o " +
+                    "WHERE o.name = :name "),
+                    
+  @NamedQuery(name="findAllVirtualMachine",
+              query="SELECT o " +
+                    "FROM VirtualMachine o ")
+})
 public class VirtualMachine extends OnagaEntityAB {
 	/**
 	 * 
@@ -91,6 +104,12 @@ public class VirtualMachine extends OnagaEntityAB {
     @JoinColumn(name = "VM_VA_ID", nullable = false, updatable = false)
 	public VirtualAppliance getVirtualAppliance() {
 		return virtualAppliance;
+	}
+
+	@Transient
+	public String getDefaultNamedQuery() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
