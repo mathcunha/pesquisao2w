@@ -5,6 +5,7 @@
 	<projects>
 		<project>Onaga</project>
 		<project>OnagaEJB</project>
+		<project>OnagaClient</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
