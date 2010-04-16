@@ -32,8 +32,8 @@ public class JonasWebContainerConfig implements Runnable {
 	@Override
 	public void run() {
 		config(virtualAppliance);
-		simpleConfig.run();
 		simpleConfig.setConfigInfo(new JonasWebContainerConfigInfo(vm));
+		simpleConfig.run();
 	}
 
 	public void config(String virtualAppliance) {
