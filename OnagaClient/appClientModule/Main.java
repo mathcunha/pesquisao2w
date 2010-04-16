@@ -1,13 +1,13 @@
 import javax.ejb.EJB;
 
+import br.unifor.onaga.config.JonasWebContainerConfig;
 import br.unifor.onaga.ejb.session.RegisterSessionRemote;
 
 
 public class Main {
-	@EJB
-	RegisterSessionRemote session;
+	
 	public static void main(String[] args) {
-		Main nada = new Main();
+		JonasWebContainerConfig.main(args);
 	}
 
 	/* (non-Java-doc)
