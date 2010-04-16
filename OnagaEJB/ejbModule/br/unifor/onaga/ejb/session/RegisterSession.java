@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
+import br.unifor.onaga.ejb.entity.ApacheVM;
 import br.unifor.onaga.ejb.entity.OnagaEntityAB;
 import br.unifor.onaga.ejb.entity.VirtualAppliance;
 import br.unifor.onaga.ejb.entity.VirtualMachine;
@@ -74,16 +75,41 @@ public class RegisterSession implements RegisterSessionRemote,
 		onagaEntity
 				.setVirtualAppliance((VirtualAppliance) getOrInsert(onagaEntity
 						.getVirtualAppliance()));
-		
+
 		List<WebContext> contexts = new ArrayList<WebContext>();
 		for (WebContext webContext : onagaEntity.getContexts()) {
-			contexts.add((WebContext)getOrInsert(webContext));
+			contexts.add((WebContext) getOrInsert(webContext));
 		}
 		onagaEntity = webContainerRn.getNewWebContainerVM(onagaEntity);
 		onagaEntity.setContexts(contexts);
-		
+
 		em.persist(onagaEntity);
-		
+
 		return onagaEntity;
+	}
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public ApacheVM add(ApacheVM onagaEntity) {
+		try {
+			return (ApacheVM) em.createNamedQuery(
+					onagaEntity.getDefaultNamedQuery()).setParameter("name",
+					onagaEntity.getName()).getSingleResult();
+		} catch (NoResultException e) {
+			onagaEntity
+					.setVirtualAppliance((VirtualAppliance) getOrInsert(onagaEntity
+							.getVirtualAppliance()));
+
+			List<WebContext> contexts = new ArrayList<WebContext>();
+			for (WebContext webContext : onagaEntity.getContexts()) {
+				contexts.add((WebContext) getOrInsert(webContext));
+			}
+
+			onagaEntity.setContexts(contexts);
+
+			em.persist(onagaEntity);
+
+			return onagaEntity;
+		}
+
 	}
 }

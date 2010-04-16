@@ -18,6 +18,7 @@ public class WebContainerVM extends VirtualMachine {
 	private static final long serialVersionUID = 1L;
 
 	private String jk_route;
+	private String ajp_port;
 	private String jmxUrl;
 	private List<WebContext> contexts;
 
@@ -50,5 +51,14 @@ public class WebContainerVM extends VirtualMachine {
 	      inverseJoinColumns={@JoinColumn(name="VW_WC_WC_ID", referencedColumnName="WC_ID")})
 	public List<WebContext> getContexts() {
 		return contexts;
+	}
+
+	public void setAjp_port(String ajp_port) {
+		this.ajp_port = ajp_port;
+	}
+
+	@Column(name = "VW_AJP_PORT", length = 6, nullable = false, unique=false)
+	public String getAjp_port() {
+		return ajp_port;
 	}
 }
