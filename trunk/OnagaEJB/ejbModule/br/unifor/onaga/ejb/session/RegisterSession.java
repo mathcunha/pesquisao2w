@@ -1,5 +1,6 @@
 package br.unifor.onaga.ejb.session;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +18,7 @@ import br.unifor.onaga.ejb.entity.OnagaEntityAB;
 import br.unifor.onaga.ejb.entity.VirtualAppliance;
 import br.unifor.onaga.ejb.entity.VirtualMachine;
 import br.unifor.onaga.ejb.entity.WebContainerVM;
+import br.unifor.onaga.ejb.entity.WebContext;
 import br.unifor.onaga.rn.WebContainerRN;
 
 /**
@@ -63,9 +65,7 @@ public class RegisterSession implements RegisterSessionRemote,
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public OnagaEntityAB add(OnagaEntityAB onagaEntity) {
-
 		em.persist(onagaEntity);
-		System.out.println(onagaEntity.toString());
 		return onagaEntity;
 	}
 
@@ -75,9 +75,14 @@ public class RegisterSession implements RegisterSessionRemote,
 				.setVirtualAppliance((VirtualAppliance) getOrInsert(onagaEntity
 						.getVirtualAppliance()));
 		
-		em.persist(webContainerRn.getNewWebContainerVM(onagaEntity));
+		List<WebContext> contexts = new ArrayList<WebContext>();
+		for (WebContext webContext : onagaEntity.getContexts()) {
+			contexts.add((WebContext)getOrInsert(webContext));
+		}
+		onagaEntity = webContainerRn.getNewWebContainerVM(onagaEntity);
+		onagaEntity.setContexts(contexts);
 		
-		System.out.println(onagaEntity.toString());
+		em.persist(onagaEntity);
 		
 		return onagaEntity;
 	}
