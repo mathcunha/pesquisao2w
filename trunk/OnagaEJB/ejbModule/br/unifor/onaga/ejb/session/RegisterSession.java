@@ -55,7 +55,7 @@ public class RegisterSession implements RegisterSessionRemote,
 					entity.getDefaultNamedQuery()).setParameter("name",
 					entity.getName()).getSingleResult();
 		} catch (NoResultException e) {
-			add(entity);
+			retorno = add(entity);
 		}
 
 		return retorno;
