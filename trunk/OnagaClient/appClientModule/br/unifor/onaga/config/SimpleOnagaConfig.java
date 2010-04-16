@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -14,13 +13,9 @@ import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.naming.NamingException;
-
-import br.unifor.onaga.config.util.Util;
-import br.unifor.onaga.ejb.session.RegisterSessionRemote;
-
 public class SimpleOnagaConfig implements Runnable {
-	public static final String ONAGA_END = "<!--Onaga End-->";
+	public final String ONAGA_END ;
+	public final String ONAGA_BEGIN ;
 	protected final String FILE_NAME;
 	protected SimpleConfigInfo configInfo;
 
@@ -31,8 +26,10 @@ public class SimpleOnagaConfig implements Runnable {
 	protected static Logger log = Logger.getLogger(SimpleOnagaConfig.class
 			.getName());
 
-	public SimpleOnagaConfig(String fileName) {
+	public SimpleOnagaConfig(String fileName, String patternBegin, String patternEnd) {
 		FILE_NAME = fileName;
+		ONAGA_END = patternEnd;
+		ONAGA_BEGIN = patternBegin;
 	}
 
 	@Override
@@ -47,7 +44,7 @@ public class SimpleOnagaConfig implements Runnable {
 			File tmpFileOut = new File("tmp_file");
 			FileWriter tmpWriter = new FileWriter(tmpFileOut, false);
 
-			char[] onagaTokenIni = "<!--Onaga Begin-->".toCharArray();
+			char[] onagaTokenIni = ONAGA_BEGIN.toCharArray();
 			int index_onaga_ini = 0;
 
 			char[] onagaTokenFim = ONAGA_END.toCharArray();
@@ -117,9 +114,9 @@ public class SimpleOnagaConfig implements Runnable {
 			fileOutput.close();
 
 		} catch (FileNotFoundException e) {
-			log.log(Level.SEVERE, "arquivo não encontrado", e);
+			log.log(Level.SEVERE, "arquivo nï¿½o encontrado", e);
 		} catch (IOException e) {
-			log.log(Level.SEVERE, "erro ao ler o arquivo de configuração", e);
+			log.log(Level.SEVERE, "erro ao ler o arquivo de configuraï¿½ï¿½o", e);
 		}
 
 	}
@@ -152,32 +149,9 @@ public class SimpleOnagaConfig implements Runnable {
 		if (configInfo != null) {
 			return configInfo.getConfInfo();
 		}
-		return "SimpleConfigInfo não informado";
+		return "SimpleConfigInfo nï¿½o informado";
 	}
-
-	public void lineRead(String linha) {
-		String token = "<!--Onaga Begin-->";
-		if (token.equals(linha)) {
-			System.out.println(linha);
-		} else {
-			System.out.println("(" + linha + ")");
-		}
-	}
-
-	public static void main(String[] args) {
-		if (args.length == 0) {
-			SimpleOnagaConfig lJonasWebContainerConfig = new SimpleOnagaConfig(
-					"C:\\jonas-full-5.1.1\\conf\\matheus.txt");
-			lJonasWebContainerConfig.run();
-		} else {
-
-			SimpleOnagaConfig lJonasWebContainerConfig = new SimpleOnagaConfig(
-					args[0]);
-			lJonasWebContainerConfig.run();
-		}
-
-	}
-
+	
 	public static interface SimpleConfigInfo {
 		String getConfInfo();
 	}
