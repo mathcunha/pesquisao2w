@@ -3,6 +3,9 @@ package br.unifor.onaga.config;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,6 +13,7 @@ import br.unifor.onaga.config.SimpleOnagaConfig.SimpleConfigInfo;
 import br.unifor.onaga.config.util.Util;
 import br.unifor.onaga.ejb.entity.VirtualAppliance;
 import br.unifor.onaga.ejb.entity.WebContainerVM;
+import br.unifor.onaga.ejb.entity.WebContext;
 
 public class JonasWebContainerConfig implements Runnable {
 
@@ -20,13 +24,16 @@ public class JonasWebContainerConfig implements Runnable {
 	protected String virtualAppliance;
 	protected Logger log = Logger.getLogger(JonasWebContainerConfig.class
 			.getName());
+	protected ResourceBundle settingsResource;
 
-	public JonasWebContainerConfig(String jonasHome, String virtualAppliance) {
-		JONAS_HOME = jonasHome;
+	public JonasWebContainerConfig() {
+		settingsResource = ResourceBundle.getBundle("vm_onaga");
+		
+		JONAS_HOME = settingsResource.getString("vm.web.home");
+		this.virtualAppliance = settingsResource.getString("vm.virtualappliance");
+		
 		simpleConfig = new SimpleOnagaConfig(JONAS_HOME + File.separator
 				+ "conf" + File.separator + FILE_NAME);
-		
-		this.virtualAppliance = virtualAppliance;
 	}
 
 	@Override
@@ -49,7 +56,16 @@ public class JonasWebContainerConfig implements Runnable {
 		} catch (UnknownHostException e) {
 			log.log(Level.SEVERE, "ip nao disponivel", e);
 		}
-		novaVM.setJmxUrl("http://"+novaVM.getIp()+":1099/");
+		novaVM.setJmxUrl("http://"+novaVM.getIp()+settingsResource.getString("vm.web.jmx_port"));
+		
+		String[] contextos = settingsResource.getString("vm.web.context").split(",");
+		novaVM.setContexts(new ArrayList<WebContext>());
+		
+		for (String contexto : contextos) {
+			WebContext webContext = new WebContext();
+			webContext.setName(contexto);
+			novaVM.getContexts().add(webContext);
+		}
 		
 		novaVM = Util.getRegisterSession().add(novaVM);
 		this.vm = novaVM;
@@ -68,13 +84,12 @@ public class JonasWebContainerConfig implements Runnable {
 					+ vm.getVirtualAppliance().getName()
 					+ "\" defaultHost=\"localhost\" jvmRoute=\""
 					+ vm.getJk_route() + "\">" + "\n" + "</Engine>";
-			// TODO Auto-generated method stub
 			return config;
 		}
 
 	}
 	public static void main(String[] args){
-		JonasWebContainerConfig lJonasWebContainerConfig = new JonasWebContainerConfig(args[0], args[1]);
+		JonasWebContainerConfig lJonasWebContainerConfig = new JonasWebContainerConfig();
 		lJonasWebContainerConfig.run();		
 	}
 }
