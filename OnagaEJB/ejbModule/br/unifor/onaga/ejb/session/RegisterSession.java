@@ -91,9 +91,13 @@ public class RegisterSession implements RegisterSessionRemote,
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public ApacheVM add(ApacheVM onagaEntity) {
 		try {
-			return (ApacheVM) em.createNamedQuery(
+			ApacheVM retorno = (ApacheVM) em.createNamedQuery(
 					onagaEntity.getDefaultNamedQuery()).setParameter("name",
 					onagaEntity.getName()).getSingleResult();
+			retorno.getContexts().size();
+			
+			onagaEntity = retorno;
+			return retorno;
 		} catch (NoResultException e) {
 			onagaEntity
 					.setVirtualAppliance((VirtualAppliance) getOrInsert(onagaEntity
