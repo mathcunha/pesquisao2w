@@ -1,5 +1,6 @@
 package br.unifor.onaga.config;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -26,11 +27,12 @@ public class ApacheConfig implements Runnable {
 	protected ResourceBundle settingsResource;
 
 	public ApacheConfig() {
-		simpleConfig = new SimpleOnagaConfig(FILE_NAME, "##Onaga Begin##",
-				"##Onaga End##");
-		settingsResource = ResourceBundle.getBundle("vm_onaga");
 
+		settingsResource = ResourceBundle.getBundle("vm_onaga");
 		CONF_DIR = settingsResource.getString("vm.web.home");
+
+		simpleConfig = new SimpleOnagaConfig(CONF_DIR + File.separator
+				+ FILE_NAME, "##Onaga Begin##", "##Onaga End##");
 	}
 
 	public void config() {
@@ -101,7 +103,11 @@ public class ApacheConfig implements Runnable {
 
 					String vms = "";
 
-					if (vm.getContexts().get(i).getWebVMs() != null) {
+					if (vm.getContexts().get(i).getWebVMs() != null
+							&& vm.getContexts().get(i).getWebVMs().size() > 0) {
+
+						worker_list += vm.getContexts().get(i).getName() + ",";
+
 						for (WebContainerVM webVM : vm.getContexts().get(i)
 								.getWebVMs()) {
 							String lWorker = "#-----------------------\n# "
@@ -116,13 +122,20 @@ public class ApacheConfig implements Runnable {
 									+ ".lbfactor=1 \n";
 
 							worker.add(lWorker);
+							vms += webVM.getName() + ",";
 						}
-					}
 
-					worker_balance[i] += "worker."
-							+ vm.getContexts().get(i).getName()
-							+ ".balance_workers=" + vms + "\n";
-					vms = "";
+						if (vms.length() > 0) {
+							vms = vms.substring(0, vms.length() - 1);
+						}
+
+						worker_balance[i] += "worker."
+								+ vm.getContexts().get(i).getName()
+								+ ".balance_workers=" + vms + "\n";
+						vms = "";
+					} else {
+						worker_balance[i] = "";
+					}
 				}
 
 				for (String string : worker) {
@@ -133,7 +146,7 @@ public class ApacheConfig implements Runnable {
 				}
 			}
 
-			worker_list += "jkstatus";
+			worker_list += "jkstatus\n";
 
 			config = worker_list + config + "worker.jkstatus.type=status \n";
 
