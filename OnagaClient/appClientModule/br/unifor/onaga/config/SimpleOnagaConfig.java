@@ -86,8 +86,22 @@ public class SimpleOnagaConfig implements Runnable {
 							position_fim = inChannel.position() - current + i
 									+ 1;
 
-							tmpWriter.write("\n" + getNewConf() + "\n"
-									+ ONAGA_END);
+							String newText = "\n" + getNewConf() + "\n" + ONAGA_END;
+							tmpWriter.write(newText);
+							
+							int diff = (new Long(position_fim - position_ini - newText.getBytes().length)).intValue();
+							if(diff > 0){
+								char[] buffer = new char[diff];
+								
+								for (int k = 0; k < buffer.length; k++) {
+									buffer[k] = ' ';
+									
+								}
+								System.out.println(diff+" tem diferença! "+buffer.length); 
+								
+								tmpWriter.write(buffer);
+								
+							}
 
 							System.out.println(tmpFileOut.getAbsolutePath());
 							continue;
@@ -114,9 +128,9 @@ public class SimpleOnagaConfig implements Runnable {
 			fileOutput.close();
 
 		} catch (FileNotFoundException e) {
-			log.log(Level.SEVERE, "arquivo nï¿½o encontrado", e);
+			log.log(Level.SEVERE, "arquivo nao encontrado", e);
 		} catch (IOException e) {
-			log.log(Level.SEVERE, "erro ao ler o arquivo de configuraï¿½ï¿½o", e);
+			log.log(Level.SEVERE, "erro ao ler o arquivo de configuracao", e);
 		}
 
 	}
@@ -149,7 +163,7 @@ public class SimpleOnagaConfig implements Runnable {
 		if (configInfo != null) {
 			return configInfo.getConfInfo();
 		}
-		return "SimpleConfigInfo nï¿½o informado";
+		return "SimpleConfigInfo nao informado";
 	}
 	
 	public static interface SimpleConfigInfo {
