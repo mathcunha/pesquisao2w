@@ -8,7 +8,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import br.unifor.onaga.config.ApacheConfig.ApacheConfigInfo;
+import br.unifor.onaga.config.JonasWebContainerConfig.JonasWebContainerConfigInfo;
+import br.unifor.onaga.ejb.entity.ApacheVM;
 import br.unifor.onaga.ejb.entity.VirtualAppliance;
+import br.unifor.onaga.ejb.entity.VirtualMachine;
+import br.unifor.onaga.ejb.entity.WebContainerVM;
 import br.unifor.onaga.ejb.session.RegisterSessionRemote;
 
 /**
@@ -17,10 +22,9 @@ import br.unifor.onaga.ejb.session.RegisterSessionRemote;
 public class VirtualApplianceServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	protected RegisterSessionRemote registerSession;
-	
+
 	@EJB(name = "RegisterSession")
-	public void setCalculator(RegisterSessionRemote session)
-	{
+	public void setCalculator(RegisterSessionRemote session) {
 		registerSession = session;
 	}
 
@@ -53,19 +57,41 @@ public class VirtualApplianceServlet extends HttpServlet {
 	private void doRequest(HttpServletRequest request,
 			HttpServletResponse response) throws IOException, ServletException {
 		String acao = request.getParameter("acao");
-		
 
 		if ("list".equals(acao)) {
 			list(request, response);
+		} else if ("show".equals(acao)) {
+			show(request, response);
 		}
 
 	}
 
+	private void show(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		Long id = new Long(request.getParameter("id"));
+		VirtualMachine machine = new VirtualMachine();
+		
+		machine.setId(id);
+		
+		machine = registerSession.get(machine);
+		
+		if(ApacheVM.TYPE.equals(machine.getType())){
+			request.setAttribute("config", (new ApacheConfigInfo((ApacheVM)machine)).getConfInfo());
+		}else if(WebContainerVM.TYPE.equals(machine.getType())){
+			request.setAttribute("config", (new JonasWebContainerConfigInfo((WebContainerVM)machine)).getConfInfo());
+		}
+
+		request.setAttribute("list", registerSession
+				.findAll(new VirtualAppliance()));
+		request.getRequestDispatcher("/jsp/VirtualAppliance/list.jsp").forward(
+				request, response);
+	}
+
 	private void list(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
-		
-		request.setAttribute("list", registerSession.findAll(new VirtualAppliance()));
+
+		request.setAttribute("list", registerSession
+				.findAll(new VirtualAppliance()));
 		request.getRequestDispatcher("/jsp/VirtualAppliance/list.jsp").forward(
 				request, response);
 	}

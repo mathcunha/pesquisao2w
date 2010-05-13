@@ -8,6 +8,9 @@
 <title>Virtual Appliances</title>
 </head>
 <body>
+<pre>
+${config}
+</pre>
 <table>
 	<c:forEach items="${requestScope.list}" var="item" varStatus="status">
 		<tr>
@@ -20,7 +23,7 @@
 				<c:forEach items="${item.virtualMachines}" var="item_inner"
 					varStatus="status_inner">
 					<tr>
-						<td>${item_inner.name}</td>
+						<td><a href="<c:url value="/VirtualApplianceServlet"/>?acao=show&id=${item_inner.id}">${item_inner.name}</a></td>
 						<td>${item_inner.id}</td>
 					</tr>
 				</c:forEach>
