@@ -7,6 +7,7 @@ import javax.ejb.Remote;
 import br.unifor.onaga.ejb.entity.ApacheVM;
 import br.unifor.onaga.ejb.entity.OnagaEntityAB;
 import br.unifor.onaga.ejb.entity.VirtualAppliance;
+import br.unifor.onaga.ejb.entity.VirtualMachine;
 import br.unifor.onaga.ejb.entity.WebContainerVM;
 
 @Remote
@@ -20,4 +21,6 @@ public interface RegisterSessionRemote {
 	List<OnagaEntityAB> findAll(VirtualAppliance virtual);
 
 	OnagaEntityAB getOrInsert(OnagaEntityAB onagaEntity);
+	
+	VirtualMachine get(VirtualMachine onagaEntity);
 }

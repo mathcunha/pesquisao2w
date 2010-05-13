@@ -22,11 +22,16 @@ import javax.persistence.Transient;
 				+ "FROM ApacheVM o ") })
 public class ApacheVM extends VirtualMachine {
 
+	public static final String TYPE = "APACH";
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private List<WebContext> contexts;
+	
+	public ApacheVM(){
+		setType(TYPE);
+	}
 
 	public void setContexts(List<WebContext> contexts) {
 		this.contexts = contexts;

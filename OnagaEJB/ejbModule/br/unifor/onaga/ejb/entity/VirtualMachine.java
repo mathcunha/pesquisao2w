@@ -37,6 +37,7 @@ public class VirtualMachine extends OnagaEntityAB {
 	private String ip;
 	private Long id;
 	private VirtualAppliance virtualAppliance;
+	private String type;
 
 	@Column(name = "VM_NAME", length = 255, nullable = false, unique=true)
 	public String getName() {
@@ -113,6 +114,15 @@ public class VirtualMachine extends OnagaEntityAB {
 	public String getDefaultNamedQuery() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	@Column(name = "VM_TYPE", length = 5, nullable = false, unique=false)
+	public String getType() {
+		return type;
 	}
 
 }

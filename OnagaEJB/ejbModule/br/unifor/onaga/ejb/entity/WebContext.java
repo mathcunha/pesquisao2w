@@ -8,7 +8,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
@@ -21,7 +23,7 @@ import javax.persistence.Transient;
   @NamedQuery(name="findWebContextByName",
               query="SELECT o " +
                     "FROM WebContext o " +
-                    "WHERE o.name = :name "),
+                    "WHERE o.name = :name and o.virtualAppliance.id = :id "),
                     
   @NamedQuery(name="findAllWebContext",
               query="SELECT o " +
@@ -37,13 +39,14 @@ public class WebContext extends OnagaEntityAB {
 	private Long id;
 	private List<WebContainerVM> webVMs;
 	private List<ApacheVM> apacheVMs;
+	private VirtualAppliance virtualAppliance;
 	
 	@Transient
 	public String getDefaultNamedQuery() {
 		return "findWebContextByName";
 	}
 
-	@Column(name = "WC_NAME", length = 255, nullable = false, unique=true)
+	@Column(name = "WC_NAME", length = 255, nullable = false, unique=false)
 	public String getName() {
 		return name;
 	}
@@ -80,6 +83,16 @@ public class WebContext extends OnagaEntityAB {
 	@ManyToMany(mappedBy="contexts")
 	public List<ApacheVM> getApacheVMs() {
 		return apacheVMs;
+	}
+
+	public void setVirtualAppliance(VirtualAppliance virtualAppliance) {
+		this.virtualAppliance = virtualAppliance;
+	}
+
+	@ManyToOne(optional = false,fetch=FetchType.LAZY)
+    @JoinColumn(name = "VC_VA_ID", nullable = false, updatable = false)
+	public VirtualAppliance getVirtualAppliance() {
+		return virtualAppliance;
 	}
 
 }

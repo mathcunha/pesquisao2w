@@ -18,19 +18,18 @@ public class WebContainerRN {
 				if (lVm instanceof WebContainerVM) {
 					names.add(((WebContainerVM) lVm).getJk_route());
 				}
-				Collections.sort(names);
-
-				String name = "W_" + names.size();
-
-				vm.setJk_route(name);
-
-				vm.setName(name);
-
 			}
-		}else{
-			vm.setJk_route("W_0");
+			Collections.sort(names);
 
-			vm.setName("W_0");
+			String name = vm.getVirtualAppliance().getName()+"_W_" + names.size();
+
+			vm.setJk_route(name);
+
+			vm.setName(name);
+		}else{
+			vm.setJk_route(vm.getVirtualAppliance().getName()+"_W_0");
+
+			vm.setName(vm.getVirtualAppliance().getName()+"_W_0");
 		}
 		return vm;
 	}

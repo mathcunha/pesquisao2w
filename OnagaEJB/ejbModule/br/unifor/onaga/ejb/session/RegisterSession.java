@@ -13,6 +13,7 @@ import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import br.unifor.onaga.ejb.entity.ApacheVM;
 import br.unifor.onaga.ejb.entity.OnagaEntityAB;
@@ -49,6 +50,21 @@ public class RegisterSession implements RegisterSessionRemote,
 	public List<OnagaEntityAB> findAll(VirtualAppliance virtual) {
 		return em.createNamedQuery("findAllVirtualAppliance").getResultList();
 	}
+	
+	public WebContext getOrInsert(WebContext entity) {
+		WebContext retorno = entity;
+
+		try {
+			Query query = em.createNamedQuery(entity.getDefaultNamedQuery());
+			query.setParameter("name",entity.getName());
+			query.setParameter("id",entity.getVirtualAppliance().getId());
+			retorno = (WebContext) query.getSingleResult();
+		} catch (NoResultException e) {
+			retorno = (WebContext) add(entity);
+		}
+
+		return retorno;
+	}
 
 	public OnagaEntityAB getOrInsert(OnagaEntityAB entity) {
 		OnagaEntityAB retorno = entity;
@@ -78,6 +94,7 @@ public class RegisterSession implements RegisterSessionRemote,
 
 		List<WebContext> contexts = new ArrayList<WebContext>();
 		for (WebContext webContext : onagaEntity.getContexts()) {
+			webContext.setVirtualAppliance(onagaEntity.getVirtualAppliance());
 			contexts.add((WebContext) getOrInsert(webContext));
 		}
 		onagaEntity = webContainerRn.getNewWebContainerVM(onagaEntity);
@@ -105,6 +122,7 @@ public class RegisterSession implements RegisterSessionRemote,
 
 			List<WebContext> contexts = new ArrayList<WebContext>();
 			for (WebContext webContext : onagaEntity.getContexts()) {
+				webContext.setVirtualAppliance(onagaEntity.getVirtualAppliance());
 				contexts.add((WebContext) getOrInsert(webContext));
 			}
 
@@ -115,5 +133,18 @@ public class RegisterSession implements RegisterSessionRemote,
 			return onagaEntity;
 		}
 
+	}
+
+	@Override
+	public VirtualMachine get(VirtualMachine onagaEntity) {
+		
+		VirtualMachine lVirtual = em.find(VirtualMachine.class, onagaEntity.getId());
+		if(ApacheVM.TYPE.equals(lVirtual.getType())){
+			return em.find(ApacheVM.class, onagaEntity.getId());
+		}else if(WebContainerVM.TYPE.equals(lVirtual.getType())){
+			return em.find(WebContainerVM.class, onagaEntity.getId());
+		}else{
+			return lVirtual;
+		}
 	}
 }

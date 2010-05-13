@@ -12,6 +12,8 @@ import javax.persistence.Table;
 @Entity(name="WebContainerVM")
 @Table(name = "VW_WEB_VM")
 public class WebContainerVM extends VirtualMachine {
+	public static final String TYPE = "WEBTI";
+
 	/**
 	 * 
 	 */
@@ -21,6 +23,10 @@ public class WebContainerVM extends VirtualMachine {
 	private String ajp_port;
 	private String jmxUrl;
 	private List<WebContext> contexts;
+	
+	public WebContainerVM(){
+		setType(TYPE);
+	}
 
 	@Column(name = "VW_JK_ROUTE", length = 15, nullable = false, unique=true)
 	public String getJk_route() {
