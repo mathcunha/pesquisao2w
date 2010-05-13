@@ -75,7 +75,7 @@ public class ApacheConfig implements Runnable {
 
 	}
 
-	public class ApacheConfigInfo implements SimpleConfigInfo {
+	public static class ApacheConfigInfo implements SimpleConfigInfo {
 		ApacheVM vm;
 
 		public ApacheConfigInfo(ApacheVM vm) {

@@ -49,13 +49,21 @@ public class JonasWebContainerConfig implements Runnable {
 
 		WebContainerVM novaVM = new WebContainerVM();
 		novaVM.setVirtualAppliance(appliance);
-		try {
-			novaVM.setIp(InetAddress.getLocalHost().getHostAddress());
-		} catch (UnknownHostException e) {
-			log.log(Level.SEVERE, "ip nao disponivel", e);
+		String ip = settingsResource.getString("vm.ip");
+		if (ip == null) {
+			try {
+				novaVM.setIp(InetAddress.getLocalHost().getHostAddress());
+			} catch (UnknownHostException e) {
+				log.log(Level.SEVERE, "ip nao disponivel", e);
+			}
+		} else {
+			novaVM.setIp(ip);
 		}
+
 		novaVM.setJmxUrl("http://" + novaVM.getIp()
 				+ settingsResource.getString("vm.web.jmx_port"));
+		
+		novaVM.setAjp_port(settingsResource.getString("vm.web.ajp_port"));
 
 		String[] contextos = settingsResource.getString("vm.web.context")
 				.split(",");
@@ -71,7 +79,7 @@ public class JonasWebContainerConfig implements Runnable {
 		this.vm = novaVM;
 	}
 
-	public class JonasWebContainerConfigInfo implements SimpleConfigInfo {
+	public static class JonasWebContainerConfigInfo implements SimpleConfigInfo {
 		WebContainerVM vm;
 
 		public JonasWebContainerConfigInfo(WebContainerVM vm) {
