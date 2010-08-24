@@ -295,11 +295,16 @@ public class GerarPlanilha implements Runnable {
 		}
 		return list;
 	}
+	public static void teste() {
+		new GerarPlanilha(new File(""), new int[] { 4 ,6 }, new int[] { 10,
+				100}, 2, new String[] { "teste" }, new int[] { 2});
+	}
 
 	public static void main(String[] args) {
 		GerarPlanilha lGerarPlanilha = new GerarPlanilha(new File(args[0]));
 		Thread thread = new Thread(lGerarPlanilha);
 		thread.start();
+		
 	}
 
 }
