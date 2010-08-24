@@ -59,7 +59,7 @@ public class GerarPlanilha implements Runnable {
 						for (int tamMensagem : tamMensagems) {
 							List<Info> list = new ArrayList<Info>(numCliente
 									* repeticao);
-							
+
 							for (int i = 1; i <= repeticao; i++) {
 								nome = diretorio.getAbsolutePath()
 										+ File.separatorChar + camada
@@ -72,20 +72,20 @@ public class GerarPlanilha implements Runnable {
 								BufferedReader buffer = new BufferedReader(
 										reader);
 
-								list.addAll(carregarArquivo(buffer, sheet,
-										numCliente));
+								list.addAll(carregarArquivo(buffer, numCliente));
 
 								buffer.close();
 								reader.close();
 
 							}
-							
-							
-							
+
 							Object estat[] = gerarEstatisticas(list);
-							
-							log.info(sheet.getSheetName()+" "+rownum+" " +numCliente +" "+tamMensagem+" "+estat[0]+" "+estat[1]+" "+estat[2]+" "+estat[3]+" ");
-							
+
+							log.info(sheet.getSheetName() + " " + rownum + " "
+									+ numCliente + " " + tamMensagem + " "
+									+ estat[0] + " " + estat[1] + " "
+									+ estat[2] + " " + estat[3] + " ");
+
 							HSSFRow row = sheet.createRow(rownum++);
 							int columnnum = 0;
 
@@ -209,8 +209,8 @@ public class GerarPlanilha implements Runnable {
 		return sheet;
 	}
 
-	public List<Info> carregarArquivo(BufferedReader buffer, HSSFSheet sheet,
-			int j) throws IOException {
+	public List<Info> carregarArquivo(BufferedReader buffer, int j)
+			throws IOException {
 		String linha = null;
 		int i = 0;
 		List<Info> list = new ArrayList<Info>(j);
@@ -228,7 +228,7 @@ public class GerarPlanilha implements Runnable {
 				} else {
 					info.setTime(info.getTtime());
 				}
-				HSSFRow row = sheet.createRow(i);
+
 				info.setId(i++);
 				/*
 				 * int k = 0; HSSFCell cell = row.createCell(k++,
