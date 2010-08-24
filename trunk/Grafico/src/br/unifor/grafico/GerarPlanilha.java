@@ -31,7 +31,7 @@ public class GerarPlanilha implements Runnable {
 
 	public GerarPlanilha(File diretorio) {
 		this(diretorio, new int[] { 50, 60, 70, 80, 90, 100 }, new int[] { 10,
-				100, 1000, 10000 }, 60, new String[] { "g2cl" }, new int[] { 2,
+				100, 1000, 10000 }, 60, new String[] { "g2cl-jgroups","g2cl-spread","g2cl-appia","jgroups" }, new int[] { 2,
 				4, 6 });
 	}
 
@@ -91,10 +91,10 @@ public class GerarPlanilha implements Runnable {
 							
 							{
 								int k = 0;
-								estat[k] = estat[k++]/60;
-								estat[k] = estat[k++]/60;
-								estat[k] = estat[k++]/60;
-								estat[k] = estat[k++]/60;
+								estat[k] = estat[k++]/repeticao;
+								estat[k] = estat[k++]/repeticao;
+								estat[k] = estat[k++]/repeticao;
+								estat[k] = estat[k++]/repeticao;
 							}
 
 							
