@@ -57,8 +57,9 @@ public class GerarPlanilha implements Runnable {
 					for (int numCliente : numClientes) {
 
 						for (int tamMensagem : tamMensagems) {
-							List<Info> list = new ArrayList<Info>(numCliente
-									* repeticao);
+							Double estat[]  = new Double[]{0d,0d,0d,0d,0d,0d};
+							
+							double tempototal[] = new double[repeticao];
 
 							for (int i = 1; i <= repeticao; i++) {
 								nome = diretorio.getAbsolutePath()
@@ -72,14 +73,31 @@ public class GerarPlanilha implements Runnable {
 								BufferedReader buffer = new BufferedReader(
 										reader);
 
-								list.addAll(carregarArquivo(buffer, numCliente));
+								List<Info> list = carregarArquivo(buffer, numCliente);
 
 								buffer.close();
 								reader.close();
+								
+								Double lEstat[] = gerarEstatisticas(list);
+								int k = 0;
+								estat[k] += lEstat[k++];
+								estat[k] += lEstat[k++];
+								estat[k] += lEstat[k++];
+								estat[k] += lEstat[k++];
+								
+								tempototal[i-1] = new Double(list.get(list.size()-1).getTtime());
 
 							}
+							
+							{
+								int k = 0;
+								estat[k] = estat[k++]/60;
+								estat[k] = estat[k++]/60;
+								estat[k] = estat[k++]/60;
+								estat[k] = estat[k++]/60;
+							}
 
-							Object estat[] = gerarEstatisticas(list);
+							
 
 							log.info(sheet.getSheetName() + " " + rownum + " "
 									+ numCliente + " " + tamMensagem + " "
@@ -99,19 +117,32 @@ public class GerarPlanilha implements Runnable {
 
 							cell = row.createCell(columnnum++,
 									HSSFCell.CELL_TYPE_NUMERIC);
-							cell.setCellValue((Integer) estat[0]);
+							cell.setCellValue(estat[0]);
 
 							cell = row.createCell(columnnum++,
 									HSSFCell.CELL_TYPE_NUMERIC);
-							cell.setCellValue((Integer) estat[1]);
+							cell.setCellValue(estat[1]);
 
 							cell = row.createCell(columnnum++,
 									HSSFCell.CELL_TYPE_NUMERIC);
-							cell.setCellValue((Double) estat[2]);
+							cell.setCellValue(estat[2]);
 
 							cell = row.createCell(columnnum++,
 									HSSFCell.CELL_TYPE_NUMERIC);
-							cell.setCellValue((Double) estat[3]);
+							cell.setCellValue(estat[3]);
+							
+							Double soma = 0d ;
+							for (Double valor : tempototal) {
+								soma += valor;
+							}
+							StandardDeviation desvio = new StandardDeviation();
+							cell = row.createCell(columnnum++,
+									HSSFCell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(soma/repeticao);
+							
+							cell = row.createCell(columnnum++,
+									HSSFCell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(desvio.evaluate(tempototal));
 						}
 					}
 				}
@@ -128,8 +159,8 @@ public class GerarPlanilha implements Runnable {
 		}
 	}
 
-	private Object[] gerarEstatisticas(List<Info> list) {
-		Object[] retorno = new Object[4];
+	private Double[] gerarEstatisticas(List<Info> list) {
+		Double[] retorno = new Double[4];
 		Integer menor = Integer.MAX_VALUE;
 		Integer maior = Integer.MIN_VALUE;
 		double array[] = new double[list.size()];
@@ -151,8 +182,8 @@ public class GerarPlanilha implements Runnable {
 
 		StandardDeviation desvio = new StandardDeviation();
 
-		retorno[0] = menor;
-		retorno[1] = maior;
+		retorno[0] = new Double(menor);
+		retorno[1] = new Double(maior);
 		retorno[2] = new Double(soma / (list.size()));
 		retorno[3] = new Double(desvio.evaluate(array));
 
@@ -172,16 +203,22 @@ public class GerarPlanilha implements Runnable {
 		cell.setCellValue("TAM_MENSAGEM");
 
 		cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
-		cell.setCellValue("MENOR");
+		cell.setCellValue("MEDIA_MENOR_TEMPO_REQUEST");
 
 		cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
-		cell.setCellValue("MAIOR");
+		cell.setCellValue("MEDIA_MAIOR_TEMPO_REQUEST");
 
 		cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
-		cell.setCellValue("MEDIA");
+		cell.setCellValue("MEDIA_POR_REQUEST");
 
 		cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
-		cell.setCellValue("DESVIO");
+		cell.setCellValue("DESVIO_POR_REQUEST");
+		
+		cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
+		cell.setCellValue("MEDIA_TEMPO_TOTAL");
+
+		cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
+		cell.setCellValue("DESVIO_TEMPO_TOTAL");
 
 		/*
 		 * HSSFCell cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
