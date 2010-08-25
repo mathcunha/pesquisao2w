@@ -25,6 +25,7 @@ public class GerarPlanilha implements Runnable {
 	public final String[] camadas;
 	public final int repeticao;
 	public final File diretorio;
+	private Integer[] numClientesObject;
 
 	protected static final Logger log = Logger.getLogger(GerarPlanilha.class
 			.getName());
@@ -37,6 +38,11 @@ public class GerarPlanilha implements Runnable {
 
 	public GerarPlanilha(File diretorio, int[] numClientes, int[] tamMensagem,
 			int repeticao, String[] camada, int[] numMaquinas) {
+		this.numClientesObject = new Integer[numClientes.length];
+		
+		for (int x = 0; x < numClientes.length; x++) {
+			this.numClientesObject[x] = numClientes[x];
+		}
 		this.numClientes = numClientes;
 		this.tamMensagems = tamMensagem;
 		this.repeticao = repeticao;
@@ -45,10 +51,28 @@ public class GerarPlanilha implements Runnable {
 		this.numMaquinas = numMaquinas;
 	}
 
+	
 	public void run() {
+
 		String nome = "";
 		try {
 			HSSFWorkbook workbook = new HSSFWorkbook();
+			
+			for (int nm : numMaquinas) {
+				for (int tm : tamMensagems) {
+					criarResumo(workbook, nm, tm);
+				}
+			}
+			
+			
+			/*
+			FileOutputStream outPut2 = new FileOutputStream(new File(
+					diretorio.getAbsolutePath() + File.separatorChar
+							+ "planilha.xls"));
+			workbook.write(outPut2);
+			System.exit(0);*/
+			
+			
 			for (String camada : camadas) {
 				for (int numMaquina : numMaquinas) {
 					int rownum = 1;
@@ -135,11 +159,19 @@ public class GerarPlanilha implements Runnable {
 							for (Double valor : tempototal) {
 								soma += valor;
 							}
-							StandardDeviation desvio = new StandardDeviation();
+							
 							cell = row.createCell(columnnum++,
 									HSSFCell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(soma/repeticao);
+							cell.setCellValue(soma/repeticao); // media
+							System.out.println("Escrevendo média: " + soma
+									/ repeticao + "/ camada: " + camada
+									+ " / numCliente: " + numCliente
+									+ " / numMaquina: " + numMaquina
+									+ " / tamMensagem: " + tamMensagem);
 							
+							writeItemResumo(workbook, camada, numCliente, numMaquina, tamMensagem, soma/repeticao);
+							
+							StandardDeviation desvio = new StandardDeviation();
 							cell = row.createCell(columnnum++,
 									HSSFCell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(desvio.evaluate(tempototal));
@@ -157,6 +189,29 @@ public class GerarPlanilha implements Runnable {
 		} catch (IOException e) {
 			log.log(Level.SEVERE, nome, e);
 		}
+	}
+
+	private void writeItemResumo(HSSFWorkbook workbook, String camada, int numCliente, int numMaquina,
+			int tamMensagem, double media) {
+		HSSFSheet sheet = workbook.getSheet("resumo_cluster" + numMaquina + "_msg" + tamMensagem);
+		int row = findPosInArray(this.numClientesObject, new Integer(numCliente)) + 1;
+		int column = findPosInArray(this.camadas, camada) + 1;
+		writeCell(sheet, row, column, media, HSSFCell.CELL_TYPE_NUMERIC);
+	}
+	
+
+
+	private int findPosInArray(Object[] array, Object camada) {
+		int found = -1;
+		for (int x = 0; x < array.length; x++) {
+			if (camada.equals(array[x])) {
+				found = x;
+				break;
+			}
+		}
+		// TEM QUE FUNFAR.. não quero tratar lá :) 
+		assert found >= 0;
+		return found;
 	}
 
 	private Double[] gerarEstatisticas(List<Info> list) {
@@ -190,6 +245,38 @@ public class GerarPlanilha implements Runnable {
 		return retorno;
 	}
 
+	private HSSFSheet criarResumo(HSSFWorkbook workbook, int numMaquinas, int tamMensagens) {
+		HSSFSheet sheet = workbook.createSheet("resumo_cluster" + numMaquinas + "_msg" + tamMensagens);
+		writeCell(sheet, 0, 0, "CLIENTES", HSSFCell.CELL_TYPE_STRING);
+		for (int x = 0; x < this.camadas.length; x++) {
+			writeCell(sheet, 0, (x+1), this.camadas[x], HSSFCell.CELL_TYPE_STRING);
+		}
+		
+		for (int x = 0; x < this.numClientes.length; x++) {
+			writeCell(sheet, (x+1), 0, ""+numClientes[x], HSSFCell.CELL_TYPE_STRING);
+		}
+		return sheet;
+	}
+	
+
+	private void writeCell(HSSFSheet sheet, int row, int column, Object value, int tipo) {
+		HSSFRow hrow = sheet.getRow(row);
+		if (hrow == null) {
+			hrow = sheet.createRow(row);
+		}
+		HSSFCell cell = hrow.getCell(column);
+		if (cell == null) {
+			cell = hrow.createCell(column, tipo);
+		}
+		if (tipo == HSSFCell.CELL_TYPE_STRING) 
+			cell.setCellValue((String) value);
+		if (tipo == HSSFCell.CELL_TYPE_NUMERIC) {
+			cell.setCellValue((Double) value);
+		}
+	}
+	
+	
+	
 	private HSSFSheet newSheet(HSSFWorkbook workbook, String camada,
 			int numMaquina, int numCliente, int tamMensagem, int repeticao) {
 		HSSFSheet sheet = workbook.createSheet(camada + "_" + numMaquina);
@@ -301,7 +388,9 @@ public class GerarPlanilha implements Runnable {
 	}
 
 	public static void main(String[] args) {
-		GerarPlanilha lGerarPlanilha = new GerarPlanilha(new File(args[0]));
+		String file = args[0];
+		//String file = "/home/henrique/resultados/";
+		GerarPlanilha lGerarPlanilha = new GerarPlanilha(new File(file));
 		Thread thread = new Thread(lGerarPlanilha);
 		thread.start();
 		
