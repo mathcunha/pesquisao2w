@@ -21,7 +21,7 @@ public class TestManager {
 
 	public class Test{
 		public final Integer id;
-		public Integer time = 0 ;
+		public Long time = 0l ;
 		public Integer operations = 0;
 		
 		private Test(Integer id){
