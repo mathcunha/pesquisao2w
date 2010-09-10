@@ -47,7 +47,15 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>HashTableServlet</servlet-name>
-    <url-pattern>/HashTableServlet</url-pattern>
+    <url-pattern>/cluster2</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>HashTableServlet</servlet-name>
+    <url-pattern>/cluster4</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>HashTableServlet</servlet-name>
+    <url-pattern>/cluster6</url-pattern>
   </servlet-mapping>
   <session-config>
   	<session-timeout>1</session-timeout>
