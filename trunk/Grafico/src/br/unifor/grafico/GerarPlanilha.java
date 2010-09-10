@@ -6,7 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +34,7 @@ public class GerarPlanilha implements Runnable {
 
 	public GerarPlanilha(File diretorio) {
 		this(diretorio, new int[] { 50, 60, 70, 80, 90, 100 }, new int[] { 10,
-				100, 1000, 10000 }, 60, new String[] { "g2cl-jgroups","g2cl-spread","g2cl-appia","jgroups" }, new int[] { 2,
+				100, 1000, 10000 }, 60, new String[] { "g2cl_jgroups", /*"g2cl-spread","g2cl-appia","jgroups"*/ }, new int[] { 2,
 				4, 6 });
 	}
 
@@ -155,21 +157,24 @@ public class GerarPlanilha implements Runnable {
 									HSSFCell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(estat[3]);
 							
-							Double soma = 0d ;
-							for (Double valor : tempototal) {
-								soma += valor;
-							}
+							///////////////////////////////////////////
+							
+//							Double soma = 0d ;
+//							for (Double valor : tempototal) {
+//								soma += valor;
+//							}
+							double media = mediaCortandoOutliers(tempototal);
 							
 							cell = row.createCell(columnnum++,
 									HSSFCell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(soma/repeticao); // media
-							System.out.println("Escrevendo média: " + soma
-									/ repeticao + "/ camada: " + camada
+							cell.setCellValue(media); // media
+							System.out.println("Escrevendo média: " + media +
+									"/ camada: " + camada
 									+ " / numCliente: " + numCliente
 									+ " / numMaquina: " + numMaquina
 									+ " / tamMensagem: " + tamMensagem);
 							
-							writeItemResumo(workbook, camada, numCliente, numMaquina, tamMensagem, soma/repeticao);
+							writeItemResumo(workbook, camada, numCliente, numMaquina, tamMensagem, media);
 							
 							StandardDeviation desvio = new StandardDeviation();
 							cell = row.createCell(columnnum++,
@@ -189,6 +194,8 @@ public class GerarPlanilha implements Runnable {
 		} catch (IOException e) {
 			log.log(Level.SEVERE, nome, e);
 		}
+		
+		System.out.println("FIM!!");
 	}
 
 	private void writeItemResumo(HSSFWorkbook workbook, String camada, int numCliente, int numMaquina,
@@ -307,29 +314,6 @@ public class GerarPlanilha implements Runnable {
 		cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
 		cell.setCellValue("DESVIO_TEMPO_TOTAL");
 
-		/*
-		 * HSSFCell cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
-		 * cell.setCellValue("id");
-		 * 
-		 * cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
-		 * cell.setCellValue("starttime");
-		 * 
-		 * cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
-		 * cell.setCellValue("seconds");
-		 * 
-		 * cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
-		 * cell.setCellValue("ctime");
-		 * 
-		 * cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
-		 * cell.setCellValue("dtime");
-		 * 
-		 * cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
-		 * cell.setCellValue("ttime");
-		 * 
-		 * cell = row.createCell(i++, HSSFCell.CELL_TYPE_STRING);
-		 * cell.setCellValue("wait");
-		 */
-
 		return sheet;
 	}
 
@@ -354,46 +338,104 @@ public class GerarPlanilha implements Runnable {
 				}
 
 				info.setId(i++);
-				/*
-				 * int k = 0; HSSFCell cell = row.createCell(k++,
-				 * HSSFCell.CELL_TYPE_NUMERIC); cell.setCellValue(info.getId());
-				 * 
-				 * cell = row.createCell(k++, HSSFCell.CELL_TYPE_STRING);
-				 * cell.setCellValue(info.getStarttime());
-				 * 
-				 * cell = row.createCell(k++, HSSFCell.CELL_TYPE_NUMERIC);
-				 * cell.setCellValue(info.getSeconds());
-				 * 
-				 * cell = row.createCell(k++, HSSFCell.CELL_TYPE_NUMERIC);
-				 * cell.setCellValue(info.getCtime());
-				 * 
-				 * cell = row.createCell(k++, HSSFCell.CELL_TYPE_NUMERIC);
-				 * cell.setCellValue(info.getDtime());
-				 * 
-				 * cell = row.createCell(k++, HSSFCell.CELL_TYPE_NUMERIC);
-				 * cell.setCellValue(info.getTtime());
-				 * 
-				 * cell = row.createCell(k++, HSSFCell.CELL_TYPE_NUMERIC);
-				 * cell.setCellValue(info.getWait());
-				 */
-
 			}
 
 		}
 		return list;
 	}
-	public static void teste() {
-		new GerarPlanilha(new File(""), new int[] { 4 ,6 }, new int[] { 10,
-				100}, 2, new String[] { "teste" }, new int[] { 2});
-	}
+	
+	
 
 	public static void main(String[] args) {
-		String file = args[0];
-		//String file = "/home/henrique/resultados/";
+		String file = "/home/henrique/resultados/";
 		GerarPlanilha lGerarPlanilha = new GerarPlanilha(new File(file));
 		Thread thread = new Thread(lGerarPlanilha);
 		thread.start();
+	}
+
+	
+	/**
+	 * método boxplot baseado no código do garotinho.
+	 * 
+	 * @param dados
+	 * @return
+	 */
+	private static double mediaCortandoOutliers(double[] dados) {
+		List<Double> l = new ArrayList<Double>();
+		for (double d : dados) {
+			l.add(d);
+		}
+		return mediaCortandoOutliers(l);
+	}
+	
+	private static double mediaCortandoOutliers(List<Double> dados) {
+		Collections.sort(dados);
+		BigDecimal somatorio = new BigDecimal(0);
+		int numAmostrasValidas = 0;
 		
+		int tamanhoAmostra = dados.size();
+		int porcao = new BigDecimal(tamanhoAmostra).divide(new BigDecimal(4),
+				0, BigDecimal.ROUND_HALF_EVEN).intValue();
+		
+		if (porcao > 0) {
+			Double q1 = dados.get(porcao - 1);
+			Double q3 = dados.get(3 * porcao - 1);
+			Double d = new BigDecimal(q3).subtract(new BigDecimal(q1))
+					.doubleValue();
+
+			Double limiteInferior = new BigDecimal(q1).subtract(
+					new BigDecimal(d)).doubleValue();
+			Double limiteSuperior = new BigDecimal(q3).add(new BigDecimal(d))
+					.doubleValue();
+
+			for (int ii = 0; ii < dados.size(); ii++) {
+				boolean outlier = false;
+				Double dado = dados.get(ii);
+				if (dado < limiteInferior || dado > limiteSuperior) {
+					outlier = true;
+				}
+				
+				System.out.printf("DADO: %f / oulier: %s%n", dado, outlier);
+				if (!outlier) {
+					somatorio = somatorio.add(new BigDecimal(dado));
+					numAmostrasValidas++;
+				}
+			}
+		}
+		
+		return somatorio.divide(new BigDecimal(numAmostrasValidas),
+				0, BigDecimal.ROUND_HALF_EVEN).doubleValue();
+	}
+	
+	
+	
+	private static void testBoxPlot() {
+		List<Double> teste = new ArrayList<Double>();
+		teste.add(10.2);
+		teste.add(12.2);
+		teste.add(15.3);
+		teste.add(13.3);
+		teste.add(11.3);
+		teste.add(17.3);
+		teste.add(12.3);
+		teste.add(3.3);
+		teste.add(4.3);
+		teste.add(0.3);
+		teste.add(14.3);
+		teste.add(16.3);
+		teste.add(11.3);
+		teste.add(11.3);
+		teste.add(13.1);
+		teste.add(11.3);
+		teste.add(13.7);
+		teste.add(11.5);
+		teste.add(13.1);
+		teste.add(13.3);
+		teste.add(18.3);
+		teste.add(30.3);
+		teste.add(60.3);
+		teste.add(10.3);
+		System.out.println(mediaCortandoOutliers(teste));
 	}
 
 }
